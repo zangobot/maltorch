@@ -1,0 +1,7 @@
+torch
+torchvision
+scikit-learn
+foolbox
+secml2
+lightgbm
+git+https://github.com/elastic/ember.git
