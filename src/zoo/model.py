@@ -88,6 +88,9 @@ class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
     def embedding_matrix(self):
         return self.model.embedding_matrix()
 
+    def embedding_layer(self):
+        return self.model.embedding_layer()
+
 
 class EmbeddingModel(PytorchModel, ABC):
     @classmethod
@@ -120,6 +123,10 @@ class EmbeddingModel(PytorchModel, ABC):
 
     @abstractmethod
     def embed(self, x):
+        pass
+
+    @abstractmethod
+    def embedding_layer(self):
         pass
 
     @abstractmethod

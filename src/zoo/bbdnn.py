@@ -70,6 +70,9 @@ class BBDnn(EmbeddingModel):
         )
         self.dense_1 = torch.nn.Linear(in_features=512, out_features=1, bias=True)
 
+    def embedding_layer(self):
+        return self.embedding_1
+
     def _forward_embed_x(self, x):
         conv1d_1 = self.conv1d_1(x)
         conv1d_1_activation = self.activation(conv1d_1)

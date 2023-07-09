@@ -8,7 +8,7 @@ class ReplacementManipulation(Manipulation):
         self.indexes_to_perturb = indexes_to_perturb
 
     def __call__(self, x: torch.Tensor, delta: torch.Tensor) -> torch.Tensor:
-        x[:, self.indexes_to_perturb] = delta
+        x[:, self.indexes_to_perturb.long()] = delta.long()
         return x
 
     def invert(self, x: torch.Tensor, x_adv: torch.Tensor) -> torch.Tensor:

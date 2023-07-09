@@ -49,6 +49,9 @@ class MalConv(EmbeddingModel):
         self.max_input_size = max_input_size
         self.invalid_value = 256
 
+    def embedding_layer(self):
+        return self.embedding_1
+
     def embed(self, x):
         emb_x = self.embedding_1(x)
         emb_x = emb_x.transpose(1, 2)
