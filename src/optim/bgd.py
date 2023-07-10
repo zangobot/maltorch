@@ -1,6 +1,7 @@
 from typing import Union, Iterable, Dict, Any, Callable, Optional
 
 import torch.optim
+from secml2.optimization.gradient_processing import GradientProcessing
 from torch import Tensor
 
 from src.zoo.model import BaseEmbeddingPytorchClassifier
@@ -14,6 +15,7 @@ class BGD(torch.optim.Optimizer):
             params: Union[Iterable[Tensor], Iterable[Dict[str, Any]]],
             model: BaseEmbeddingPytorchClassifier,
             indexes_to_perturb: torch.LongTensor,
+            gradient_processing: GradientProcessing,
             lr: int = 16,
             device: str = "cpu",
     ):
@@ -22,10 +24,11 @@ class BGD(torch.optim.Optimizer):
             "embedding_matrix": model.embedding_matrix(),
         }
         super().__init__(params, defaults)
+        self.gradient_processing = gradient_processing
         self.step_size = lr
         self.embedding_matrix = model.embedding_matrix()
-        self.device = device
         self.indexes_to_perturb = indexes_to_perturb
+        self.device = device
         model.embedding_layer().register_full_backward_hook(self._backward_hook)
         self._embedding_grad = None
 
@@ -40,19 +43,23 @@ class BGD(torch.optim.Optimizer):
         for group in self.param_groups:
             for delta in group["params"]:
                 grad_embedding = self._embedding_grad[0]
+                grad_embedding = self.gradient_processing(grad_embedding)
                 if self._embedding_grad is None:
-                    raise ValueError("Grad is none, you should call backward first before invoking the step function.")
+                    raise ValueError(
+                        "Grad is none, you should call backward first before invoking the step function."
+                    )
                 updated_delta = token_gradient_descent(
                     embedding_tokens=self.embedding_matrix,
                     emb_x=self.embedding_matrix[delta.long()],
                     gradient_f=grad_embedding,
-                    index_to_perturb=self.indexes_to_perturb,
                     step_size=self.step_size,
+                    index_to_perturb=self.indexes_to_perturb,
                     admitted_tokens=torch.LongTensor(range(0, 256)),
                     unavailable_tokens=torch.LongTensor([256]),
                 )
                 to_update = updated_delta != INVALID
-                delta.data[self.indexes_to_perturb[to_update], :] = updated_delta[to_update]
+                if torch.any(to_update):
+                    delta.data[to_update] = updated_delta[to_update]
         return None
 
 
@@ -60,25 +67,27 @@ def token_gradient_descent(
         embedding_tokens: torch.Tensor,
         emb_x: torch.Tensor,
         gradient_f: torch.Tensor,
-        index_to_perturb: torch.LongTensor,
         step_size: int,
+        index_to_perturb: torch.LongTensor,
         admitted_tokens: torch.LongTensor,
         unavailable_tokens: Optional[torch.Tensor] = None,
 ) -> Tensor:
-    optimized_tokens = torch.zeros(*emb_x.shape[:2])
-    step_size_index = gradient_f[0, index_to_perturb].norm(dim=1).argsort()[:step_size]
-    step_size_index = torch.LongTensor(index_to_perturb)[step_size_index]
-    for i in step_size_index:
-        gradient_f_i = gradient_f[0, i]
-        x_i = emb_x[0, i]
-        token_to_chose = single_token_gradient_update(
-            start_token=x_i.cpu(),
-            gradient=gradient_f_i.cpu(),
-            embedded_tokens=embedding_tokens.cpu(),
-            admitted_tokens=admitted_tokens.cpu(),
-            unavailable_tokens=unavailable_tokens,
+    optimized_tokens = torch.zeros(*emb_x.shape[:2]) + INVALID
+    for j in range(emb_x.shape[0]):
+        step_size_index = (
+            gradient_f[j, :][index_to_perturb[j, :]].norm(dim=1).argsort()[:step_size]
         )
-        optimized_tokens[i] = token_to_chose
+        for i in step_size_index:
+            gradient_f_i = gradient_f[j, i]
+            x_i = emb_x[j, i]
+            token_to_chose = single_token_gradient_update(
+                start_token=x_i.cpu(),
+                gradient=gradient_f_i.cpu(),
+                embedded_tokens=embedding_tokens.cpu(),
+                admitted_tokens=admitted_tokens.cpu(),
+                unavailable_tokens=unavailable_tokens,
+            )
+            optimized_tokens[j, i] = token_to_chose
     return optimized_tokens
 
 

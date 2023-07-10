@@ -16,13 +16,11 @@ class MalConv(EmbeddingModel):
     """
 
     def __init__(
-        self, embedding_size=8, max_input_size=2**20, input_embedding: bool = False
+        self, embedding_size=8, max_input_size=2**20
     ):
-        # TODO add gdrive ID
         super(MalConv, self).__init__(
             name="MalConv",
-            gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N",
-            input_embedding=input_embedding,
+            gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size
@@ -48,6 +46,7 @@ class MalConv(EmbeddingModel):
         self.embedding_size = (embedding_size,)
         self.max_input_size = max_input_size
         self.invalid_value = 256
+        self._expansion = torch.tensor([[-1.0, 1.0]])
 
     def embedding_layer(self):
         return self.embedding_1
@@ -72,7 +71,9 @@ class MalConv(EmbeddingModel):
         dense_1 = self.dense_1(global_max_pooling1d_1_flatten)
         dense_1_activation = torch.relu(dense_1)
         dense_2 = self.dense_2(dense_1_activation)
-        return dense_2
+        self._expansion.to(dense_2.device)
+        two_class_output = dense_2.matmul(self._expansion)
+        return two_class_output
 
     def embedding_matrix(self):
         return self.embedding_1.weight

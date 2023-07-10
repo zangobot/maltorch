@@ -14,12 +14,7 @@ manipulation_size = (5, 50)
 delta = torch.randint(0, 255, manipulation_size)
 indexes = torch.LongTensor(list(range(50)))
 adv_x = ReplacementManipulation(torch.Tensor(indexes))(xadv, delta)
-optimizer = BGD(
-    [delta],
-    malconv,
-    lr=5,
-    indexes_to_perturb=indexes
-)
+optimizer = BGD([delta], malconv, lr=5)
 loss = CrossEntropyLoss()
 labels = torch.LongTensor([0] * x.shape[0])
 out = loss(malconv(adv_x), labels)

@@ -12,8 +12,8 @@ class ReplacementManipulation(Manipulation):
         return x
 
     def invert(self, x: torch.Tensor, x_adv: torch.Tensor) -> torch.Tensor:
-        delta = x_adv[:, self.indexes_to_perturb].data
-        return delta
+        delta = x_adv[:, self.indexes_to_perturb.long()].data
+        return delta.type(torch.float)
 
 
 class ReplacementInitializer(Initializer):

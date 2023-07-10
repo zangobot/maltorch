@@ -101,10 +101,9 @@ class EmbeddingModel(PytorchModel, ABC):
         preprocessing: DataProcessing = None,
         postprocessing: DataProcessing = None,
         trainer: BaseTrainer = None,
-        input_embedding: bool = False,
         **kwargs,
     ) -> BaseEmbeddingPytorchClassifier:
-        net = cls(input_embedding=input_embedding, **kwargs)
+        net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
         net.eval()
         net = BaseEmbeddingPytorchClassifier(
@@ -150,7 +149,6 @@ class EmbeddingModel(PytorchModel, ABC):
         torch.Tensor
             the result of the forward pass
         """
-        if not self.input_embedding:
-            x = self.embed(x)
+        x = self.embed(x)
         output = self._forward_embed_x(x)
         return output
