@@ -4,4 +4,5 @@ scikit-learn
 foolbox
 secml2
 lightgbm
+lief
 git+https://github.com/elastic/ember.git

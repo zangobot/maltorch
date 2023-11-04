@@ -17,12 +17,10 @@ class Activations:
 
 class BBDnn(EmbeddingModel):
     def __init__(
-            self,
-            activation: Callable[[torch.Tensor], torch.Tensor] = Activations.Linear,
+        self,
+        activation: Callable[[torch.Tensor], torch.Tensor] = Activations.Linear,
     ):
-        super(BBDnn, self).__init__(
-            name="bbdnn", gdrive_id=None
-        )
+        super(BBDnn, self).__init__(name="bbdnn", gdrive_id=None)
         self.activation = activation
         self.embedding_1 = torch.nn.Embedding(
             num_embeddings=257, embedding_dim=10, padding_idx=0

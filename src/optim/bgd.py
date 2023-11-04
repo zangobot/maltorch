@@ -1,53 +1,24 @@
-from typing import Union, Iterable, Dict, Any, Callable, Optional
+from typing import Callable, Optional
 
 import torch.optim
-from secml2.optimization.gradient_processing import GradientProcessing
 from torch import Tensor
 
-from src.zoo.model import BaseEmbeddingPytorchClassifier
+from src.optim.base import BaseByteOptimizer
 
 INVALID = torch.inf
 
 
-class BGD(torch.optim.Optimizer):
-    def __init__(
-            self,
-            params: Union[Iterable[Tensor], Iterable[Dict[str, Any]]],
-            model: BaseEmbeddingPytorchClassifier,
-            indexes_to_perturb: torch.LongTensor,
-            gradient_processing: GradientProcessing,
-            lr: int = 16,
-            device: str = "cpu",
-    ):
-        defaults = {
-            "byte_step_size": lr,
-            "embedding_matrix": model.embedding_matrix(),
-        }
-        super().__init__(params, defaults)
-        self.gradient_processing = gradient_processing
-        self.step_size = lr
-        self.embedding_matrix = model.embedding_matrix()
-        self.indexes_to_perturb = indexes_to_perturb
-        self.device = device
-        model.embedding_layer().register_full_backward_hook(self._backward_hook)
-        self._embedding_grad = None
-
-    def zero_grad(self, set_to_none: bool = ...) -> None:
-        super().zero_grad(set_to_none=set_to_none)
-        self._embedding_grad = None
-
-    def _backward_hook(self, module, input_grad, output_grad):
-        self._embedding_grad = output_grad
-
+class BGD(BaseByteOptimizer):
     def step(self, closure: Optional[Callable[[], float]] = ...) -> Optional[float]:
         for group in self.param_groups:
             for delta in group["params"]:
-                grad_embedding = self._embedding_grad[0]
-                grad_embedding = self.gradient_processing(grad_embedding)
                 if self._embedding_grad is None:
                     raise ValueError(
-                        "Grad is none, you should call backward first before invoking the step function."
+                        "Grad is none, you should call backward first before invoking the step function. "
+                        "Otherwise, the model itself is not differentiable and gradients can not be computed."
                     )
+                grad_embedding = self._embedding_grad[0]
+                grad_embedding = self.gradient_processing(grad_embedding)
                 updated_delta = token_gradient_descent(
                     embedding_tokens=self.embedding_matrix,
                     emb_x=self.embedding_matrix[delta.long()],
@@ -64,18 +35,18 @@ class BGD(torch.optim.Optimizer):
 
 
 def token_gradient_descent(
-        embedding_tokens: torch.Tensor,
-        emb_x: torch.Tensor,
-        gradient_f: torch.Tensor,
-        step_size: int,
-        index_to_perturb: torch.LongTensor,
-        admitted_tokens: torch.LongTensor,
-        unavailable_tokens: Optional[torch.Tensor] = None,
+    embedding_tokens: torch.Tensor,
+    emb_x: torch.Tensor,
+    gradient_f: torch.Tensor,
+    step_size: int,
+    index_to_perturb: torch.LongTensor,
+    admitted_tokens: torch.LongTensor,
+    unavailable_tokens: Optional[torch.Tensor] = None,
 ) -> Tensor:
     optimized_tokens = torch.zeros(*emb_x.shape[:2]) + INVALID
     for j in range(emb_x.shape[0]):
         step_size_index = (
-            gradient_f[j, :][index_to_perturb[j, :]].norm(dim=1).argsort()[:step_size]
+            gradient_f[j, :][index_to_perturb].norm(dim=1).argsort()[:step_size]
         )
         for i in step_size_index:
             gradient_f_i = gradient_f[j, i]
@@ -92,12 +63,12 @@ def token_gradient_descent(
 
 
 def single_token_gradient_update(
-        start_token: torch.Tensor,
-        gradient: torch.Tensor,
-        embedded_tokens: torch.Tensor,
-        admitted_tokens: torch.LongTensor,
-        invalid_val=INVALID,
-        unavailable_tokens: Optional[torch.Tensor] = None,
+    start_token: torch.Tensor,
+    gradient: torch.Tensor,
+    embedded_tokens: torch.Tensor,
+    admitted_tokens: torch.LongTensor,
+    invalid_val=INVALID,
+    unavailable_tokens: Optional[torch.Tensor] = None,
 ):
     """
     Given the starting byte, the gradient and the embedding map,it returns a list of distances
@@ -123,7 +94,6 @@ def single_token_gradient_update(
     if torch.equal(gradient, torch.zeros(gradient.shape)):
         return INVALID
     distance = torch.zeros(len(admitted_tokens))
-    # gs = gradient / torch.norm(gradient)
     for i, b in enumerate(embedded_tokens[admitted_tokens, :].cpu()):
         if torch.all(start_token == b):
             distance[i] = invalid_val

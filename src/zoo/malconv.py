@@ -15,12 +15,9 @@ class MalConv(EmbeddingModel):
     Architecture implementation.
     """
 
-    def __init__(
-        self, embedding_size=8, max_input_size=2**20
-    ):
+    def __init__(self, embedding_size=8, max_input_size=2**20):
         super(MalConv, self).__init__(
-            name="MalConv",
-            gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
+            name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size
@@ -73,6 +70,7 @@ class MalConv(EmbeddingModel):
         dense_2 = self.dense_2(dense_1_activation)
         self._expansion.to(dense_2.device)
         two_class_output = dense_2.matmul(self._expansion)
+        two_class_output = torch.softmax(two_class_output, dim=1)
         return two_class_output
 
     def embedding_matrix(self):
