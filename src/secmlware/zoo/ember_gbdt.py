@@ -3,7 +3,7 @@ import lightgbm
 import numpy as np
 import torch
 
-from secml2malware.zoo.model import Model
+from secmlware.zoo.model import Model
 
 
 class EmberGBDT(Model):

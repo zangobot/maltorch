@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
 import torch
-from secml2.optimization.initializer import Initializer
+from secmlt.optimization.initializer import Initializer
 
-from secml2malware.utils.pe_operations import content_shift_manipulation
+from secmlware.utils.pe_operations import content_shift_manipulation
 
 
 class ByteBasedInitializer(Initializer, ABC):

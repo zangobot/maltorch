@@ -2,7 +2,7 @@ torch
 torchvision
 scikit-learn
 foolbox
-secml2
+git+https://github.com/pralab/secml-torch.git
 lightgbm
 lief
 git+https://github.com/elastic/ember.git

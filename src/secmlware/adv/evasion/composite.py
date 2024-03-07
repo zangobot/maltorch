@@ -4,17 +4,17 @@ from functools import partial
 from typing import Union, Type, List
 
 import torch
-from secml2.adv.evasion.composite_attack import CompositeEvasionAttack
-from secml2.manipulations.manipulation import Manipulation
-from secml2.models.base_model import BaseModel
-from secml2.optimization.constraints import Constraint
-from secml2.optimization.gradient_processing import GradientProcessing
-from secml2.optimization.initializer import Initializer
-from secml2.trackers.trackers import Tracker
+from secmlt.adv.evasion.composite_attack import CompositeEvasionAttack
+from secmlt.manipulations.manipulation import Manipulation
+from secmlt.models.base_model import BaseModel
+from secmlt.optimization.constraints import Constraint
+from secmlt.optimization.gradient_processing import GradientProcessing
+from secmlt.optimization.initializer import Initializer
+from secmlt.trackers.trackers import Tracker
 from torch.optim import Optimizer
 
-from secml2malware.manipulations.replacement import ByteManipulation
-from secml2malware.optim.optimizer_factory import MalwareOptimizerFactory
+from secmlware.manipulations.replacement import ByteManipulation
+from secmlware.optim.optimizer_factory import MalwareOptimizerFactory
 
 
 class MalwareCompositeEvasionAttack(CompositeEvasionAttack, abc.ABC):

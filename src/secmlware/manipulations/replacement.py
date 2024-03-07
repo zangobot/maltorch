@@ -1,11 +1,11 @@
 import abc
 
 import torch
-from secml2.manipulations.manipulation import Manipulation
-from secml2.optimization.constraints import Constraint
+from secmlt.manipulations.manipulation import Manipulation
+from secmlt.optimization.constraints import Constraint
 from torch import Tensor
 
-from secml2malware.optim.initializers import ByteBasedInitializer
+from secmlware.optim.initializers import ByteBasedInitializer
 
 
 class ByteManipulation(Manipulation, abc.ABC):

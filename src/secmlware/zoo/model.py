@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import torch
-from secml2.models.base_model import BaseModel
-from secml2.models.base_trainer import BaseTrainer
-from secml2.models.data_processing.data_processing import DataProcessing
-from secml2.models.pytorch.base_pytorch_nn import BasePytorchClassifier
+from secmlt.models.base_model import BaseModel
+from secmlt.models.base_trainer import BaseTrainer
+from secmlt.models.data_processing.data_processing import DataProcessing
+from secmlt.models.pytorch.base_pytorch_nn import BasePytorchClassifier
 
-from secml2malware.utils.config import Config
-from secml2malware.utils.utils import download_gdrive
+from secmlware.utils.config import Config
+from secmlware.utils.utils import download_gdrive
 
 
 class Model(torch.nn.Module, ABC):

@@ -3,7 +3,7 @@ from typing import Callable, Optional
 import torch.optim
 from torch import Tensor
 
-from secml2malware.optim.base import BaseByteOptimizer
+from secmlware.optim.base import BaseByteOptimizer
 
 INVALID = torch.inf
 

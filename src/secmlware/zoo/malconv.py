@@ -8,7 +8,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from secml2malware.zoo.model import EmbeddingModel
+from secmlware.zoo.model import EmbeddingModel
 
 
 class MalConv(EmbeddingModel):

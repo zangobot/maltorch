@@ -8,7 +8,7 @@ from typing import Callable
 
 import torch
 
-from secml2malware.zoo.model import EmbeddingModel
+from secmlware.zoo.model import EmbeddingModel
 
 
 class Activations:

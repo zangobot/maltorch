@@ -1,11 +1,11 @@
 from abc import ABC
 from typing import Union, Iterable, Dict, Any
 
-from secml2.optimization.gradient_processing import GradientProcessing
+from secmlt.optimization.gradient_processing import GradientProcessing
 from torch import Tensor
 import torch.optim
 
-from secml2malware.zoo.model import BaseEmbeddingPytorchClassifier
+from secmlware.zoo.model import BaseEmbeddingPytorchClassifier
 
 
 class BaseByteOptimizer(torch.optim.Optimizer, ABC):

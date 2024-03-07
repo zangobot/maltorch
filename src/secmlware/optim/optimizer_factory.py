@@ -1,9 +1,9 @@
 from functools import partial
 
-from secml2.optimization.optimizer_factory import OptimizerFactory
+from secmlt.optimization.optimizer_factory import OptimizerFactory
 
-from secml2malware.optim.bgd import BGD
-from secml2malware.optim.byte_gradient_processing import ByteGradientProcessing
+from secmlware.optim.bgd import BGD
+from secmlware.optim.byte_gradient_processing import ByteGradientProcessing
 
 
 class MalwareOptimizerFactory(OptimizerFactory):

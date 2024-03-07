@@ -1,14 +1,14 @@
 from typing import Union, List, Type
 
 import torch
-from secml2.trackers.trackers import Tracker
+from secmlt.trackers.trackers import Tracker
 from torch.nn import CrossEntropyLoss
 
-from secml2malware.adv.evasion.composite import MalwareCompositeEvasionAttack
-from secml2malware.manipulations.replacement import ReplacementManipulation
-from secml2malware.optim.byte_gradient_processing import ByteGradientProcessing
-from secml2malware.optim.initializers import ContentShiftInitializer
-from secml2malware.optim.optimizer_factory import MalwareOptimizerFactory
+from secmlware.adv.evasion.composite import MalwareCompositeEvasionAttack
+from secmlware.manipulations.replacement import ReplacementManipulation
+from secmlware.optim.byte_gradient_processing import ByteGradientProcessing
+from secmlware.optim.initializers import ContentShiftInitializer
+from secmlware.optim.optimizer_factory import MalwareOptimizerFactory
 
 
 class ContentShift(MalwareCompositeEvasionAttack):

@@ -1,5 +1,5 @@
 import torch
-from secml2.optimization.gradient_processing import GradientProcessing
+from secmlt.optimization.gradient_processing import GradientProcessing
 from torch.nn.functional import normalize
 
 
