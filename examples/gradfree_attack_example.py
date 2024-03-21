@@ -9,7 +9,7 @@ from secmlware.data.loader import load_from_folder, create_labels
 from secmlware.zoo.malconv import MalConv
 
 folder = Path(__file__).parent
-X = load_from_folder(folder, "file", limit=1)
+X = load_from_folder(folder, "file")
 path = str(Path(__file__).parent / "logs" / "gf-pdos")
 tensorboard_tracker = TensorboardTracker(path, [LossTracker()])
 pdos_attack = PartialDOSGradFree(query_budget=50, trackers=tensorboard_tracker)

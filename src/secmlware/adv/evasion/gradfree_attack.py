@@ -1,4 +1,5 @@
 import nevergrad
+import numpy as np
 import torch
 from nevergrad.optimization import Optimizer
 from secmlt.models.base_model import BaseModel
@@ -43,3 +44,18 @@ class GradientFreeMalwareAttack(MalwareAttack):
             parametrization=nevergrad.p.Array(shape=delta.value.shape, lower=0.0, upper=255.0)
         )
         return self.optimizer
+
+    def _run(
+            self,
+            model: BaseModel,
+            samples: torch.Tensor,
+            labels: torch.Tensor,
+            **optim_kwargs,
+    ) -> (torch.Tensor, DELTA_TYPE):
+        all_adv = torch.zeros_like(samples)
+        all_deltas = []
+        for i, (sample, label) in enumerate(zip(samples, labels)):
+            x_adv, optim_delta = super()._run(model, sample.unsqueeze(0), label.unsqueeze(0), **optim_kwargs)
+            all_adv[i] = x_adv
+            all_deltas.append(optim_delta)
+        return all_adv, torch.Tensor(np.array([d.value for d in all_deltas]))
