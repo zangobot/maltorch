@@ -17,6 +17,7 @@ class ByteManipulation(Manipulation, abc.ABC):
     ):
         super().__init__(domain_constraints, perturbation_constraints)
         self.initializer = initializer
+        self.indexes_to_perturb = []
 
     @abc.abstractmethod
     def initialize(self, samples: torch.Tensor) -> [torch.Tensor, torch.Tensor]: ...
@@ -34,7 +35,6 @@ class ReplacementManipulation(ByteManipulation):
         if perturbation_constraints is None:
             perturbation_constraints = []
         super().__init__(initializer, domain_constraints, perturbation_constraints)
-        self.indexes_to_perturb = None
 
     def _apply_manipulation(
         self, x: torch.Tensor, delta: torch.Tensor
@@ -44,7 +44,7 @@ class ReplacementManipulation(ByteManipulation):
         return x, delta
 
     def initialize(self, samples: torch.Tensor):
-        self.indexes_to_perturb = None
+        self.indexes_to_perturb = []
         samples.data, delta, indexes = self.initializer(samples.data)
         self.indexes_to_perturb = indexes
         return samples, delta

@@ -4,11 +4,15 @@ Edward Raff, Jon Barker, Jared Sylvester, Robert Brandon, Bryan Catanzaro, Charl
 https://arxiv.org/abs/1710.09435
 """
 
+from typing import Optional, Union
+
 import torch
 import torch.nn.functional as F
+from secmlt.models.base_trainer import BaseTrainer
+from secmlt.models.data_processing.data_processing import DataProcessing
 from torch import nn
 
-from secmlware.zoo.model import EmbeddingModel
+from secmlware.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
 
 
 class MalConv(EmbeddingModel):
@@ -16,7 +20,30 @@ class MalConv(EmbeddingModel):
     Architecture implementation.
     """
 
-    def __init__(self, embedding_size=8, max_input_size=2**20):
+    @classmethod
+    def create_model(
+        cls,
+        model_path: Optional[str] = None,
+        device: str = "cpu",
+        preprocessing: DataProcessing = None,
+        postprocessing: DataProcessing = None,
+        trainer: BaseTrainer = None,
+        threshold: Optional[Union[float, None]] = 0.5,
+        **kwargs,
+    ) -> BaseEmbeddingPytorchClassifier:
+        net = cls(**kwargs)
+        net.load_pretrained_model(device=device, model_path=model_path)
+        net.eval()
+        net = BaseEmbeddingPytorchClassifier(
+            model=net,
+            preprocessing=preprocessing,
+            postprocessing=postprocessing,
+            trainer=trainer,
+            threshold=threshold,
+        )
+        return net
+
+    def __init__(self, embedding_size=8, max_input_size=2**20, threshold=0.5):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
@@ -69,9 +96,8 @@ class MalConv(EmbeddingModel):
         dense_1 = self.dense_1(global_max_pooling1d_1_flatten)
         dense_1_activation = torch.relu(dense_1)
         dense_2 = self.dense_2(dense_1_activation)
-        self._expansion.to(dense_2.device)
-        two_class_output = dense_2.matmul(self._expansion)
-        return two_class_output
+        y = F.sigmoid(dense_2)
+        return y
 
     def embedding_matrix(self):
         return self.embedding_1.weight

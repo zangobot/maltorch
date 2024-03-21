@@ -1,62 +1,67 @@
-from typing import Union, List, Type
+from typing import Union, List
 
 import torch
 from secmlt.trackers.trackers import Tracker
-from torch.nn import CrossEntropyLoss
+from torch.nn import BCEWithLogitsLoss
 
-from secmlware.adv.evasion.composite import MalwareCompositeEvasionAttack
-from secmlware.manipulations.replacement import ReplacementManipulation
-from secmlware.optim.byte_gradient_processing import ByteGradientProcessing
+from secmlware.adv.evasion.gradfree_attack import GradientFreeMalwareAttack
+from secmlware.adv.evasion.gradient_attack import GradientMalwareAttack
+from secmlware.manipulations.replacement import (
+    ReplacementManipulation,
+)
 from secmlware.optim.initializers import (
     PartialDOSInitializer,
 )
 from secmlware.optim.optimizer_factory import MalwareOptimizerFactory
 
 
-class PartialDOS(MalwareCompositeEvasionAttack):
-    """
-    Partial DOS attack.
-
-    Demetrio, L., Biggio, B., Giovanni, L., Roli, F., & Alessandro, A. (2019).
-    Explaining vulnerabilities of deep learning to adversarial malware binaries.
-    In CEUR WORKSHOP PROCEEDINGS (Vol. 2315).
-    """
-
-    def __init__(
-        self,
-        num_steps: int,
-        step_size: int,
-        random_init: bool = False,
-        device: str = "cpu",
-        trackers: Union[List[Tracker], Type[Tracker]] = None,
+class PartialDOS:
+    def __new__(
+            cls,
+            query_budget: int,
+            random_init: bool = False,
+            step_size: int = 16,
+            y_target: Union[int, None] = None,
+            device="cpu",
+            loss_function: Union[torch.nn.Module] = BCEWithLogitsLoss(reduction="none"),
+            trackers: Union[List[Tracker], Tracker] = None,
     ):
-        """
-        Create the Partial DOS attack.
-        :param num_steps: Number of optimization steps.
-        :param step_size: Number of byte modified at each iteration.
-        :param random_init: Initialize the manipulation with 0 or with random bytes.
-        :param device: Device to use for computation.
-        :param trackers: Optional trackers that provide insights on the computations.
-        """
-        loss_function = CrossEntropyLoss()
-        self.manipulation = torch.LongTensor(list(range(2, 58)))
-        optimizer_cls = MalwareOptimizerFactory.create_bgd(
-            lr=step_size, device=device, indexes_to_perturb=self.manipulation
-        )
         initializer = PartialDOSInitializer(random_init=random_init)
         manipulation_function = ReplacementManipulation(initializer=initializer)
-        domain_constraints = []
         perturbation_constraints = []
-        super().__init__(
-            y_target=None,
-            num_steps=num_steps,
-            step_size=step_size,
+        optimizer_cls = MalwareOptimizerFactory.create_bgd(lr=step_size)
+        return GradientMalwareAttack(
+            y_target=y_target,
+            query_budget=query_budget,
             loss_function=loss_function,
             optimizer_cls=optimizer_cls,
             manipulation_function=manipulation_function,
-            domain_constraints=domain_constraints,
             perturbation_constraints=perturbation_constraints,
             initializer=initializer,
-            gradient_processing=ByteGradientProcessing(),
-            trackers=trackers,
+            trackers=trackers
+        )
+
+
+class PartialDOSGradFree:
+    def __new__(
+            cls,
+            query_budget: int,
+            random_init: bool = False,
+            y_target: Union[int, None] = None,
+            loss_function: Union[torch.nn.Module] = BCEWithLogitsLoss(reduction="none"),
+            trackers: Union[List[Tracker], Tracker] = None,
+    ):
+        initializer = PartialDOSInitializer(random_init=random_init)
+        manipulation_function = ReplacementManipulation(initializer=initializer)
+        perturbation_constraints = []
+        optimizer_cls = MalwareOptimizerFactory.create_ga()
+        return GradientFreeMalwareAttack(
+            y_target=y_target,
+            query_budget=query_budget,
+            loss_function=loss_function,
+            optimizer_cls=optimizer_cls,
+            manipulation_function=manipulation_function,
+            perturbation_constraints=perturbation_constraints,
+            initializer=initializer,
+            trackers=trackers
         )

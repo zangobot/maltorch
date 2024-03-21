@@ -5,7 +5,7 @@ import torch
 
 
 def load_from_folder(
-    path: Path, extension: str = "exe", padding: int = 256
+    path: Path, extension: str = "exe", padding: int = 256, limit=None
 ) -> torch.Tensor:
     """Create a torch.Tensor whose rows are all the file with extension specified in input.
     Tensor are padded to match the same size.
@@ -18,6 +18,8 @@ def load_from_folder(
     for filepath in path.glob(f"*.{extension}"):
         x = load_single_exe(filepath)
         X.append(x)
+        if limit is not None and len(X) >= limit:
+            break
     X = torch.nn.utils.rnn.pad_sequence(X, padding_value=padding).transpose(0, 1).long()
     return X
 

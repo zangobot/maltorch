@@ -28,7 +28,9 @@ class BGD(BaseByteOptimizer):
                     admitted_tokens=torch.LongTensor(range(0, 256)),
                     unavailable_tokens=torch.LongTensor([256]),
                 )
+                updated_delta = updated_delta.to(delta.device)
                 to_update = updated_delta != INVALID
+
                 if torch.any(to_update):
                     delta.data[to_update] = updated_delta[to_update]
         return None
@@ -46,7 +48,9 @@ def token_gradient_descent(
     optimized_tokens = torch.zeros(*emb_x.shape[:2]) + INVALID
     for j in range(emb_x.shape[0]):
         step_size_index = (
-            gradient_f[j, :][index_to_perturb].norm(dim=1).argsort()[:step_size]
+            gradient_f[j, :][index_to_perturb[j].view(-1)]
+            .norm(dim=1)
+            .argsort()[:step_size]
         )
         for i in step_size_index:
             gradient_f_i = -gradient_f[j, i]

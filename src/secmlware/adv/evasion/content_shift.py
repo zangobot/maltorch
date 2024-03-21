@@ -4,14 +4,14 @@ import torch
 from secmlt.trackers.trackers import Tracker
 from torch.nn import CrossEntropyLoss
 
-from secmlware.adv.evasion.composite import MalwareCompositeEvasionAttack
+from secmlware.adv.evasion.old.gradient_attack import MalwareGradientAttack
 from secmlware.manipulations.replacement import ReplacementManipulation
 from secmlware.optim.byte_gradient_processing import ByteGradientProcessing
 from secmlware.optim.initializers import ContentShiftInitializer
 from secmlware.optim.optimizer_factory import MalwareOptimizerFactory
 
 
-class ContentShift(MalwareCompositeEvasionAttack):
+class ContentShift(MalwareGradientAttack):
     """
     Content Shift attack
 
@@ -38,15 +38,13 @@ class ContentShift(MalwareCompositeEvasionAttack):
         :param device: Device to use for computation.
         :param trackers: Optional trackers that provide insights on the computations.
         """
-        loss_function = CrossEntropyLoss()
-        self.manipulation = torch.LongTensor(list(range(2, 58)))
-        optimizer_cls = MalwareOptimizerFactory.create_bgd(
-            lr=step_size, device=device, indexes_to_perturb=self.manipulation
-        )
+        loss_function = CrossEntropyLoss(reduction="none")
+        optimizer_cls = MalwareOptimizerFactory.create_bgd(lr=step_size, device=device)
         initializer = ContentShiftInitializer(
             preferred_manipulation_size=preferred_manipulation_size,
             random_init=random_init,
         )
+        self.manipulation = torch.LongTensor(list(range(2, 58)))
         manipulation_function = ReplacementManipulation(initializer=initializer)
         domain_constraints = []
         perturbation_constraints = []
