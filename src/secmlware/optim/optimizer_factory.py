@@ -1,8 +1,10 @@
 from functools import partial
-from typing import Union, Type
+from typing import Union
 
 import nevergrad
-from nevergrad.optimization.differentialevolution import DE, TwoPointsDE, DifferentialEvolution
+from nevergrad.optimization.differentialevolution import (
+    DifferentialEvolution,
+)
 
 from secmlware.optim.base import BaseByteOptimizer
 from secmlware.optim.bgd import BGD
@@ -14,7 +16,6 @@ OPTIM_TYPE = Union[TORCH_OPTIM_TYPE, NEVERGRAD_OPTIM_TYPE]
 
 
 class MalwareOptimizerFactory:
-
     @staticmethod
     def create(optim_cls: Union[str, OPTIM_TYPE], **optimizer_args):
         if type(optim_cls) is not str:
@@ -35,5 +36,5 @@ class MalwareOptimizerFactory:
         )
 
     @staticmethod
-    def create_ga():
-        return DifferentialEvolution(popsize=10, crossover="twopoints")
+    def create_ga(population_size: int = 10):
+        return DifferentialEvolution(popsize=population_size, crossover="twopoints")

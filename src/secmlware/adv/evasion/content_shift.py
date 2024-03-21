@@ -4,14 +4,14 @@ import torch
 from secmlt.trackers.trackers import Tracker
 from torch.nn import CrossEntropyLoss
 
-from secmlware.adv.evasion.old.gradient_attack import MalwareGradientAttack
+from secmlware.adv.evasion.gradient_attack import GradientMalwareAttack
 from secmlware.manipulations.replacement import ReplacementManipulation
 from secmlware.optim.byte_gradient_processing import ByteGradientProcessing
 from secmlware.optim.initializers import ContentShiftInitializer
 from secmlware.optim.optimizer_factory import MalwareOptimizerFactory
 
 
-class ContentShift(MalwareGradientAttack):
+class ContentShift(GradientMalwareAttack):
     """
     Content Shift attack
 
@@ -23,7 +23,7 @@ class ContentShift(MalwareGradientAttack):
     def __init__(
         self,
         preferred_manipulation_size: int,
-        num_steps: int,
+        query_budget: int,
         step_size: int,
         random_init: bool = False,
         device: str = "cpu",
@@ -46,18 +46,12 @@ class ContentShift(MalwareGradientAttack):
         )
         self.manipulation = torch.LongTensor(list(range(2, 58)))
         manipulation_function = ReplacementManipulation(initializer=initializer)
-        domain_constraints = []
-        perturbation_constraints = []
         super().__init__(
             y_target=None,
-            num_steps=num_steps,
-            step_size=step_size,
+            query_budget=query_budget,
             loss_function=loss_function,
             optimizer_cls=optimizer_cls,
             manipulation_function=manipulation_function,
-            domain_constraints=domain_constraints,
-            perturbation_constraints=perturbation_constraints,
             initializer=initializer,
-            gradient_processing=ByteGradientProcessing(),
             trackers=trackers,
         )

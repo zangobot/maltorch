@@ -2,9 +2,9 @@ torch
 torchvision
 scikit-learn
 foolbox
-git+https://github.com/pralab/secml-torch.git
-lightgbm
+secml-torch
+lightgbm==3.3.5
 lief
-git+https://github.com/elastic/ember.git
+git+https://github.com/zangobot/ember.git
 nevergrad
 joblib>=1.3.2

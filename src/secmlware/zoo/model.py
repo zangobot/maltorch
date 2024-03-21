@@ -25,19 +25,17 @@ class Model(torch.nn.Module, ABC):
             if self.gdrive_id is not None:
                 download_gdrive(gdrive_id=self.gdrive_id, fname_save=self.model_path)
 
-    def load_pretrained_model(self, device="cpu", model_path=None):
-        ...
+    def load_pretrained_model(self, device="cpu", model_path=None): ...
 
     @classmethod
     def create_model(
-            cls,
-            model_path: Optional[str] = None,
-            device: str = "cpu",
-            preprocessing: DataProcessing = None,
-            postprocessing: DataProcessing = None,
-            trainer: BaseTrainer = None,
-    ) -> BaseModel:
-        ...
+        cls,
+        model_path: Optional[str] = None,
+        device: str = "cpu",
+        preprocessing: DataProcessing = None,
+        postprocessing: DataProcessing = None,
+        trainer: BaseTrainer = None,
+    ) -> BaseModel: ...
 
 
 class PytorchModel(Model):
@@ -53,13 +51,13 @@ class PytorchModel(Model):
 
     @classmethod
     def create_model(
-            cls,
-            model_path: Optional[str] = None,
-            device: str = "cpu",
-            preprocessing: DataProcessing = None,
-            postprocessing: DataProcessing = None,
-            trainer: BaseTrainer = None,
-            **kwargs,
+        cls,
+        model_path: Optional[str] = None,
+        device: str = "cpu",
+        preprocessing: DataProcessing = None,
+        postprocessing: DataProcessing = None,
+        trainer: BaseTrainer = None,
+        **kwargs,
     ) -> BaseModel:
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
@@ -75,12 +73,12 @@ class PytorchModel(Model):
 
 class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
     def __init__(
-            self,
-            model: torch.nn.Module,
-            preprocessing: DataProcessing = None,
-            postprocessing: DataProcessing = None,
-            trainer: BaseTrainer = None,
-            threshold: Optional[Union[float, None]] = 0.5,
+        self,
+        model: torch.nn.Module,
+        preprocessing: DataProcessing = None,
+        postprocessing: DataProcessing = None,
+        trainer: BaseTrainer = None,
+        threshold: Optional[Union[float, None]] = 0.5,
     ):
         super().__init__(model, preprocessing, postprocessing, trainer)
         self.threshold = threshold
@@ -98,20 +96,20 @@ class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
         if self.threshold is None:
             return super().predict(x)
         scores = self.decision_function(x)
-        labels = (scores > self.threshold).long()
+        labels = (scores > self.threshold).int()
         return labels
 
 
 class EmbeddingModel(PytorchModel, ABC):
     @classmethod
     def create_model(
-            cls,
-            model_path: Optional[str] = None,
-            device: str = "cpu",
-            preprocessing: DataProcessing = None,
-            postprocessing: DataProcessing = None,
-            trainer: BaseTrainer = None,
-            **kwargs,
+        cls,
+        model_path: Optional[str] = None,
+        device: str = "cpu",
+        preprocessing: DataProcessing = None,
+        postprocessing: DataProcessing = None,
+        trainer: BaseTrainer = None,
+        **kwargs,
     ) -> BaseEmbeddingPytorchClassifier:
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
@@ -125,7 +123,7 @@ class EmbeddingModel(PytorchModel, ABC):
         return net
 
     def __init__(
-            self, name: str, gdrive_id: Optional[str], input_embedding: bool = False
+        self, name: str, gdrive_id: Optional[str], input_embedding: bool = False
     ):
         super().__init__(name, gdrive_id)
         self.input_embedding = input_embedding
