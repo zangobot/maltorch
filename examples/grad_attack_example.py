@@ -18,7 +18,9 @@ y = y.to(device)
 dl = DataLoader(TensorDataset(X, y), batch_size=3)
 path = str(Path(__file__).parent / "logs" / "pdos")
 tensorboard_tracker = TensorboardTracker(path, [LossTracker()])
-pdos_attack = PartialDOS(query_budget=20, trackers=tensorboard_tracker)
+pdos_attack = PartialDOS(
+    query_budget=20, trackers=tensorboard_tracker, random_init=False
+)
 malconv = MalConv.create_model(device=device)
 print("Pre-attack accuracy: ", Accuracy()(malconv, dl))
 adv_dl = pdos_attack(malconv, dl)

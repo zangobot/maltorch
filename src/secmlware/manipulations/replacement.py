@@ -5,7 +5,7 @@ from secmlt.manipulations.manipulation import Manipulation
 from secmlt.optimization.constraints import Constraint
 from torch import Tensor
 
-from secmlware.optim.initializers import ByteBasedInitializer
+from secmlware.initializers.initializers import ByteBasedInitializer
 
 
 class ByteManipulation(Manipulation, abc.ABC):

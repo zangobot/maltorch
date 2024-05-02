@@ -1,22 +1,15 @@
-from typing import Union, List
+from typing import Union, List, Callable
 
-import nevergrad
 import torch
-from nevergrad.optimization import Optimizer
 from secmlt.adv.evasion.base_evasion_attack import BaseEvasionAttack
 from secmlt.models.base_model import BaseModel
-from secmlt.optimization.constraints import Constraint
 from secmlt.optimization.initializer import Initializer
 from secmlt.trackers import Tracker
 
 from secmlware.manipulations.replacement import ByteManipulation
-from secmlware.optim.base import BaseByteOptimizer
-from secmlware.optim.optimizer_factory import OPTIM_TYPE
-
-DELTA_TYPE = Union[torch.Tensor, nevergrad.p.Array]
 
 
-class MalwareAttack(BaseEvasionAttack):
+class BackendAttack(BaseEvasionAttack):
     @classmethod
     def _trackers_allowed(cls):
         return True
@@ -30,7 +23,7 @@ class MalwareAttack(BaseEvasionAttack):
         y_target: Union[int, None],
         query_budget: int,
         loss_function: Union[str, torch.nn.Module],
-        optimizer_cls: OPTIM_TYPE,
+        optimizer_cls: Callable,
         manipulation_function: ByteManipulation,
         initializer: Initializer,
         trackers: Union[List[Tracker], Tracker] = None,
@@ -43,38 +36,47 @@ class MalwareAttack(BaseEvasionAttack):
         self.trackers = trackers
         self.optimizer = None
         self.optimizer_cls = optimizer_cls
+        self._best_loss = None
+        self._best_delta = None
 
     def _init_attack_manipulation(
         self, samples: torch.Tensor
-    ) -> (torch.Tensor, DELTA_TYPE):
+    ) -> (torch.Tensor, torch.Tensor):
         return self.manipulation_function.initialize(samples.data)
 
     def _apply_manipulation(
-        self, x: torch.Tensor, delta: DELTA_TYPE
+        self, x: torch.Tensor, delta: torch.Tensor
     ) -> (torch.Tensor, torch.Tensor):
         raise NotImplementedError()
 
-    def _optimizer_step(self, delta: DELTA_TYPE, loss: torch.Tensor) -> DELTA_TYPE:
+    def _optimizer_step(self, delta: torch.Tensor, loss: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError()
 
-    def _init_optimizer(
-        self, model: BaseModel, delta: DELTA_TYPE
-    ) -> Union[BaseByteOptimizer, Optimizer]:
+    def _init_optimizer(self, model: BaseModel, delta: torch.Tensor) -> Callable:
         raise NotImplementedError()
 
     def _consumed_budget(self):
         raise NotImplementedError()
 
+    def _init_best_tracking(self, delta: torch.Tensor):
+        self._best_delta = torch.zeros_like(delta)
+        self._best_loss = torch.zeros((delta.shape[0], 1)).fill_(torch.inf)
+
+    def _track_best(self, loss: torch.Tensor, delta: torch.Tensor):
+        where_best = (loss < self._best_loss).squeeze(1)
+        self._best_delta[where_best] = delta[where_best]
+        self._best_loss[where_best] = loss[where_best]
+
     def _get_best_delta(self):
-        raise NotImplementedError()
+        return self._best_delta
 
     def _track(
         self,
         iteration: int,
-        loss: torch,
+        loss: torch.Tensor,
         scores: torch.Tensor,
         x_adv: torch.Tensor,
-        delta: DELTA_TYPE,
+        delta: torch.Tensor,
     ):
         if self._trackers_allowed():
             if self.trackers:
@@ -94,7 +96,7 @@ class MalwareAttack(BaseEvasionAttack):
         samples: torch.Tensor,
         labels: torch.Tensor,
         **optim_kwargs,
-    ) -> (torch.Tensor, DELTA_TYPE):
+    ) -> (torch.Tensor, torch.Tensor):
         multiplier = 1 if self.y_target is not None else -1
         target = (
             torch.zeros_like(labels) + self.y_target
@@ -105,6 +107,7 @@ class MalwareAttack(BaseEvasionAttack):
         x_adv, delta = self._init_attack_manipulation(samples)
         self.optimizer = self._init_optimizer(model, delta)
         budget = 0
+        self._init_best_tracking(delta)
         while budget < self.query_budget:
             x_adv, _ = self._apply_manipulation(samples, delta)
             scores = model.decision_function(x_adv)
@@ -112,6 +115,7 @@ class MalwareAttack(BaseEvasionAttack):
             delta = self._optimizer_step(delta, loss)
             budget += self._consumed_budget()
             self._track(budget, loss, scores, x_adv, delta)
-        # best_delta = self._get_best_delta()
-        best_x, _ = self._apply_manipulation(samples, delta)
-        return best_x, delta
+            self._track_best(loss, delta)
+        best_delta = self._get_best_delta()
+        best_x, _ = self._apply_manipulation(samples, best_delta)
+        return best_x, self._best_delta

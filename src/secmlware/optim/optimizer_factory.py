@@ -1,23 +1,17 @@
 from functools import partial
-from typing import Union
+from typing import Union, Callable
 
-import nevergrad
 from nevergrad.optimization.differentialevolution import (
     DifferentialEvolution,
 )
 
-from secmlware.optim.base import BaseByteOptimizer
 from secmlware.optim.bgd import BGD
 from secmlware.optim.byte_gradient_processing import ByteGradientProcessing
-
-TORCH_OPTIM_TYPE = partial[BaseByteOptimizer]
-NEVERGRAD_OPTIM_TYPE = partial[nevergrad.optimization.Optimizer]
-OPTIM_TYPE = Union[TORCH_OPTIM_TYPE, NEVERGRAD_OPTIM_TYPE]
 
 
 class MalwareOptimizerFactory:
     @staticmethod
-    def create(optim_cls: Union[str, OPTIM_TYPE], **optimizer_args):
+    def create(optim_cls: Union[str, Callable], **optimizer_args):
         if type(optim_cls) is not str:
             return partial(optim_cls, **optimizer_args)()
         if optim_cls == "bgd":
@@ -27,7 +21,7 @@ class MalwareOptimizerFactory:
         raise NotImplementedError(f"Optimizer {optim_cls} not included.")
 
     @staticmethod
-    def create_bgd(lr: int, device: str = "cpu"):
+    def create_bgd(lr: int, device: str = "cpu") -> partial[BGD]:
         return partial(
             BGD,
             lr=lr,
@@ -36,5 +30,5 @@ class MalwareOptimizerFactory:
         )
 
     @staticmethod
-    def create_ga(population_size: int = 10):
+    def create_ga(population_size: int = 10) -> DifferentialEvolution:
         return DifferentialEvolution(popsize=population_size, crossover="twopoints")

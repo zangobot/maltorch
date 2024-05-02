@@ -1,20 +1,22 @@
 import nevergrad
-import numpy as np
 import torch
 from nevergrad.optimization import Optimizer
 from secmlt.models.base_model import BaseModel
+from torch.utils.data import DataLoader, TensorDataset
 
-from secmlware.adv.evasion.malware_attack import MalwareAttack, DELTA_TYPE
+from secmlware.adv.evasion.backend_attack import BackendAttack
 
 
-class GradientFreeMalwareAttack(MalwareAttack):
-    def _optimizer_step(self, delta: DELTA_TYPE, loss: torch.Tensor) -> DELTA_TYPE:
+class GradientFreeBackendAttack(BackendAttack):
+    def _optimizer_step(
+        self, delta: nevergrad.p.Array, loss: torch.Tensor
+    ) -> nevergrad.p.Array:
         self.optimizer.tell(delta, loss.item())
         delta = self.optimizer.ask()
         return delta
 
     def _apply_manipulation(
-        self, x: torch.Tensor, delta: DELTA_TYPE
+        self, x: torch.Tensor, delta: nevergrad.p.Array
     ) -> (torch.Tensor, torch.Tensor):
         p_delta = torch.from_numpy(delta.value)
         return self.manipulation_function(x.data, p_delta)
@@ -22,18 +24,15 @@ class GradientFreeMalwareAttack(MalwareAttack):
     def _consumed_budget(self):
         return 1
 
-    def _get_best_delta(self):
-        return self.optimizer.provide_recommendation()
-
     def _init_attack_manipulation(
         self, samples: torch.Tensor
-    ) -> (torch.Tensor, DELTA_TYPE):
+    ) -> (torch.Tensor, nevergrad.p.Array):
         x_adv, delta = super()._init_attack_manipulation(samples)
         optim_delta = nevergrad.p.Array(shape=delta.shape, lower=0.0, upper=255.0)
         optim_delta.value = delta.numpy()
         return x_adv, optim_delta
 
-    def _init_optimizer(self, model: BaseModel, delta: DELTA_TYPE) -> Optimizer:
+    def _init_optimizer(self, model: BaseModel, delta: nevergrad.p.Array) -> Optimizer:
         self.optimizer = self.optimizer_cls(
             parametrization=nevergrad.p.Array(
                 shape=delta.value.shape, lower=0.0, upper=255.0
@@ -41,19 +40,27 @@ class GradientFreeMalwareAttack(MalwareAttack):
         )
         return self.optimizer
 
-    def _run(
-        self,
-        model: BaseModel,
-        samples: torch.Tensor,
-        labels: torch.Tensor,
-        **optim_kwargs,
-    ) -> (torch.Tensor, DELTA_TYPE):
-        all_adv = torch.zeros_like(samples)
-        all_deltas = []
-        for i, (sample, label) in enumerate(zip(samples, labels)):
-            x_adv, optim_delta = super()._run(
-                model, sample.unsqueeze(0), label.unsqueeze(0), **optim_kwargs
-            )
-            all_adv[i] = x_adv
-            all_deltas.append(optim_delta)
-        return all_adv, torch.Tensor(np.array([d.value for d in all_deltas]))
+    def __call__(self, model: BaseModel, data_loader: DataLoader) -> DataLoader:
+        adversarials = []
+        original_labels = []
+        for samples, labels in data_loader:
+            for sample, label in zip(samples, labels):
+                sample = sample.unsqueeze(0)
+                label = label.unsqueeze(0)
+                x_adv, _ = self._run(model, sample, label)
+                adversarials.append(x_adv)
+                original_labels.append(label)
+        adversarials = torch.vstack(adversarials)
+        original_labels = torch.vstack(original_labels)
+        adversarial_dataset = TensorDataset(adversarials, original_labels)
+        return DataLoader(
+            adversarial_dataset,
+            batch_size=data_loader.batch_size,
+        )
+
+    def _init_best_tracking(self, delta: torch.Tensor): ...
+
+    def _track_best(self, loss: torch.Tensor, delta: torch.Tensor): ...
+
+    def _get_best_delta(self):
+        return self.optimizer.provide_recommendation()

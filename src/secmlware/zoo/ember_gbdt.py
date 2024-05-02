@@ -28,12 +28,12 @@ class EmberGBDT(Model):
 
     @classmethod
     def create_model(
-            cls,
-            model_path: Optional[str] = None,
-            device: str = "cpu",
-            preprocessing: DataProcessing = None,
-            postprocessing: DataProcessing = None,
-            trainer: BaseTrainer = None,
+        cls,
+        model_path: Optional[str] = None,
+        device: str = "cpu",
+        preprocessing: DataProcessing = None,
+        postprocessing: DataProcessing = None,
+        trainer: BaseTrainer = None,
     ) -> BaseModel:
         model = cls(model_path=model_path)
         return _GBDTModel(tree_model=model.tree_model)

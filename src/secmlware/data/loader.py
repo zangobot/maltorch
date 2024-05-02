@@ -12,6 +12,7 @@ def load_from_folder(
     :param path: Folder path
     :param extension: default "exe", filters all the file based on this extension
     :param padding: default 256, pad every tensor with this value to uniform the size
+    :param limit: default None, limit the number of loaded file, None for load all folder
     :return: a torch.Tensor containing all the file converted into tensors
     """
     X = []

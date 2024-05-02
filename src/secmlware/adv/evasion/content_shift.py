@@ -4,14 +4,13 @@ import torch
 from secmlt.trackers.trackers import Tracker
 from torch.nn import CrossEntropyLoss
 
-from secmlware.adv.evasion.gradient_attack import GradientMalwareAttack
+from secmlware.adv.evasion.gradient_attack import GradientBackendAttack
 from secmlware.manipulations.replacement import ReplacementManipulation
-from secmlware.optim.byte_gradient_processing import ByteGradientProcessing
-from secmlware.optim.initializers import ContentShiftInitializer
+from secmlware.initializers.content_shift_initializer import ContentShiftInitializer
 from secmlware.optim.optimizer_factory import MalwareOptimizerFactory
 
 
-class ContentShift(GradientMalwareAttack):
+class ContentShift(GradientBackendAttack):
     """
     Content Shift attack
 
