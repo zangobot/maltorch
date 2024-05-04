@@ -6,7 +6,7 @@ from secmlt.models.base_model import BaseModel
 from secmlt.optimization.initializer import Initializer
 from secmlt.trackers import Tracker
 
-from secmlware.manipulations.replacement import ByteManipulation
+from secmlware.manipulations.byte_manipulation import ByteManipulation
 
 
 class BackendAttack(BaseEvasionAttack):

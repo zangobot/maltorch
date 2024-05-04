@@ -29,3 +29,11 @@ class ByteBasedInitializer(Initializer, ABC):
 
     @abstractmethod
     def __call__(self, x: torch.Tensor) -> [torch.Tensor, torch.Tensor, list]: ...
+
+
+class IdentityInitializer(ByteBasedInitializer):
+    def __init__(self):
+        super().__init__(random_init=False)
+
+    def __call__(self, x: torch.Tensor) -> [torch.Tensor, torch.Tensor, list]:
+        return x
