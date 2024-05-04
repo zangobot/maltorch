@@ -23,7 +23,6 @@ class PartialDOSGradFree(GradientFreeBackendAttack):
         y_target: Union[int, None] = None,
         population_size: int = 10,
         random_init: bool = False,
-        device: str = "cpu",
         trackers: Union[List[Tracker], Tracker] = None,
     ):
         loss_function = BCEWithLogitsLoss(reduction="none")

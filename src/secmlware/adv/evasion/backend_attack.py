@@ -27,6 +27,7 @@ class BackendAttack(BaseEvasionAttack):
         manipulation_function: ByteManipulation,
         initializer: Initializer,
         trackers: Union[List[Tracker], Tracker] = None,
+        **kwargs
     ):
         self.y_target = y_target
         self.query_budget = query_budget

@@ -9,23 +9,24 @@ from secmlware.adv.evasion.base_optim_attack_creator import (
 )
 from secmlware.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from secmlware.adv.evasion.gradient_attack import GradientBackendAttack
-from secmlware.initializers.content_shift_initializer import ContentShiftInitializer
+from secmlware.initializers.section_injection_initializer import SectionInjectionInitializer
 from secmlware.manipulations.replacement import ReplacementManipulation
 from secmlware.optim.optimizer_factory import MalwareOptimizerFactory
 
 
-class ContentShiftGradFree(GradientFreeBackendAttack):
+class SectionInjectionGradFree(GradientFreeBackendAttack):
     def __init__(
             self,
             query_budget: int,
-            manipulation_size: int,
+            how_many_sections: int,
+            size_per_section: int,
             y_target: Union[int, None] = None,
             population_size: int = 10,
             random_init: bool = False,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
-        initializer = ContentShiftInitializer(
-            random_init=random_init, preferred_manipulation_size=manipulation_size
+        initializer = SectionInjectionInitializer(
+            random_init=random_init, how_many_sections=how_many_sections, size_per_section=size_per_section
         )
         optimizer_cls = MalwareOptimizerFactory.create_ga(
             population_size=population_size
@@ -43,21 +44,25 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
         )
 
 
-class ContentShiftGrad(GradientBackendAttack):
+class SectionInjectionGrad(GradientBackendAttack):
     def __init__(
             self,
             query_budget: int,
-            manipulation_size: int,
+            how_many_sections: int,
+            size_per_section: int,
             y_target: Union[int, None] = None,
             random_init: bool = False,
             step_size: int = 58,
             device: str = "cpu",
             trackers: Union[List[Tracker], Tracker] = None,
     ):
-        initializer = ContentShiftInitializer(
-            random_init=random_init, preferred_manipulation_size=manipulation_size
+        initializer = SectionInjectionInitializer(
+            random_init=random_init, how_many_sections=how_many_sections, size_per_section=size_per_section
         )
-        optimizer_cls = MalwareOptimizerFactory.create_bgd(lr=step_size, device=device)
+        optimizer_cls = MalwareOptimizerFactory.create_bgd(
+            lr=step_size,
+            device=device
+        )
         loss_function = BCEWithLogitsLoss(reduction="none")
         manipulation_function = ReplacementManipulation(initializer=initializer)
         super().__init__(
@@ -71,13 +76,13 @@ class ContentShiftGrad(GradientBackendAttack):
         )
 
 
-class ContentShift(BaseOptimAttackCreator):
+class SectionInjection(BaseOptimAttackCreator):
     """
-    Content Shift attack
+    Section Injection attack
 
-    Demetrio, L., Coull, S. E., Biggio, B., Lagorio, G., Armando, A., & Roli, F. (2021).
-    Adversarial EXEmples: A survey and experimental evaluation of practical attacks on machine learning for windows malware detection.
-        ACM Transactions on Privacy and Security (TOPS), 24(4), 1-31.
+    Demetrio, L., Biggio, B., Lagorio, G., Roli, F., & Armando, A. (2021).
+    Functionality-preserving black-box optimization of adversarial windows malware.
+    IEEE Transactions on Information Forensics and Security, 16, 3469-3478.
     """
 
     @staticmethod
@@ -85,18 +90,19 @@ class ContentShift(BaseOptimAttackCreator):
         return {OptimizerBackends.GRADIENT, OptimizerBackends.NG}
 
     @staticmethod
-    def _get_nevergrad_implementation() -> Type[ContentShiftGradFree]:
-        return ContentShiftGradFree
+    def _get_nevergrad_implementation() -> Type[SectionInjectionGradFree]:
+        return SectionInjectionGradFree
 
     @staticmethod
-    def _get_native_implementation() -> Type[ContentShiftGrad]:
-        return ContentShiftGrad
+    def _get_native_implementation() -> Type[SectionInjectionGrad]:
+        return SectionInjectionGrad
 
     def __new__(
             cls,
             query_budget: int,
             y_target: Union[int, None] = None,
-            perturbation_size: int = 512,
+            how_many_sections: int = 75,
+            size_per_section: int = 512,
             random_init: bool = False,
             step_size: int = 16,
             population_size: int = 10,
@@ -113,7 +119,8 @@ class ContentShift(BaseOptimAttackCreator):
             }
         return implementation(
             query_budget=query_budget,
-            perturbation_size=perturbation_size,
+            how_many_sections=how_many_sections,
+            size_per_section=size_per_section,
             y_target=y_target,
             trackers=trackers,
             random_init=random_init,
