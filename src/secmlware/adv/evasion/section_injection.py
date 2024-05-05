@@ -10,7 +10,7 @@ from secmlware.adv.evasion.base_optim_attack_creator import (
 from secmlware.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from secmlware.adv.evasion.gradient_attack import GradientBackendAttack
 from secmlware.initializers.section_injection_initializer import SectionInjectionInitializer
-from secmlware.manipulations.replacement import ReplacementManipulation
+from secmlware.manipulations.replacement_manipulation import ReplacementManipulation
 from secmlware.optim.optimizer_factory import MalwareOptimizerFactory
 
 

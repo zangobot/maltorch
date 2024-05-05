@@ -9,7 +9,7 @@ from secmlware.adv.evasion.base_optim_attack_creator import (
 )
 from secmlware.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from secmlware.adv.evasion.gradient_attack import GradientBackendAttack
-from secmlware.manipulations.replacement import (
+from secmlware.manipulations.replacement_manipulation import (
     ReplacementManipulation,
 )
 from secmlware.initializers.partial_dos_initializer import PartialDOSInitializer

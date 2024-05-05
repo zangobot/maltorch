@@ -3,7 +3,7 @@ import copy
 import torch
 from torch.nn import CrossEntropyLoss
 
-from secmlware.manipulations.replacement import ReplacementManipulation
+from secmlware.manipulations.replacement_manipulation import ReplacementManipulation
 from secmlware.optim.bgd import BGD
 from secmlware.zoo.malconv import MalConv
 

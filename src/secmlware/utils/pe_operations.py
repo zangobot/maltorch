@@ -154,7 +154,7 @@ def content_shift_manipulation(
     if not preferable_extension_amount:
         return x, []
     adv_x = x.flatten().tolist()
-    liefpe = lief.PE.parse(adv_x.tolist())
+    liefpe = lief.PE.parse(adv_x)
     section_file_alignment = liefpe.optional_header.file_alignment
     if section_file_alignment == 0:
         return x, []

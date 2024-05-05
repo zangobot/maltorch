@@ -32,8 +32,9 @@ class ByteBasedInitializer(Initializer, ABC):
 
 
 class IdentityInitializer(ByteBasedInitializer):
-    def __init__(self):
-        super().__init__(random_init=False)
+    def __init__(self, random_init: bool = False):
+        super().__init__(random_init=random_init)
 
     def __call__(self, x: torch.Tensor) -> [torch.Tensor, torch.Tensor, list]:
-        return x
+        delta = torch.rand_like(x) if self.random_init else torch.zeros_like(x)
+        return x, torch.zeros_like(x), []
