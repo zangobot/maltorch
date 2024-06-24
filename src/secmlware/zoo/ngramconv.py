@@ -47,7 +47,7 @@ class NGramConv(EmbeddingModel):
 
     def __init__(self, embedding_size=8, max_input_size=2**20, out_channels: int = 100, threshold=0.5):
         super(NGramConv, self).__init__(
-            name="ShallowConv", gdrive_id="ModelWeightsNotUploadedYet"
+            name="NGramConv", gdrive_id="ModelWeightsNotUploadedYet"
         )
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size

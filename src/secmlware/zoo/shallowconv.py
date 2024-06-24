@@ -9,7 +9,7 @@ Niall McLaughlin, Jesús Martínez del Rincón, BooJoong Kang, Suleiman Y. Yerim
 Deep Android Malware Detection.
 ACM Conference on Data and Application Security and Privacy (CODASPY 2017)
 
-This implementation isl oosely based on the shallow convolutional neural network architecture defined in
+This implementation is loosely based on the shallow convolutional neural network architecture defined in
 Gibert et al. 2017 and McLaughlin et al.2017 but with three convolutional layers with kernel sizes 3, 5, and 7.
 
 """
