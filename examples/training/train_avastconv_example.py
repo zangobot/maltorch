@@ -1,5 +1,3 @@
-import sys
-sys.path.append("../src/")
 from secmlware.zoo.avaststyleconv import AvastStyleConv
 from secmlware.datasets.binary_dataset import BinaryDataset
 from torch.utils.data import DataLoader

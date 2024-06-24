@@ -11,7 +11,7 @@ class BinaryDataset(Dataset):
                  goodware_directory: str = None,
                  malware_directory: str = None,
                  max_len: int = 2**20,
-                 padding_value: float = 256.0):
+                 padding_value: int = 256):
         self.all_files = []
         self.max_len = max_len
         self.padding_value = padding_value
