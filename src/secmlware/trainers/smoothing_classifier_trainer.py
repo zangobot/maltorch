@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.base_model import BaseModel
 from torch.utils.data import DataLoader
@@ -10,7 +12,15 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score, recall_score, accuracy_score, f1_score
 
 
-class BinaryTrainer(BaseTrainer):
+def calculate_score(y_preds: np.array) -> Tuple[int, int]:
+    num_benign = np.count_nonzero(y_preds == 0)
+    num_malicious = np.count_nonzero(y_preds == 1)
+    y_score = num_malicious / (num_benign + num_malicious)
+    return y_score
+
+
+class SmoothingClassifierTrainer(BaseTrainer):
+
     def __init__(self, num_epochs: int = 10, patience: int = 5, output_directory_path: str = None):
         self.num_epochs = num_epochs
         self.patience = patience
@@ -89,15 +99,30 @@ class BinaryTrainer(BaseTrainer):
                     outputs = model(inputs)
                     outputs = torch.squeeze(outputs)
                     y_preds = outputs.round()
-                    loss = criterion(outputs, labels.float())
-                    running_loss += loss.item()
+                    y_preds = y_preds.detach().cpu().numpy().ravel()
 
-                    preds.extend(y_preds.detach().cpu().numpy().ravel())
+                    new_labels = torch.full((y_preds.shape[0],), labels.item())
+                    new_labels = new_labels.to(device)
+                    loss = criterion(outputs, new_labels.float())
+
+                    running_loss += loss.mean().item()
+
+                    y_score = calculate_score(y_preds)
+                    if y_score >= model.threshold:
+                        y_pred = 1
+                    else:
+                        y_pred = 0
+
+                    preds.extend([y_pred])
                     truths.extend(labels.detach().cpu().numpy().ravel())
 
-                    eval_train_total += labels.size(0)
-                    eval_train_correct += (y_preds == labels).sum().item()
+                    try:
+                        eval_train_total += labels.size(0)
+                    except IndexError as e:
+                        eval_train_total += 1
+                    eval_train_correct += y_pred == labels.item()
             val_loss = running_loss / eval_train_total
+
             cm = confusion_matrix(np.array(truths).astype(int), np.array(preds).round().astype(int), normalize=None)
             cm_normalized = confusion_matrix(np.array(truths).astype(int), np.array(preds).round().astype(int),
                                              normalize="true")
@@ -113,7 +138,10 @@ class BinaryTrainer(BaseTrainer):
             if val_loss < best_loss:
                 best_loss = val_loss
                 best_epoch = epoch
-                torch.save(model.state_dict(), os.path.join(self.output_directory_path, "model_state_dict.pth"))
+                torch.save(
+                    model.state_dict(),
+                    os.path.join(self.output_directory_path, "model_state_dict.pth")
+                )
                 torch.save({
                     'epoch': epoch,
                     'model_state_dict': model.state_dict(),
@@ -150,5 +178,10 @@ class BinaryTrainer(BaseTrainer):
 
             validation_losses.append(val_loss)
             validation_accuracies.append(val_accuracy)
+
+
+
+
+
 
 
