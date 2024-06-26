@@ -150,5 +150,7 @@ class BinaryTrainer(BaseTrainer):
 
             validation_losses.append(val_loss)
             validation_accuracies.append(val_accuracy)
+        return model
+
 
 

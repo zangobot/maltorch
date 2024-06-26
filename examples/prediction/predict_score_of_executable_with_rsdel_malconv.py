@@ -9,7 +9,7 @@ model_path = "/path/to/mode/state/dict"
 
 preprocessing = RandomizedDeletionPreprocessing(
     pdel=0.97,
-    num_versions=20,
+    num_versions=100,
     padding_value=256
 )
 postprocessing = SmoothingPostprocessing()
