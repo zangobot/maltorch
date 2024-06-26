@@ -6,12 +6,11 @@ import os
 from secmlware.datasets.binary_dataset import BinaryDataset
 
 
-class RandomizedAblationDataset(BinaryDataset):
+class RandomizedDeletionDataset(BinaryDataset):
     """
-    Daniel Gibert, Giulio Zizzo, Quan Le
-    Towards a Practical Defense Against Adversarial Attacks on Deep Learning-Based Malware Detectors via Randomized
-    Smoothing.
-    ESORICS Workshops, SECAI 2024
+    Zhougun Huang, Niel Marchant, Keane Lucas, Lujo Bauer, Olya Ohrimenko, Benjamin I. P. Rubenstein
+    RS-Del: Edit Distance Robustness Certificates for Sequence Classifiers via Randomized Deletion
+    NeurIPS 2023,
     """
     def __init__(self,
                  csv_filepath: str = None,
@@ -20,7 +19,7 @@ class RandomizedAblationDataset(BinaryDataset):
                  max_len: int = 2**20,
                  padding_value: int = 256,
                  num_versions: int = 100,
-                 pabl: float = 0.97,
+                 pdel: float = 0.97,
                  is_training: bool = True):
         super().__init__(
             csv_filepath=csv_filepath,
@@ -30,25 +29,24 @@ class RandomizedAblationDataset(BinaryDataset):
             padding_value=padding_value
         )
         self.num_versions = num_versions
-        self.pabl = pabl
+        self.pdel = pdel
         self.is_training = is_training
 
     def pad_collate_func(self, batch):
         """
-        This function randomly ablates the bytes given a probability pabl.
+        This function randomly deletes the bytes given a probability pdel.
         It works differently at training and at test time.
-        During training, given an input example we generate an ablated version of that example.
-        During testing, given an input example we generate N ablated versions of that example.
+        During training, given an input example we generate a single randomized version of that example.
+        During testing, given an input example we generate N randomized versions of that example.
         """
         vecs = []
         labels = []
         if self.is_training is True:
             for x, y in batch:
                 # Get mask
-                mask_value_prob = 1.0 - self.pabl
-                mask = torch.rand(x.shape[0]) <= mask_value_prob
-                # Apply mask - Convert masked elements to self.padding_value
-                masked_x = x.masked_fill(mask, self.padding_value)
+                mask_value_prob = 1.0 - self.pdel
+                mask = torch.rand(x.shape[0]) > mask_value_prob
+                masked_x = torch.masked_select(x, mask=mask)
                 vecs.append(masked_x)
                 labels.append(y)
             x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
@@ -59,11 +57,9 @@ class RandomizedAblationDataset(BinaryDataset):
             if len(batch) == 1:  # Only implemented for batch sizes equals to 1
                 x = batch[0][0]
                 for i in range(self.num_versions):
-                    # Get mask
-                    mask_value_prob = 1.0 - self.pabl
-                    mask = torch.rand(x.shape[0]) <= mask_value_prob
-                    # Apply mask - Convert masked elements to self.padding_value
-                    masked_x = x.masked_fill(mask, self.padding_value)
+                    mask_value_prob = 1.0 - self.pdel
+                    mask = torch.rand(x.shape[0]) > mask_value_prob
+                    masked_x = torch.masked_select(x, mask=mask)
                     vecs.append(masked_x)
                 x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
                 y = batch[0][1]
