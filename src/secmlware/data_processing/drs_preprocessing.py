@@ -6,7 +6,11 @@ class DeRandomizedPreprocessing(DataProcessing):
     """
     Daniel Gibert, Giulio Zizzo, Quan Le
     Certified Robustness of Static Deep Learning-based Malware Detectors against Patch and Append Attacks
-    AISec '23: Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security
+    AISec '23
+
+    Shoumik Saha, Weinxio Wang, Yigitcan Kaya, Soheil Feizi, Tudo Dumitras
+    DRSM: De-Randomized Smoothing on Malware Classifier Providing Certified Robustness
+    ICRL'24
     """
     def __init__(self, chunk_size: int = 512, padding_value: int = 256):
         super().__init__()
