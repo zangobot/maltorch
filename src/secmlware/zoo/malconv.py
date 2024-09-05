@@ -12,7 +12,7 @@ from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
 from torch import nn
 
-from secmlware.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
+from src.secmlware.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
 
 
 class MalConv(EmbeddingModel):

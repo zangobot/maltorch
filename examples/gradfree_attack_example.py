@@ -1,9 +1,8 @@
 from pathlib import Path
-
 from secmlt.metrics.classification import Accuracy
-from secmlt.trackers import LossTracker, TensorboardTracker
+from secmlt.trackers.tensorboard_tracker import TensorboardTracker
+from secmlt.trackers import LossTracker
 from torch.utils.data import TensorDataset, DataLoader
-
 from secmlware.adv.evasion.partialdos import PartialDOS
 from secmlware.data.loader import load_from_folder, create_labels
 from secmlware.zoo.malconv import MalConv

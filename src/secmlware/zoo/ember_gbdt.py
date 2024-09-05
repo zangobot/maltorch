@@ -1,5 +1,4 @@
 from typing import Optional
-
 import ember.features
 import lightgbm
 import numpy as np
@@ -8,14 +7,13 @@ from secmlt.models.base_model import BaseModel
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
 from torch.utils.data import DataLoader
-
-from secmlware.zoo.model import Model
+from src.secmlware.zoo.model import Model
 
 
 class EmberGBDT(Model):
     # TODO add gdrive ID
     def __init__(self, model_path: str = ""):
-        super().__init__("ember_gbdt", "1MGR7l5c3XSH2dTj2oeefBlKig0bvH2_Z")
+        super().__init__("ember_model.txt", "1MGR7l5c3XSH2dTj2oeefBlKig0bvH2_Z")
         self.tree_model = None
         self.load_pretrained_model(model_path=model_path)
 

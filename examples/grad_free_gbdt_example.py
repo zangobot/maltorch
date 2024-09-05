@@ -1,11 +1,11 @@
 from pathlib import Path
 
 from secmlt.metrics.classification import Accuracy
-from secmlt.trackers import LossTracker, TensorboardTracker
+# from secmlt.trackers import LossTracker, TensorboardTracker
 from torch.utils.data import TensorDataset, DataLoader
 
 from secmlware.adv.evasion.partialdos import PartialDOS
-from secmlware.data.loader import load_from_folder, create_labels
+from secmlware.data.loader import load_from_folder, create_labels, load_single_exe
 from secmlware.zoo.ember_gbdt import EmberGBDT
 
 tree_path = (
@@ -17,13 +17,15 @@ tree_path = (
     / "ember_model.txt"
 )
 
-folder = Path(__file__).parent
-X = load_from_folder(folder, "file", limit=1)
+# folder = Path(__file__).parent
+folder = Path("/Users/bridge/PhD/Code/mal-pipeline/malware/da5d8fb5aa21cd6ffcacd9bc6cfc4305ab96ed20051273a68137785d838230f7")
+X = load_single_exe(folder).unsqueeze(0)
+# X = load_from_folder(folder, "file", limit=3)
 path = str(Path(__file__).parent / "logs" / "gbdt-gf-pdos")
-tensorboard_tracker = TensorboardTracker(path, [LossTracker()])
+# tensorboard_tracker = TensorboardTracker(path, [LossTracker()])
 pdos_attack = PartialDOS(
     query_budget=30,
-    trackers=tensorboard_tracker,
+    trackers=None,
     random_init=False,
     backend="nevergrad",
     population_size=5,

@@ -4,7 +4,7 @@ import torch
 
 
 def load_from_folder(
-    path: Path, extension: str = "exe", padding: int = 256, limit=None
+        path: Path, extension: str = "exe", padding: int = 256, limit=None
 ) -> torch.Tensor:
     """Create a torch.Tensor whose rows are all the file with extension specified in input.
     Tensor are padded to match the same size.
@@ -37,5 +37,6 @@ def load_single_exe(path: Path) -> torch.Tensor:
     """
     with open(path, "rb") as h:
         code = h.read()
-    x = torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.float)
+    # modified the conversion for ember and yara issues
+    x = torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.long)
     return x
