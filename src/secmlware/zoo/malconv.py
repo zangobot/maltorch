@@ -43,7 +43,7 @@ class MalConv(EmbeddingModel):
         )
         return net
 
-    def __init__(self, embedding_size=8, max_input_size=2**20, threshold=0.5):
+    def __init__(self, embedding_size=8, max_input_size=2**20):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
