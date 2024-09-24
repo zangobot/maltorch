@@ -43,12 +43,12 @@ class MalConv(EmbeddingModel):
         )
         return net
 
-    def __init__(self, embedding_size=8, max_input_size=2**20):
+    def __init__(self, embedding_size: int = 8, max_input_size: int =2**20, threshold: float =0.5, padding_value: int = 256):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
         self.embedding_1 = nn.Embedding(
-            num_embeddings=257, embedding_dim=embedding_size
+            num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_value
         )
         self.conv1d_1 = nn.Conv1d(
             in_channels=embedding_size,
@@ -70,7 +70,8 @@ class MalConv(EmbeddingModel):
         self.dense_2 = nn.Linear(in_features=128, out_features=1, bias=True)
         self.embedding_size = (embedding_size,)
         self.max_input_size = max_input_size
-        self.invalid_value = 256
+        self.threshold = threshold
+        self.invalid_value = padding_value
         self._expansion = torch.tensor([[-1.0, 1.0]])
 
     def embedding_layer(self):
