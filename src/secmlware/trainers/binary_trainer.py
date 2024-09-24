@@ -1,13 +1,14 @@
-from secmlt.models.base_trainer import BaseTrainer
-from secmlt.models.base_model import BaseModel
-from torch.utils.data import DataLoader
-import torch
-from tqdm import tqdm
 import os
 import sys
+
 import numpy as np
+import torch
+from secmlt.models.base_model import BaseModel
+from secmlt.models.base_trainer import BaseTrainer
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score, recall_score, accuracy_score, f1_score
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 
 class BinaryTrainer(BaseTrainer):
@@ -82,7 +83,6 @@ class BinaryTrainer(BaseTrainer):
             preds = []
             truths = []
 
-            i = 0
             with torch.no_grad():
                 for inputs, labels in tqdm(validation_dataloader):
                     inputs, labels = inputs.to(device), labels.to(device)
@@ -151,6 +151,3 @@ class BinaryTrainer(BaseTrainer):
             validation_losses.append(val_loss)
             validation_accuracies.append(val_accuracy)
         return model
-
-
-

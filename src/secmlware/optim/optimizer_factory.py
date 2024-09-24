@@ -12,7 +12,7 @@ from secmlware.optim.byte_gradient_processing import ByteGradientProcessing
 class MalwareOptimizerFactory:
     @staticmethod
     def create(optim_cls: Union[str, Callable], **optimizer_args):
-        if type(optim_cls) is not str:
+        if not isinstance(optim_cls, str):
             return partial(optim_cls, **optimizer_args)()
         if optim_cls == "bgd":
             return MalwareOptimizerFactory.create_bgd(**optimizer_args)

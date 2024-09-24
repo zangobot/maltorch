@@ -13,7 +13,7 @@ from secmlware.zoo.model import EmbeddingModel
 
 class Activations:
     Linear = (lambda x: x,)
-    ReLU = lambda x: torch.relu(x)
+    ReLU = torch.relu
 
 
 class BBDnn(EmbeddingModel):

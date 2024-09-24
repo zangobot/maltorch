@@ -2,7 +2,7 @@ from torch.utils.data import Dataset
 from typing import Tuple
 import torch
 import os
-
+from pathlib import Path
 
 class BinaryDataset(Dataset):
     def __init__(self,
@@ -53,8 +53,6 @@ class BinaryDataset(Dataset):
 
 
 
-# This should go to secmlware.loader.py - Ask Luca
-from pathlib import Path
 
 def load_single_exe(path: Path, max_len: int = 2**20) -> torch.Tensor:
     """

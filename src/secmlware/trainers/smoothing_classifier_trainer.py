@@ -92,7 +92,6 @@ class SmoothingClassifierTrainer(BaseTrainer):
             preds = []
             truths = []
 
-            i = 0
             with torch.no_grad():
                 for inputs, labels in tqdm(validation_dataloader):
                     inputs, labels = inputs.to(device), labels.to(device)
@@ -118,7 +117,7 @@ class SmoothingClassifierTrainer(BaseTrainer):
 
                     try:
                         eval_train_total += labels.size(0)
-                    except IndexError as e:
+                    except IndexError:
                         eval_train_total += 1
                     eval_train_correct += y_pred == labels.item()
             val_loss = running_loss / eval_train_total
