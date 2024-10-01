@@ -38,5 +38,5 @@ def load_single_exe(path: Path) -> torch.Tensor:
     with open(path, "rb") as h:
         code = h.read()
     # modified the conversion for ember and yara issues
-    x = torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.long)
+    x = torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.float)
     return x

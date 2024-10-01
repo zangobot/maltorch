@@ -55,7 +55,7 @@ class _YaraModel(BaseModel, ABC):
         n_samples = x.shape[0]
         matches = []
         for i in range(n_samples):
-            x_i = x[i, :].data.numpy().tobytes()
+            x_i = x[i, :].data.to(torch.uint8).numpy().tobytes()
             match = self.model.match(data=x_i)
             # checking how many rules have been triggered
             triggered_rules = len(match)
