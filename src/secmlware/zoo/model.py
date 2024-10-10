@@ -45,7 +45,7 @@ class PytorchModel(Model):
             self._fetch_pretrained_model()
         else:
             path = model_path
-        state_dict = torch.load(path, map_location=device)
+        state_dict = torch.load(path, map_location=device, weights_only=True)
         self.load_state_dict(state_dict)
         self.to(device)
 
