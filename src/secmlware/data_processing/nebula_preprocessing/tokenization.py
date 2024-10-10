@@ -1,3 +1,11 @@
+"""
+Trizna, D. and Demetrio, L. and Battista, B. and Fabio, R. (2024)
+Nebula: Self-Attention for Dynamic Malware Analysis
+IEEE Transactions on Information Forensics and Security (TIFS)
+Paper: https://ieeexplore.ieee.org/document/10551436
+Source: https://github.com/dtrizna/nebula/blob/main/nebula/preprocessing/pe.py
+"""
+
 import os
 import logging
 import json
