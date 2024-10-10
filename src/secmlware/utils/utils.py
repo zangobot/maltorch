@@ -10,6 +10,14 @@ def download_gdrive(gdrive_id, fname_save):
                 return value
 
         return None
+    
+    def get_uuid_token(response):
+        # TODO: rude way, might want to implement proper HTML parsing
+        if 'uuid" value="' not in response.text:
+            return None
+        
+        uuid = response.text.split("uuid")[1].replace('" value="', "").split('"')[0]
+        return uuid
 
     def save_response_content(response, fname_save):
         CHUNK_SIZE = 32768
@@ -21,15 +29,20 @@ def download_gdrive(gdrive_id, fname_save):
 
     print("Download started: path={} (gdrive_id={})".format(fname_save, gdrive_id))
 
-    url_base = "https://docs.google.com/uc?export=download&confirm=t"
+    docs_domain = "https://docs.google.com/uc"
+    drive_domain = "https://drive.usercontent.google.com/download"
     session = requests.Session()
 
-    response = session.get(url_base, params={"id": gdrive_id}, stream=True)
+    response = session.get(docs_domain, params={"id": gdrive_id, "export": "download", "confirm": "t"}, stream=True)
     token = get_confirm_token(response)
+    uuid = get_uuid_token(response)
 
     if token:
-        params = {"id": gdrive_id, "confirm": token}
-        response = session.get(url_base, params=params, stream=True)
+        params = {"id": gdrive_id, "confirm": token,  "export": "download"}
+        response = session.get(docs_domain, params=params, stream=True)
+    elif uuid:
+        params = {"id": gdrive_id, "uuid": uuid, "export": "download", "confirm": "t"}
+        response = session.get(drive_domain, params=params, stream=True)
 
     save_response_content(response, fname_save)
     session.close()
