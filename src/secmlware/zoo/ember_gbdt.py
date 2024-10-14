@@ -13,9 +13,10 @@ from secmlware.zoo.model import Model
 
 
 class EmberGBDT(Model):
-    # TODO add gdrive ID
     def __init__(self, model_path: str = ""):
-        super().__init__("ember_gbdt", "1MGR7l5c3XSH2dTj2oeefBlKig0bvH2_Z")
+        super().__init__(
+            name="ember_gbdt", gdrive_id="1MGR7l5c3XSH2dTj2oeefBlKig0bvH2_Z"
+        )
         self.tree_model = None
         self.load_pretrained_model(model_path=model_path)
 
