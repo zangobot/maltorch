@@ -11,6 +11,7 @@ import json
 import logging
 from time import time
 from pathlib import Path
+from typing import Union
 
 import speakeasy
 from secmlware.utils.strings import get_alphanum_chars
@@ -53,7 +54,7 @@ class PEDynamicFeatureExtractor:
         # Just creating an empty file to indicate failure
         Path(errfile).touch()
 
-    def _emulation(self, config, path, data):
+    def _emulation(self, config: dict, data: bytes, path: str = None):
         try:
             file_name = path if path else str(data[:15])
             se = speakeasy.Speakeasy(config=config)
@@ -69,16 +70,17 @@ class PEDynamicFeatureExtractor:
             logging.error(f"[-] Failed emulation of {file_name} | Exception:\n{ex}")
             return None
 
-    def emulate(self, path=None, data=None):
-        if not (path or data):
-            raise ValueError("[-] Either 'path' or 'data' must be specified.")
-        if path:
-            if not os.path.exists(path):
-                raise FileNotFoundError(f"[-] File {path} does not exist.")
-            self.sample_name = os.path.splitext(os.path.basename(path))[0]
+    def emulate(self, raw_pe: Union[str, bytes]):
+        if isinstance(raw_pe, str):
+            if os.path.exists(raw_pe):
+                with open(raw_pe, "rb") as f:
+                    raw_pe = f.read()
+                sample_name = os.path.splitext(os.path.basename(raw_pe))[0]
+            else:
+                raise FileNotFoundError(f"[-] File not found: {raw_pe}")
         else:
-            self.sample_name = f"{int(time())}"
-        report = self._emulation(self.speakeasy_config, path, data)
+            sample_name = f"{int(time())}"
+        report = self._emulation(self.speakeasy_config, data=raw_pe, path=sample_name)
 
         if self.output_folder:
             if report:
