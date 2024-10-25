@@ -23,29 +23,6 @@ from secmlt.models.base_trainer import BaseTrainer
 from secmlware.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
 
 class ShallowConv(EmbeddingModel):
-    @classmethod
-    def create_model(
-            cls,
-            model_path: Optional[str] = None,
-            device: str = "cpu",
-            preprocessing: DataProcessing = None,
-            postprocessing: DataProcessing = None,
-            trainer: BaseTrainer = None,
-            threshold: Optional[Union[float, None]] = 0.5,
-            **kwargs,
-    ) -> BaseEmbeddingPytorchClassifier:
-        net = cls(**kwargs)
-        net.load_pretrained_model(device=device, model_path=model_path)
-        net.eval()
-        net = BaseEmbeddingPytorchClassifier(
-            model=net,
-            preprocessing=preprocessing,
-            postprocessing=postprocessing,
-            trainer=trainer,
-            threshold=threshold,
-        )
-        return net
-
     def __init__(self, embedding_size=8, max_input_size=2**20, out_channels: int = 100, threshold: float = 0.5, padding_value: int = 256):
         super(ShallowConv, self).__init__(
             name="ShallowConv", gdrive_id="ModelWeightsNotUploadedYet"
