@@ -255,7 +255,7 @@ class Nebula(EmbeddingModel):
             self,
             vocab_size: int = 50000,
             seq_len: int = 512,
-            tokenizer: str = None,
+            tokenizer: str = 'whitespace',
     ):
         # optional library imports
         speakeasy_spec = importlib.util.find_spec("speakeasy")
@@ -271,12 +271,11 @@ class Nebula(EmbeddingModel):
         self.vocab_size = vocab_size
         self.seq_len = seq_len
 
-        assert tokenizer in ['bpe', 'whitespace'], "tokenizer must be in ['bpe', 'whitespace']"
-
         # dynamic extractor setup
         self.dynamic_extractor = PEDynamicFeatureExtractor() 
         
         # tokenizer initialization
+        assert tokenizer in ['bpe', 'whitespace'], "tokenizer must be in ['bpe', 'whitespace']"
         if tokenizer == 'bpe':
             self.tokenizer = JSONTokenizerBPE(
                 vocab_size=self.vocab_size,
@@ -305,7 +304,6 @@ class Nebula(EmbeddingModel):
             "pooling": "flatten"
         }
         self.model = TransformerEncoderChunks(**torch_model_config)
-
 
     def dynamic_analysis_pe_file(self, pe_file: Union[str, bytes]) -> dict:
         if isinstance(pe_file, str):
