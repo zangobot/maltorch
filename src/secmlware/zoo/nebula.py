@@ -1,6 +1,12 @@
-import os
+"""
+Nebula: Self-Attention for Dynamic Malware Analysis
+Dmitrijs Trizna; Luca Demetrio; Battista Biggio; Fabio Roli
+IEEE Transactions on Information Forensics andSecurity (TIFS), 2024
+https://ieeexplore.ieee.org/document/10551436
+Reimplemented from: https://github.com/dtrizna/nebula/blob/main/nebula/__init__.py
+"""
+
 import math
-import json
 import importlib.util
 from typing import Union, Optional, List
 
