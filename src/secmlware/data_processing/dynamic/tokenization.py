@@ -114,7 +114,6 @@ class JSONFilter:
 class JSONTokenizer:
     def __init__(
         self,
-        vocab_size: int,
         seq_len: int,
         cleanup_symbols: List[str] = JSON_CLEANUP_SYMBOLS,
         stopwords: List[str] = SPEAKEASY_TOKEN_STOPWORDS,
@@ -123,10 +122,6 @@ class JSONTokenizer:
         if not isinstance(seq_len, int):
             raise TypeError("seq_len must be an integer!")
         self.seq_len = seq_len
-
-        if not isinstance(vocab_size, int):
-            raise TypeError("vocab_size must be an integer!")
-        self.vocab_size = vocab_size
 
         if cleanup_symbols is not None and not isinstance(cleanup_symbols, (list, tuple)):
             raise TypeError("cleanup_symbols must be a list or tuple!")
@@ -199,8 +194,8 @@ class JSONTokenizer:
 class JSONTokenizerNaive(JSONTokenizer):
     def __init__(
         self,
-        vocab_size: int,
         seq_len: int,
+        vocab_size: int = 10000,
         vocab: Union[Dict, str] = None,
         cleanup_symbols: List[str] = JSON_CLEANUP_SYMBOLS,
         stopwords: List[str] = SPEAKEASY_TOKEN_STOPWORDS,
@@ -208,11 +203,11 @@ class JSONTokenizerNaive(JSONTokenizer):
         counter_dump: bool = False
     ):
         super().__init__(
-            vocab_size,
             seq_len,
             cleanup_symbols,
             stopwords
         )
+        self.vocab_size = vocab_size
         if tokenizer_type not in ["whitespace", "wordpunct"]:
             raise ValueError("tokenizer_type must be either 'whitespace' or 'wordpunct'!")
         if tokenizer_type == "whitespace":
@@ -223,6 +218,8 @@ class JSONTokenizerNaive(JSONTokenizer):
         self.counter_dump = counter_dump
         self.vocab_error = "Vocabulary not initialized! Use build_vocab() first or load it using load_vocab()!"
         if vocab is not None:
+            if vocab == "quovadis":
+                vocab = os.path.join(os.path.dirname(__file__), "quovadis_apis.json")
             self.load_vocab(vocab)
 
     def tokenize_event(self, json_event):
