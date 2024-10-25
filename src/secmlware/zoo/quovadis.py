@@ -6,10 +6,7 @@ Reimplemented from: https://github.com/dtrizna/quo.vadis/blob/main/models.py
 """
 
 import importlib.util
-from typing import List, Union, Optional
-
-from secmlware.zoo.model import EmbeddingModel
-from secmlware.zoo.malconv import MalConv
+from typing import Dict, List, Union, Optional
 
 import torch
 import torch.nn as nn
@@ -18,6 +15,7 @@ import torch.nn.functional as F
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
 
+from secmlware.zoo.malconv import MalConv
 from secmlware.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
 
 
@@ -173,7 +171,6 @@ class Emulation(Core1DConvNet):
         x = self.embed(x)
         output = self._forward_embed_x(x)
         return output
-
         
 class QuoVadis(EmbeddingModel):
     def __init__(
@@ -182,27 +179,17 @@ class QuoVadis(EmbeddingModel):
             padding_value: int = 256,
             representation_size: int = 128,
             quo_vadis_hidden_neurons: List[int] = [128],
-            modules: List[str] = ['malconv', 'emulation'],
+            module_names: List[str] = ['malconv', 'emulation'], # TODO: extend to other modules
     ):
         super(QuoVadis, self).__init__(
             name="QuoVadis", gdrive_id="NotYetPreTrained"
         )
-        self.module_set = {}
-        if 'emulation' in modules:
-            self.module_set['emulation'] = Emulation(
-                name="Emulation",
-                gdrive_id="NotYetPreTrained",
-                embedding_size=embedding_size,
-                output_dim=representation_size
-            )
-        if 'malconv' in modules:
-            self.module_set['malconv'] = MalConv(
-                embedding_size=embedding_size,
-                padding_value=padding_value,
-                out_size=representation_size
-            )
-        
+        self.embedding_size = embedding_size
+        self.padding_value = padding_value
+        self.module_names = module_names
+        self.representation_size = representation_size
         self.representation_size_total = representation_size * len(self.module_set)
+        self.module_set = self.init_modules()
 
         self.quovadis_meta_model = MLP(
             input_size=self.representation_size_total,
@@ -212,10 +199,30 @@ class QuoVadis(EmbeddingModel):
             dropout=0.5
         )
 
+    def init_modules(self) -> List[EmbeddingModel]:
+        module_set = []
+        for module in self.module_names:
+            if module == "malconv":
+                module_set.append(MalConv(
+                    embedding_size=self.embedding_size,
+                    padding_value=self.padding_value,
+                    out_size=self.representation_size
+                ))
+            elif module == "emulation":
+                module_set.append(Emulation(
+                    embedding_size=self.embedding_size,
+                    padding_value=self.padding_value,
+                    output_dim=self.representation_size
+                ))
+            else:
+                raise ValueError(f"Unknown module: {module}")
+        return module_set
+
     @classmethod
     def create_model(
             cls,
             model_path: str = None,
+            module_paths: Dict[str, str] = None,
             device: str = "cpu",
             preprocessing: DataProcessing = None,
             postprocessing: DataProcessing = None,
@@ -227,8 +234,8 @@ class QuoVadis(EmbeddingModel):
         net.load_pretrained_model(device=device, model_path=model_path)
         net.eval()
 
-        for module in net.module_set.values():
-            module.load_pretrained_model(device=device, model_path=model_path)
+        for module in net.module_set:
+            module.load_pretrained_model(device=device, model_path=module_paths[module])
             module.eval()
 
         net = BaseEmbeddingPytorchClassifier(
@@ -240,12 +247,13 @@ class QuoVadis(EmbeddingModel):
         )
         return net
     
-    # TODO: consider if embed in QuoVadis should be a torch.cat() output from early modules
-    # instead of using the embed() method of each module
     def embed(self, x: torch.Tensor):
+        """
+        Embedding function in Quo Vadis is forward pass over all early fusion modules.
+        """
         embeddings = []
-        for module in self.module_set.values():
-            embeddings.append(module.embed(x))
+        for module in self.module_set:
+            embeddings.append(module.forward(x))
         return torch.cat(embeddings, dim=1)
     
     def embedding_layer(self):
@@ -255,12 +263,8 @@ class QuoVadis(EmbeddingModel):
         raise NotImplementedError("QuoVadis does not have a single embedding matrix")
 
     def _forward_embed_x(self, x: torch.Tensor):
-        representations = []
-        for module in self.module_set.values():
-            representations.append(module._forward_embed_x(x))
-        return torch.cat(representations, dim=1)
+        return self.quovadis_meta_model(x)
     
     def forward(self, x: torch.Tensor):
         x = self.embed(x)
-        output = self._forward_embed_x(x)
-        return self.quovadis_meta_model(output)
+        return self._forward_embed_x(x)
