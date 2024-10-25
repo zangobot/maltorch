@@ -1,11 +1,3 @@
-import importlib.util
-
-if importlib.util.find_spec("speakeasy", None):
-    from pefile import PEFormatError
-    from unicorn import UcError
-    from speakeasy import errors
-    SPEAKEASY_EXCEPTIONS = (PEFormatError, UcError, IndexError, errors.NotSupportedError, errors.SpeakeasyError)
-
 JSON_CLEANUP_SYMBOLS = ['"', "'", ":", ",", "[", "]", "{", "}", "\\", "/"]
 
 SPEAKEASY_RECORD_LIMITS = {"network_events.traffic": 256}
@@ -24,7 +16,7 @@ SPEAKEASY_RECORD_FIELDS = [
 
 SPEAKEASY_TOKEN_STOPWORDS = ['api_name', 'args', 'ret_val', 'event', 'path', 'open_flags', 'access_flags', 'size', 'server', 'proto', 'port', 'method']
 
-SPEAKEASY_LABELMAP = {
+QUO_VADIS_LABELMAP = {
     "clean": 0,
     "backdoor": 1,
     "coinminer": 2,
