@@ -109,6 +109,7 @@ class EmbeddingModel(PytorchModel, ABC):
         preprocessing: DataProcessing = None,
         postprocessing: DataProcessing = None,
         trainer: BaseTrainer = None,
+        threshold: Optional[Union[float, None]] = 0.5,
         **kwargs,
     ) -> BaseEmbeddingPytorchClassifier:
         net = cls(**kwargs)
@@ -119,6 +120,7 @@ class EmbeddingModel(PytorchModel, ABC):
             preprocessing=preprocessing,
             postprocessing=postprocessing,
             trainer=trainer,
+            threshold=threshold,
         )
         return net
 
