@@ -148,10 +148,12 @@ class Emulation(Core1DConvNet):
         if speakeasy_spec is None:
             raise ImportError("[-] 'speakeasy' is required for emulation module. Use 'pip install speakeasy' to install.")
         from secmlware.data_processing.dynamic.emulation import PEDynamicFeatureExtractor
-        from secmlware.data_processing.dynamic.tokenization import JSONTokenizerNaive
-
         self.dynamic_extractor = PEDynamicFeatureExtractor(speakeasy_record_fields=['apis.api_name'], record_limits=None)
-        
+
+        nltk_spec = importlib.util.find_spec("nltk")
+        if nltk_spec is None:
+            raise ImportError("[-] 'nltk' is required for tokenization module. Use 'pip install nltk' to install.")
+        from secmlware.data_processing.dynamic.tokenization import JSONTokenizerNaive
         # TODO: right now reusing APIs from Quo.Vadis paper
         # should be based on data in training set for fair comparison
         # so use: self.tokenizer.train(corpus, vocab_size)
