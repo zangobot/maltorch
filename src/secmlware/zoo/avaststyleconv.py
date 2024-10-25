@@ -35,29 +35,6 @@ def vec_bin_array(arr, m=8):
     return (ret*2-1).astype(np.float32)/16
 
 class AvastStyleConv(EmbeddingModel):
-    @classmethod
-    def create_model(
-        cls,
-        model_path: Optional[str] = None,
-        device: str = "cpu",
-        preprocessing: DataProcessing = None,
-        postprocessing: DataProcessing = None,
-        trainer: BaseTrainer = None,
-        threshold: Optional[Union[float, None]] = 0.5,
-        **kwargs,
-    ) -> BaseEmbeddingPytorchClassifier:
-        net = cls(**kwargs)
-        net.load_pretrained_model(device=device, model_path=model_path)
-        net.eval()
-        net = BaseEmbeddingPytorchClassifier(
-            model=net,
-            preprocessing=preprocessing,
-            postprocessing=postprocessing,
-            trainer=trainer,
-            threshold=threshold,
-        )
-        return net
-
     def __init__(self, embedding_size: int = 8, max_input_size: int = 2**20, threshold: float = 0.5, padding_value: int = 256, is_embedding_fixed: bool = True, channels: int = 48, window_size: int = 32, stride: int = 4):
         super(AvastStyleConv, self).__init__(
             name="AvastStyleConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
