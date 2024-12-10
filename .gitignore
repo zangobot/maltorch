@@ -1,2 +1,4 @@
 .idea
 src/secmlware/zoo/models/*
+sorel_meta.py
+dataset_scraper.py
