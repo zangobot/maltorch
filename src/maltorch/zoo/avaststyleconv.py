@@ -5,11 +5,10 @@ ICLR 2018. Workshop Track Proceedings, 2018.
 https://openreview.net/pdf?id=HkHrmM1PM
 """
 
-
+import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-import numpy as np
 from maltorch.zoo.model import EmbeddingModel
 
 

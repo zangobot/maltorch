@@ -17,7 +17,9 @@ Gibert et al. 2017 and McLaughlin et al.2017 but with three convolutional layers
 import torch
 import torch.nn.functional as F
 from torch import nn
+
 from maltorch.zoo.model import EmbeddingModel
+
 
 class ShallowConv(EmbeddingModel):
     def __init__(self, embedding_size=8, max_input_size=2**20, out_channels: int = 100, threshold: float = 0.5, padding_value: int = 256):

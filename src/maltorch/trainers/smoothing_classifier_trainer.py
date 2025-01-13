@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.base_model import BaseModel
 from torch.utils.data import DataLoader
@@ -12,7 +10,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score, recall_score, accuracy_score, f1_score
 
 
-def calculate_score(y_preds: np.array) -> Tuple[int, int]:
+def calculate_score(y_preds: np.array) -> float:
     num_benign = np.count_nonzero(y_preds == 0)
     num_malicious = np.count_nonzero(y_preds == 1)
     y_score = num_malicious / (num_benign + num_malicious)
