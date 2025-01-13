@@ -1,7 +1,7 @@
-from secmlware.zoo.malconv import MalConv
-from secmlware.datasets.random_drs_dataset import RandomDRSDataset
+from maltorch.zoo.malconv import MalConv
+from maltorch.datasets.random_drs_dataset import RandomDRSDataset
 from torch.utils.data import DataLoader
-from secmlware.trainers.smoothing_classifier_trainer import SmoothingClassifierTrainer
+from maltorch.trainers.smoothing_classifier_trainer import SmoothingClassifierTrainer
 import multiprocessing
 
 malconv = MalConv()
