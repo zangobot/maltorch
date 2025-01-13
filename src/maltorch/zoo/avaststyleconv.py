@@ -5,15 +5,12 @@ ICLR 2018. Workshop Track Proceedings, 2018.
 https://openreview.net/pdf?id=HkHrmM1PM
 """
 
-from typing import Optional, Union
 
 import torch
 import torch.nn.functional as F
-from secmlt.models.base_trainer import BaseTrainer
-from secmlt.models.data_processing.data_processing import DataProcessing
 from torch import nn
 import numpy as np
-from maltorch.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
+from maltorch.zoo.model import EmbeddingModel
 
 
 def vec_bin_array(arr, m=8):

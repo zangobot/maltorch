@@ -422,7 +422,7 @@ class JSONTokenizerBPE(JSONTokenizer):
             f"--model_type={model_type}",
             f"--split_by_number={split_by_number}",
             f"--max_sentence_length={sp_length}",
-            f"--max_sentencepiece_length=64"
+            "--max_sentencepiece_length=64"
         ])
         logging.info(f"Training tokenizer with command: {train_cmd}")
         self.tokenizer.Train(train_cmd)
