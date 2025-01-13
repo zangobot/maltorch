@@ -1,7 +1,7 @@
-from secmlware.zoo.shallowconv import ShallowConv
-from secmlware.datasets.binary_dataset import BinaryDataset
+from maltorch.zoo.shallowconv import ShallowConv
+from maltorch.datasets.binary_dataset import BinaryDataset
 from torch.utils.data import DataLoader
-from secmlware.trainers.binary_trainer import BinaryTrainer
+from maltorch.trainers.binary_trainer import BinaryTrainer
 import multiprocessing
 
 shallowconv = ShallowConv(out_channels=50)
