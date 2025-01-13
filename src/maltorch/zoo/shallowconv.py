@@ -14,7 +14,6 @@ Gibert et al. 2017 and McLaughlin et al.2017 but with three convolutional layers
 
 """
 
-
 import torch
 import torch.nn.functional as F
 from torch import nn
