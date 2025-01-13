@@ -3,9 +3,9 @@ import copy
 import torch
 from torch.nn import CrossEntropyLoss
 
-from secmlware.manipulations.replacement_manipulation import ReplacementManipulation
-from secmlware.optim.bgd import BGD
-from secmlware.zoo.malconv import MalConv
+from maltorch.manipulations.replacement_manipulation import ReplacementManipulation
+from maltorch.optim.bgd import BGD
+from maltorch.zoo.malconv import MalConv
 
 malconv = MalConv.create_model(input_embedding=False)
 x = torch.randint(0, 255, size=(5, 2**20))

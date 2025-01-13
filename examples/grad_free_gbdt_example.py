@@ -4,14 +4,14 @@ from secmlt.metrics.classification import Accuracy
 from secmlt.trackers import LossTracker, TensorboardTracker
 from torch.utils.data import TensorDataset, DataLoader
 
-from secmlware.adv.evasion.partialdos import PartialDOS
-from secmlware.data.loader import load_from_folder, create_labels
-from secmlware.zoo.ember_gbdt import EmberGBDT
+from maltorch.adv.evasion.partialdos import PartialDOS
+from maltorch.data.loader import load_from_folder, create_labels
+from maltorch.zoo.ember_gbdt import EmberGBDT
 
 tree_path = (
     Path(__file__).parent.parent
     / "src"
-    / "secmlware"
+    / "maltorch"
     / "zoo"
     / "models"
     / "ember_model.txt"

@@ -1,6 +1,6 @@
 import torch
-from secmlware.zoo.ember_gbdt import EmberGBDT
-from secmlware.data.loader import load_single_exe
+from maltorch.zoo.ember_gbdt import EmberGBDT
+from maltorch.data.loader import load_single_exe
 
 exe_filepath = "path/to/exe/file/"
 # model_path = "/path/to/model/state/dict"
