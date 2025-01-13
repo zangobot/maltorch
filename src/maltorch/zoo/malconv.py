@@ -4,15 +4,12 @@ Edward Raff, Jon Barker, Jared Sylvester, Robert Brandon, Bryan Catanzaro, Charl
 https://arxiv.org/abs/1710.09435
 """
 
-from typing import Optional, Union
 
 import torch
 import torch.nn.functional as F
-from secmlt.models.base_trainer import BaseTrainer
-from secmlt.models.data_processing.data_processing import DataProcessing
 from torch import nn
 
-from maltorch.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
+from maltorch.zoo.model import EmbeddingModel
 
 
 class MalConv(EmbeddingModel):
