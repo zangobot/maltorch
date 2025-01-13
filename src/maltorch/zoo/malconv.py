@@ -4,7 +4,6 @@ Edward Raff, Jon Barker, Jared Sylvester, Robert Brandon, Bryan Catanzaro, Charl
 https://arxiv.org/abs/1710.09435
 """
 
-
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -16,6 +15,7 @@ class MalConv(EmbeddingModel):
     """
     Architecture implementation.
     """
+
     def __init__(self, embedding_size: int = 8, max_input_size: int =2**20, threshold: float =0.5, padding_value: int = 256):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"

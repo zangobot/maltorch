@@ -1,4 +1,3 @@
-
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.base_model import BaseModel
 from torch.utils.data import DataLoader
