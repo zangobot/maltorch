@@ -4,12 +4,13 @@ import torch
 import os
 from pathlib import Path
 
+
 class BinaryDataset(Dataset):
     def __init__(self,
                  csv_filepath: str = None,
                  goodware_directory: str = None,
                  malware_directory: str = None,
-                 max_len: int = 2**20,
+                 max_len: int = 2 ** 20,
                  padding_value: int = 256):
         self.all_files = []
         self.max_len = max_len
@@ -52,9 +53,7 @@ class BinaryDataset(Dataset):
         return x, y
 
 
-
-
-def load_single_exe(path: Path, max_len: int = 2**20) -> torch.Tensor:
+def load_single_exe(path: Path, max_len: int = 2 ** 20) -> torch.Tensor:
     """
     Create a torch.Tensor from the file pointed in the path
     :param path: a pathlib Path
