@@ -1,8 +1,8 @@
 import torch
-from secmlware.zoo.malconv import MalConv
-from secmlware.data.loader import load_single_exe
-from secmlware.data_processing.rs_preprocessing import RandomizedAblationPreprocessing
-from secmlware.data_processing.smoothing_postprocessing import SmoothingPostprocessing
+from maltorch.zoo.malconv import MalConv
+from maltorch.data.loader import load_single_exe
+from maltorch.data_processing.rs_preprocessing import RandomizedAblationPreprocessing
+from maltorch.data_processing.smoothing_postprocessing import SmoothingPostprocessing
 
 exe_filepath = "path/to/exe/file/"
 model_path = "/path/to/model/state/dict"

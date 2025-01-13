@@ -1,7 +1,7 @@
-from secmlware.zoo.malconv import MalConv
-from secmlware.datasets.binary_dataset import BinaryDataset
+from maltorch.zoo.malconv import MalConv
+from maltorch.datasets.binary_dataset import BinaryDataset
 from torch.utils.data import DataLoader
-from secmlware.trainers.binary_trainer import BinaryTrainer
+from maltorch.trainers.binary_trainer import BinaryTrainer
 import multiprocessing
 
 malconv = MalConv()

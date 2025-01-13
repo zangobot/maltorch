@@ -4,9 +4,9 @@ from secmlt.metrics.classification import Accuracy
 from secmlt.trackers import LossTracker, TensorboardTracker
 from torch.utils.data import TensorDataset, DataLoader
 
-from secmlware.adv.evasion.partialdos import PartialDOS
-from secmlware.data.loader import load_from_folder, create_labels
-from secmlware.zoo.malconv import MalConv
+from maltorch.adv.evasion.partialdos import PartialDOS
+from maltorch.data.loader import load_from_folder, create_labels
+from maltorch.zoo.malconv import MalConv
 
 folder = Path(__file__).parent
 X = load_from_folder(folder, "file", 1)
