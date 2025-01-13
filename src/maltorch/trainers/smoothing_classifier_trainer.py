@@ -1,4 +1,3 @@
-from typing import Tuple
 
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.base_model import BaseModel

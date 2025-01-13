@@ -13,13 +13,10 @@ Loosely based on the shallow convolutional neural network architecture defined i
 McLaughlin et al. 2017 but with only a convolutional layer with kernel size equals to 3.
 """
 
-from typing import Optional, Union
 import torch
 import torch.nn.functional as F
 from torch import nn
-from secmlt.models.data_processing.data_processing import DataProcessing
-from secmlt.models.base_trainer import BaseTrainer
-from maltorch.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
+from maltorch.zoo.model import EmbeddingModel
 
 class NGramConv(EmbeddingModel):
     def __init__(self, embedding_size=8, max_input_size=2**20, out_channels: int = 100, threshold: float = 0.5, padding_value: int = 256):

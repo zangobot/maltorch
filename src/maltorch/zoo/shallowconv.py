@@ -14,15 +14,12 @@ Gibert et al. 2017 and McLaughlin et al.2017 but with three convolutional layers
 
 """
 
-from typing import Optional, Union
 
 import torch
 import torch.nn.functional as F
-from secmlt.models.base_trainer import BaseTrainer
-from secmlt.models.data_processing.data_processing import DataProcessing
 from torch import nn
 
-from maltorch.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
+from maltorch.zoo.model import EmbeddingModel
 
 
 class ShallowConv(EmbeddingModel):
