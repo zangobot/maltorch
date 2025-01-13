@@ -5,8 +5,8 @@ https://arxiv.org/abs/1710.09435
 """
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 
 from maltorch.zoo.model import EmbeddingModel
 
@@ -15,14 +15,8 @@ class MalConv(EmbeddingModel):
     """
     Architecture implementation.
     """
-    def __init__(
-            self,
-            embedding_size: int = 8,
-            max_input_size: int = 2**20,
-            threshold: float = 0.5,
-            padding_value: int = 256,
-            out_size: int = 1
-    ):
+
+    def __init__(self, embedding_size: int = 8, max_input_size: int =2**20, threshold: float =0.5, padding_value: int = 256):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
@@ -46,7 +40,7 @@ class MalConv(EmbeddingModel):
             bias=True,
         )
         self.dense_1 = nn.Linear(in_features=128, out_features=128, bias=True)
-        self.dense_2 = nn.Linear(in_features=128, out_features=out_size, bias=True)
+        self.dense_2 = nn.Linear(in_features=128, out_features=1, bias=True)
         self.embedding_size = (embedding_size,)
         self.max_input_size = max_input_size
         self.threshold = threshold

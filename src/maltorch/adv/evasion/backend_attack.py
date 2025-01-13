@@ -60,7 +60,7 @@ class BackendAttack(BaseEvasionAttack):
         raise NotImplementedError()
 
     def _init_best_tracking(self, delta: torch.Tensor):
-        self._best_delta = torch.zeros_like(delta)
+        self._best_delta = torch.zeros_like(delta.detach().cpu())
         self._best_loss = torch.zeros((delta.shape[0], 1)).fill_(torch.inf)
 
     def _track_best(self, loss: torch.Tensor, delta: torch.Tensor):

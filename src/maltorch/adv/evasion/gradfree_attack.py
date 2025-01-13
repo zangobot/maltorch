@@ -52,8 +52,8 @@ class GradientFreeBackendAttack(BackendAttack):
                 original_labels.append(label)
         adversarials = (
             torch.nn.utils.rnn.pad_sequence(adversarials, padding_value=256)
-            .transpose(0, 1)
-            .float()
+            .squeeze()
+            .long()
         )
         original_labels = torch.vstack(original_labels)
         adversarial_dataset = TensorDataset(adversarials, original_labels)
