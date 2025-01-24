@@ -95,6 +95,7 @@ class EarlyStoppingPyTorchTrainer:
             x, y = x.to(device), y.to(device)
             self._optimizer.zero_grad()
             outputs = model(x)
+            outputs = outputs.squeeze()
             loss = self._loss(outputs, y)
             loss.backward()
             self._optimizer.step()
@@ -137,6 +138,7 @@ class EarlyStoppingPyTorchTrainer:
             for _, (x, y) in enumerate(dataloader):
                 x, y = x.to(device), y.to(device)
                 outputs = model(x)
+                outputs = outputs.squeeze()
                 loss = self._loss(outputs, y)
                 running_loss += loss.item()
                 y_preds = outputs.round()
