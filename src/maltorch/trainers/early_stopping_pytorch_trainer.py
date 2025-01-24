@@ -3,6 +3,7 @@
 import torch.nn
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 
 class EarlyStoppingPyTorchTrainer:
@@ -91,7 +92,7 @@ class EarlyStoppingPyTorchTrainer:
         running_loss = 0.0
         train_total = 0
         train_correct = 0
-        for _, (x, y) in enumerate(dataloader):
+        for x, y in tqdm(dataloader):
             x, y = x.to(device), y.to(device)
             self._optimizer.zero_grad()
             outputs = model(x)
@@ -135,7 +136,7 @@ class EarlyStoppingPyTorchTrainer:
         device = next(model.parameters()).device
         model = model.eval()
         with torch.no_grad():
-            for _, (x, y) in enumerate(dataloader):
+            for x, y in tqdm(dataloader):
                 x, y = x.to(device), y.to(device)
                 outputs = model(x)
                 outputs = outputs.squeeze()
