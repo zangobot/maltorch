@@ -16,7 +16,7 @@ class MalConv(EmbeddingModel):
     Architecture implementation.
     """
 
-    def __init__(self, embedding_size: int = 8, max_input_size: int =2**20, threshold: float =0.5, padding_idx: int = 256):
+    def __init__(self, embedding_size: int = 8, max_len: int =2**20, threshold: float =0.5, padding_idx: int = 256):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
@@ -42,7 +42,7 @@ class MalConv(EmbeddingModel):
         self.dense_1 = nn.Linear(in_features=128, out_features=128, bias=True)
         self.dense_2 = nn.Linear(in_features=128, out_features=1, bias=True)
         self.embedding_size = (embedding_size,)
-        self.max_input_size = max_input_size
+        self.max_len = max_len
         self.threshold = threshold
         self.invalid_value = padding_idx
         self._expansion = torch.tensor([[-1.0, 1.0]])
