@@ -9,11 +9,13 @@ training_dataset = BinaryDataset(
     goodware_directory="path/to/goodware/train/",
     malware_directory="path/to/malware/train/",
     padding_idx=256,
+    max_len=1000000
 )
 validation_dataset = BinaryDataset(
     goodware_directory="path/to/goodware/train/",
     malware_directory="path/to/malware/train/",
     padding_idx=256,
+    max_len=1000000
 )
 
 num_workers = max(multiprocessing.cpu_count() - 4, multiprocessing.cpu_count() // 2 + 1)

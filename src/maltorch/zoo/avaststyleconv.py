@@ -31,11 +31,11 @@ def vec_bin_array(arr, m=8):
     return (ret*2-1).astype(np.float32)/16
 
 class AvastStyleConv(EmbeddingModel):
-    def __init__(self, embedding_size: int = 8, max_input_size: int = 2**20, threshold: float = 0.5, padding_idx: int = 256, is_embedding_fixed: bool = True, channels: int = 48, window_size: int = 32, stride: int = 4):
+    def __init__(self, embedding_size: int = 8, max_len: int = 2**20, threshold: float = 0.5, padding_idx: int = 256, is_embedding_fixed: bool = True, channels: int = 48, window_size: int = 32, stride: int = 4):
         super(AvastStyleConv, self).__init__(
             name="AvastStyleConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
-        self.max_input_size = max_input_size
+        self.max_len = max_len
         self.threshold = threshold
         self.is_embedding_fixed = is_embedding_fixed
         self.invalid_value = padding_idx

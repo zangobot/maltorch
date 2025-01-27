@@ -12,6 +12,7 @@ training_dataset = RandomDRSDataset(
     file_percentage=0.05,
     num_chunks=100,
     padding_idx=256,
+    max_len=1000000
 )
 validation_dataset = RandomDRSDataset(
     goodware_directory="path/to/goodware/train/",
@@ -20,6 +21,7 @@ validation_dataset = RandomDRSDataset(
     file_percentage=0.05,
     num_chunks=100,
     padding_idx=256,
+    max_len=1000000
 )
 
 num_workers = max(multiprocessing.cpu_count() - 4, multiprocessing.cpu_count() // 2 + 1)
