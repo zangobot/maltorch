@@ -13,7 +13,7 @@ class RandomizedDeletionDataset(BinaryDataset):
                  goodware_directory: str = None,
                  malware_directory: str = None,
                  max_len: int = 2**20,
-                 padding_value: int = 256,
+                 padding_idx: int = 256,
                  num_versions: int = 100,
                  pdel: float = 0.97,
                  is_training: bool = True):
@@ -22,7 +22,7 @@ class RandomizedDeletionDataset(BinaryDataset):
             goodware_directory=goodware_directory,
             malware_directory=malware_directory,
             max_len=max_len,
-            padding_value=padding_value
+            padding_idx=padding_idx
         )
         self.num_versions = num_versions
         self.pdel = pdel
@@ -44,7 +44,7 @@ class RandomizedDeletionDataset(BinaryDataset):
                 masked_x = torch.masked_select(x, mask=mask)
                 vecs.append(masked_x)
                 labels.append(y)
-            x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
+            x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_idx)
             # stack will give us (B, 1), so index [:,0] to get to just (B)
             y = torch.tensor(labels)
             return x, y
@@ -55,7 +55,7 @@ class RandomizedDeletionDataset(BinaryDataset):
                     mask = torch.rand(x.shape[0]) <= self.pdel
                     masked_x = torch.masked_select(x, mask=mask)
                     vecs.append(masked_x)
-                x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
+                x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_idx)
                 y = batch[0][1]
                 return x, y
             else:

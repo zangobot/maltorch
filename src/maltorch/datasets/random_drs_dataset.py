@@ -15,7 +15,7 @@ class RandomDRSDataset(DynamicChunkSizeDRSDataset):
                  goodware_directory: str = None,
                  malware_directory: str = None,
                  max_len: int = 2 ** 20,
-                 padding_value: int = 256,
+                 padding_idx: int = 256,
                  file_percentage: float = 0.05,
                  num_chunks: int = 100,
                  is_training: bool = True,
@@ -25,7 +25,7 @@ class RandomDRSDataset(DynamicChunkSizeDRSDataset):
             goodware_directory=goodware_directory,
             malware_directory=malware_directory,
             max_len=max_len,
-            padding_value=padding_value,
+            padding_idx=padding_idx,
             file_percentage=file_percentage,
             num_chunks=num_chunks,
             is_training=is_training,
@@ -49,7 +49,7 @@ class RandomDRSDataset(DynamicChunkSizeDRSDataset):
                 curr_idx = randint(0, len(x) - chunk_size)
                 vecs.append(x[curr_idx:curr_idx + chunk_size])
 
-            x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
+            x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_idx)
             y = batch[0][1]
             return x, y
         else:

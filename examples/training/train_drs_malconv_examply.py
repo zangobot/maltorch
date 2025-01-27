@@ -9,13 +9,15 @@ training_dataset = DeRandomizedSmoothingDataset(
     goodware_directory="path/to/goodware/train/",
     malware_directory="path/to/malware/train/",
     is_training=True,
-    chunk_size=512
+    chunk_size=512,
+    padding_idx=256,
 )
 validation_dataset = DeRandomizedSmoothingDataset(
     goodware_directory="path/to/goodware/train/",
     malware_directory="path/to/malware/train/",
     is_training=False,
-    chunk_size=512
+    chunk_size=512,
+    padding_idx=256,
 )
 
 num_workers = max(multiprocessing.cpu_count() - 4, multiprocessing.cpu_count() // 2 + 1)

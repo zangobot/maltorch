@@ -10,7 +10,7 @@ model_path = "/path/to/mode/state/dict"
 preprocessing = RandomizedDeletionPreprocessing(
     pdel=0.97,
     num_versions=100,
-    padding_value=256
+    padding_idx=256
 )
 postprocessing = MajorityVotingPostprocessing()
 malconv = MalConv.create_model(

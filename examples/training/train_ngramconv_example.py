@@ -7,11 +7,13 @@ import multiprocessing
 ngramconv = NGramConv(out_channels=50)
 training_dataset = BinaryDataset(
     goodware_directory="path/to/goodware/train/",
-    malware_directory="path/to/malware/train/"
+    malware_directory="path/to/malware/train/",
+    padding_idx=256,
 )
 validation_dataset = BinaryDataset(
     goodware_directory="path/to/goodware/validation/",
-    malware_directory="path/to/malware/validation/"
+    malware_directory="path/to/malware/validation/",
+    padding_idx=256,
 )
 
 num_workers = max(multiprocessing.cpu_count() - 4, multiprocessing.cpu_count() // 2 + 1)
