@@ -16,7 +16,7 @@ class RandomizedAblationDataset(BinaryDataset):
                  max_len: int = 2**20,
                  padding_value: int = 256,
                  num_versions: int = 100,
-                 pabl: float = 0.97,
+                 pabl: float = 0.20,
                  is_training: bool = True):
         super().__init__(
             csv_filepath=csv_filepath,
@@ -41,8 +41,7 @@ class RandomizedAblationDataset(BinaryDataset):
         if self.is_training is True:
             for x, y in batch:
                 # Get mask
-                mask_value_prob = 1.0 - self.pabl
-                mask = torch.rand(x.shape[0]) <= mask_value_prob
+                mask = torch.rand(x.shape[0]) <= self.pabl
                 # Apply mask - Convert masked elements to self.padding_value
                 masked_x = x.masked_fill(mask, self.padding_value)
                 vecs.append(masked_x)
@@ -56,8 +55,7 @@ class RandomizedAblationDataset(BinaryDataset):
                 x = batch[0][0]
                 for i in range(self.num_versions):
                     # Get mask
-                    mask_value_prob = 1.0 - self.pabl
-                    mask = torch.rand(x.shape[0]) <= mask_value_prob
+                    mask = torch.rand(x.shape[0]) <= self.pabl
                     # Apply mask - Convert masked elements to self.padding_value
                     masked_x = x.masked_fill(mask, self.padding_value)
                     vecs.append(masked_x)

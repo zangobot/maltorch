@@ -40,8 +40,7 @@ class RandomizedDeletionDataset(BinaryDataset):
         if self.is_training is True:
             for x, y in batch:
                 # Get mask
-                mask_value_prob = 1.0 - self.pdel
-                mask = torch.rand(x.shape[0]) > mask_value_prob
+                mask = torch.rand(x.shape[0]) <= self.pdel
                 masked_x = torch.masked_select(x, mask=mask)
                 vecs.append(masked_x)
                 labels.append(y)
@@ -53,8 +52,7 @@ class RandomizedDeletionDataset(BinaryDataset):
             if len(batch) == 1:  # Only implemented for batch sizes equals to 1
                 x = batch[0][0]
                 for i in range(self.num_versions):
-                    mask_value_prob = 1.0 - self.pdel
-                    mask = torch.rand(x.shape[0]) > mask_value_prob
+                    mask = torch.rand(x.shape[0]) <= self.pdel
                     masked_x = torch.masked_select(x, mask=mask)
                     vecs.append(masked_x)
                 x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
