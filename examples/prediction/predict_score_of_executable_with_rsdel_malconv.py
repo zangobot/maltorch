@@ -2,7 +2,7 @@ import torch
 from maltorch.zoo.malconv import MalConv
 from maltorch.data.loader import load_single_exe
 from maltorch.data_processing.rsdel_preprocessing import RandomizedDeletionPreprocessing
-from maltorch.data_processing.smoothing_postprocessing import SmoothingPostprocessing
+from maltorch.data_processing.majority_voting_postprocessing import MajorityVotingPostprocessing
 
 exe_filepath = "path/to/exe/file/"
 model_path = "/path/to/mode/state/dict"
@@ -12,7 +12,7 @@ preprocessing = RandomizedDeletionPreprocessing(
     num_versions=100,
     padding_value=256
 )
-postprocessing = SmoothingPostprocessing()
+postprocessing = MajorityVotingPostprocessing()
 malconv = MalConv.create_model(
     model_path=model_path,
     preprocessing=preprocessing,
