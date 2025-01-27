@@ -10,7 +10,7 @@ model_path = "/path/to/model/state/dict"
 preprocessing = SequentialDeRandomizedPreprocessing(
     file_percentage=0.05,
     num_chunks=100,
-    padding_value=256
+    padding_idx=256
 )
 postprocessing = MajorityVotingPostprocessing()
 malconv = MalConv.create_model(

@@ -11,10 +11,10 @@ class BinaryDataset(Dataset):
                  goodware_directory: str = None,
                  malware_directory: str = None,
                  max_len: int = 2 ** 20,
-                 padding_value: int = 256):
+                 padding_idx: int = 256):
         self.all_files = []
         self.max_len = max_len
-        self.padding_value = padding_value
+        self.padding_idx = padding_idx
 
         if csv_filepath is not None:
             with open(csv_filepath, "r") as input_file:
@@ -46,7 +46,7 @@ class BinaryDataset(Dataset):
         vecs = [x[0] for x in batch]
         labels = [x[1] for x in batch]
 
-        x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
+        x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_idx)
         # stack will give us (B, 1), so index [:,0] to get to just (B)
         y = torch.stack(labels)
 
