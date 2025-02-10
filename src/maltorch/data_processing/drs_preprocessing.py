@@ -12,15 +12,15 @@ class DeRandomizedPreprocessing(DataProcessing):
     DRSM: De-Randomized Smoothing on Malware Classifier Providing Certified Robustness
     ICRL'24
     """
-    def __init__(self, chunk_size: int = 512, padding_value: int = 256):
+    def __init__(self, chunk_size: int = 512, padding_idx: int = 256):
         super().__init__()
         self.chunk_size = chunk_size
-        self.padding_value = padding_value
+        self.padding_idx = padding_idx
 
     def _process(self, x: torch.Tensor) -> torch.Tensor:
         x = x.squeeze()  # Remove all dimensions equal to 1
         x = [x[i:i + self.chunk_size] for i in range(0, len(x), self.chunk_size)]
-        x = torch.nn.utils.rnn.pad_sequence(x, batch_first=True, padding_value=self.padding_value)
+        x = torch.nn.utils.rnn.pad_sequence(x, batch_first=True, padding_value=self.padding_idx)
         return x
 
     def invert(self, x: torch.Tensor) -> torch.Tensor:

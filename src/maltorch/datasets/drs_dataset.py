@@ -17,7 +17,7 @@ class DeRandomizedSmoothingDataset(BinaryDataset):
                  goodware_directory: str = None,
                  malware_directory: str = None,
                  max_len: int = 2 ** 20,
-                 padding_value: int = 256,
+                 padding_idx: int = 256,
                  chunk_size: int = 512,
                  is_training: bool = True):
         super().__init__(
@@ -25,7 +25,7 @@ class DeRandomizedSmoothingDataset(BinaryDataset):
             goodware_directory=goodware_directory,
             malware_directory=malware_directory,
             max_len=max_len,
-            padding_value=padding_value,
+            padding_idx=padding_idx,
         )
         self.chunk_size = chunk_size
         self.is_training = is_training
@@ -48,7 +48,7 @@ class DeRandomizedSmoothingDataset(BinaryDataset):
                     end_location = start_location + self.chunk_size
                     vecs.append(x[start_location: end_location])
                 labels.append(y)
-            x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
+            x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_idx)
             # stack will give us (B, 1), so index [:,0] to get to just (B)
             y = torch.tensor(labels)
             return x, y
@@ -56,7 +56,7 @@ class DeRandomizedSmoothingDataset(BinaryDataset):
             if len(batch) == 1: # Only implemented for batch sizes equals to 1
                 x = batch[0][0]
                 x = [x[i:i+self.chunk_size] for i in range(0, len(x), self.chunk_size)]
-                x = torch.nn.utils.rnn.pad_sequence(x, batch_first=True, padding_value=self.padding_value)
+                x = torch.nn.utils.rnn.pad_sequence(x, batch_first=True, padding_value=self.padding_idx)
                 y = batch[0][1]
                 return x, y
             else:

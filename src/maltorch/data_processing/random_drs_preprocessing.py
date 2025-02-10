@@ -11,12 +11,12 @@ class RandomDeRandomizedPreprocessing(DataProcessing):
     def __init__(self,
                  file_percentage: float = 0.05,
                  num_chunks: int = 100,
-                 padding_value: int = 256,
+                 padding_idx: int = 256,
                  min_chunk_size: int = 500):
         super().__init__()
         self.file_percentage = file_percentage
         self.num_chunks = num_chunks
-        self.padding_value = padding_value
+        self.padding_idx = padding_idx
         self.min_chunk_size = min_chunk_size
 
     def _process(self, x: torch.Tensor) -> torch.Tensor:
@@ -29,7 +29,7 @@ class RandomDeRandomizedPreprocessing(DataProcessing):
         for _ in range(self.num_chunks):
             curr_idx = randint(0, len(x) - chunk_size)
             vecs.append(x[curr_idx:curr_idx + chunk_size])
-        x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
+        x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_idx)
         return x
 
     def invert(self, x: torch.Tensor) -> torch.Tensor:
