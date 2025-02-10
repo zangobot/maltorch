@@ -162,3 +162,23 @@ class EmbeddingModel(PytorchModel, ABC):
         x = self.embed(x)
         output = self._forward_embed_x(x)
         return output
+
+
+class BaseGrayscalePytorchClassifier(BasePytorchClassifier):
+    def __init__(
+        self,
+        model: torch.nn.Module,
+        preprocessing: DataProcessing = None,
+        postprocessing: DataProcessing = None,
+        trainer: BaseTrainer = None,
+        threshold: Optional[Union[float, None]] = 0.5,
+    ):
+        super().__init__(model, preprocessing, postprocessing, trainer)
+        self.threshold = threshold
+
+    def predict(self, x: torch.Tensor):
+        if self.threshold is None:
+            return super().predict(x)
+        scores = self.decision_function(x)
+        labels = (scores > self.threshold).int()
+        return labels
