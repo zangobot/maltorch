@@ -20,7 +20,7 @@ class DeRandomizedPreprocessing(DataProcessing):
     def _process(self, x: torch.Tensor) -> torch.Tensor:
         x = x.squeeze()  # Remove all dimensions equal to 1
         x = [x[i:i + self.chunk_size] for i in range(0, len(x), self.chunk_size)]
-        x = torch.nn.utils.rnn.pad_sequence(x, batch_first=True, padding_idx=self.padding_idx)
+        x = torch.nn.utils.rnn.pad_sequence(x, batch_first=True, padding_value=self.padding_idx)
         return x
 
     def invert(self, x: torch.Tensor) -> torch.Tensor:

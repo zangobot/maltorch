@@ -9,7 +9,7 @@ class RandomizedAblationPreprocessing(DataProcessing):
     Smoothing.
     ESORICS Workshops, SECAI 2024
     """
-    def __init__(self, pabl: float = 0.97, num_versions: int = 100, padding_idx: int = 256):
+    def __init__(self, pabl: float = 0.20, num_versions: int = 100, padding_idx: int = 256):
         super().__init__()
         self.pabl = pabl
         self.num_versions = num_versions
@@ -19,8 +19,8 @@ class RandomizedAblationPreprocessing(DataProcessing):
         x = x.squeeze()  # Remove all dimensions equal to 1
         vecs = []
         for i in range(self.num_versions):
-            mask_value_prob = 1.0 - self.pabl
-            mask = torch.rand(x.shape[0]) <= mask_value_prob
+            mask = torch.rand(x.shape[0]) <= self.pabl
+            mask = mask.to(x.device)
             masked_x = x.masked_fill(mask, self.padding_idx)
             vecs.append(masked_x)
         x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_idx)
