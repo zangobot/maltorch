@@ -30,8 +30,8 @@ class NGramConv(EmbeddingModel):
         self.conv1d_1 = nn.Conv1d(
             in_channels=embedding_size,
             out_channels=self.out_channels ,
-            kernel_size=(3,),
-            stride=(1,),
+            kernel_size=(7,),
+            stride=(3,),
             groups=1,
             bias=True,
         )
