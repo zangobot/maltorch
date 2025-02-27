@@ -18,6 +18,7 @@ class DeRandomizedSmoothingDataset(BinaryDataset):
                  malware_directory: str = None,
                  max_len: int = 2 ** 20,
                  padding_idx: int = 256,
+                 min_len: int = None,
                  chunk_size: int = 512,
                  is_training: bool = True):
         super().__init__(
@@ -25,6 +26,7 @@ class DeRandomizedSmoothingDataset(BinaryDataset):
             goodware_directory=goodware_directory,
             malware_directory=malware_directory,
             max_len=max_len,
+            min_len=min_len,
             padding_idx=padding_idx,
         )
         self.chunk_size = chunk_size
