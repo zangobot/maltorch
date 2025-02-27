@@ -62,8 +62,6 @@ class EarlyStoppingPyTorchTrainer:
         for epoch in range(self._epochs):
             model = self.fit(model, train_loader)
             val_loss = self.validate(model, val_loader)
-            print(
-                f"Epoch {epoch}: val_loss = {val_loss}, best_loss = {best_loss}, patience_counter = {patience_counter}")
             if val_loss <= best_loss:
                 best_loss = val_loss
                 best_model = copy.deepcopy(model)
@@ -72,6 +70,8 @@ class EarlyStoppingPyTorchTrainer:
                 patience_counter += 1
             if patience_counter >= patience:
                 break
+            print(
+                f"Epoch {epoch}: val_loss = {val_loss}, best_loss = {best_loss}, patience_counter = {patience_counter}")
         return best_model
 
     def fit(self,
@@ -150,6 +150,7 @@ class EarlyStoppingPyTorchTrainer:
                 val_total += y.size(0)
                 val_correct += (y_preds == y).sum().item()
 
+            val_loss = running_loss / val_total
             self.validation_losses.append(running_loss / val_total)
             self.validation_accuracies.append(val_correct / val_total)
-        return loss
+        return val_loss
