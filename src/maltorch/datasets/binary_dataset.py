@@ -11,9 +11,11 @@ class BinaryDataset(Dataset):
                  goodware_directory: str = None,
                  malware_directory: str = None,
                  max_len: int = 2 ** 20,
-                 padding_idx: int = 256):
+                 padding_idx: int = 256,
+                 min_len: int = None):
         self.all_files = []
         self.max_len = max_len
+        self.min_len = min_len
         self.padding_idx = padding_idx
 
         if csv_filepath is not None:
@@ -36,7 +38,7 @@ class BinaryDataset(Dataset):
 
     def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
         to_load, label = self.all_files[index]
-        x = load_single_exe(to_load, max_len=self.max_len)
+        x = load_single_exe(to_load, max_len=self.max_len, min_len=self.min_len)
         return x, torch.tensor(label)
 
     def pad_collate_func(self, batch):
@@ -53,7 +55,7 @@ class BinaryDataset(Dataset):
         return x, y
 
 
-def load_single_exe(path: Path, max_len: int = 2 ** 20) -> torch.Tensor:
+def load_single_exe(path: Path, max_len: int = 2 ** 20, min_len: int = None) -> torch.Tensor:
     """
     Create a torch.Tensor from the file pointed in the path
     :param path: a pathlib Path
@@ -61,5 +63,8 @@ def load_single_exe(path: Path, max_len: int = 2 ** 20) -> torch.Tensor:
     """
     with open(path, "rb") as h:
         code = h.read(max_len)
-    x = torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.long)
+    x = torch.frombuffer(bytearray(code), dtype=torch.uint8)
+    if min_len is not None: # Pad the tensor to the minimum length - required for some architectures
+        x = torch.pad(x, (0, min_len - x.shape[0]), mode='constant', value=self.padding_idx)
+    x = x.to(torch.long)
     return x
