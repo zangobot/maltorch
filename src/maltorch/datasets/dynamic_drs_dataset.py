@@ -16,6 +16,7 @@ class DynamicChunkSizeDRSDataset(BinaryDataset, ABC):
                  malware_directory: str = None,
                  max_len: int = 2 ** 20,
                  padding_idx: int = 256,
+                 min_len: int = None,
                  file_percentage: float = 0.05,
                  num_chunks: int = 100,
                  is_training: bool = True,
@@ -26,6 +27,7 @@ class DynamicChunkSizeDRSDataset(BinaryDataset, ABC):
             malware_directory=malware_directory,
             max_len=max_len,
             padding_idx=padding_idx,
+            min_len=min_len
         )
         self.is_training = is_training
         self.file_percentage = file_percentage

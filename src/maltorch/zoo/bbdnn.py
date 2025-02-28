@@ -78,10 +78,7 @@ class BBDnn(EmbeddingModel):
         return self.embedding_1
 
     def _forward_embed_x(self, x):
-        print("Input size: ", x.size())
         conv1d_1 = self.conv1d_1(x)
-        print("Conv1d_1 size: ", conv1d_1.size())
-
         conv1d_1_activation = torch.relu(conv1d_1)
         max_pooling1d_1 = torch.max_pool1d(
             conv1d_1_activation,
@@ -92,8 +89,6 @@ class BBDnn(EmbeddingModel):
         )
 
         conv1d_2 = self.conv1d_2(max_pooling1d_1)
-        print("Conv1d_2 size: ", conv1d_2.size())
-
         conv1d_2_activation = torch.relu(conv1d_2)
         max_pooling1d_2 = torch.max_pool1d(
             conv1d_2_activation,
@@ -104,8 +99,6 @@ class BBDnn(EmbeddingModel):
         )
 
         conv1d_3 = self.conv1d_3(max_pooling1d_2)
-        print("Conv1d_3 size: ", conv1d_3.size())
-
         conv1d_3_activation = torch.relu(conv1d_3)
         max_pooling1d_3 = torch.max_pool1d(
             conv1d_3_activation,
@@ -116,8 +109,6 @@ class BBDnn(EmbeddingModel):
         )
 
         conv1d_4 = self.conv1d_4(max_pooling1d_3)
-        print("Conv1d_4 size: ", conv1d_4.size())
-
         conv1d_4_activation = torch.relu(conv1d_4)
         max_pooling1d_4 = torch.max_pool1d(
             conv1d_4_activation,
