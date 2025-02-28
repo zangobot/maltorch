@@ -67,7 +67,10 @@ def load_single_exe(path: Path, max_len: int = 2 ** 20, min_len: int = None, pad
     x = x.to(torch.long)
     print("Original shape: ", x.shape)
     if min_len is not None: # Pad the tensor to the minimum length - required for some architectures
-        padding_idx = torch.tensor(padding_idx, dtype=torch.long)
-        x = torch.nn.functional.pad(x, (0, min_len - x.shape[0]), mode='constant', value=padding_idx)
-        print("Padded shape: ", x.shape, "Min len: ", min_len, "Number of padded bytes: ", min_len - x.shape[0])
+        if x.shape[0] < min_len:
+            padding_idx = torch.tensor(padding_idx, dtype=torch.long)
+            x = torch.nn.functional.pad(x, (0, min_len - x.shape[0]), mode='constant', value=padding_idx)
+            print("Padded shape: ", x.shape, "Min len: ", min_len, "Number of padded bytes: ", min_len - x.shape[0])
+    print("Final shape: ", x.shape)
+
     return x
