@@ -10,7 +10,7 @@ class BinaryDataset(Dataset):
                  csv_filepath: str = None,
                  goodware_directory: str = None,
                  malware_directory: str = None,
-                 max_len: int = 2 ** 20,
+                 max_len: int = None,
                  padding_idx: int = 256,
                  min_len: int = None):
         self.all_files = []
@@ -55,14 +55,17 @@ class BinaryDataset(Dataset):
         return x, y
 
 
-def load_single_exe(path: Path, max_len: int = 2 ** 20, min_len: int = None, padding_idx: int = 256) -> torch.Tensor:
+def load_single_exe(path: Path, max_len: int = None, min_len: int = None, padding_idx: int = 256) -> torch.Tensor:
     """
     Create a torch.Tensor from the file pointed in the path
     :param path: a pathlib Path
     :return: torch.Tensor containing the bytes of the file as a tensor
     """
     with open(path, "rb") as h:
-        code = h.read(max_len)
+        if max_len is None:
+            code = h.read()
+        else:
+            code = h.read(max_len)
     x = torch.frombuffer(bytearray(code), dtype=torch.uint8)
     x = x.to(torch.long)
     if min_len is not None: # Pad the tensor to the minimum length - required for some architectures
