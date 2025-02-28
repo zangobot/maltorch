@@ -63,7 +63,8 @@ def load_single_exe(path: Path, max_len: int = 2 ** 20, min_len: int = None, pad
     """
     with open(path, "rb") as h:
         code = h.read(max_len)
-    x = torch.frombuffer(bytearray(code), dtype=torch.long)
+    x = torch.frombuffer(bytearray(code), dtype=torch.uint8)
+    x = x.to(torch.long)
     if min_len is not None: # Pad the tensor to the minimum length - required for some architectures
         padding_idx = torch.tensor(padding_idx, dtype=torch.long)
         x = torch.nn.functional.pad(x, (0, min_len - x.shape[0]), mode='constant', value=padding_idx)
