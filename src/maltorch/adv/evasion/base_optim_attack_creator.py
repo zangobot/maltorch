@@ -67,19 +67,19 @@ class BaseOptimAttackCreator:
     @classmethod
     def get_nevergrad_implementation(cls) -> BackendAttack:
         """
-        Get the Foolbox implementation of the attack.
+        Get the Nevergrad implementation of the attack.
 
         Returns
         -------
         BaseEvasionAttack
-            Foolbox implementation of the attack.
+            Nevergrad implementation of the attack.
 
         Raises
         ------
         ImportError
-            Raises ImportError if Foolbox extra is not installed.
+            Raises ImportError if Nevergrad extra is not installed.
         """
-        if importlib.util.find_spec("foolbox", None) is not None:
+        if importlib.util.find_spec("nevergrad", None) is not None:
             return cls._get_nevergrad_implementation()
         msg = "Nevergrad extra not installed."
         raise ImportError(msg)

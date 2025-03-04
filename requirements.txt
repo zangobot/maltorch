@@ -1,7 +1,6 @@
 torch
 torchvision
 scikit-learn
-foolbox
 secml-torch
 lightgbm==3.3.5
 lief
