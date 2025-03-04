@@ -19,12 +19,12 @@ from torch import nn
 from maltorch.zoo.model import EmbeddingModel
 
 class NGramConv(EmbeddingModel):
-    def __init__(self, embedding_size=8, max_input_size=2**20, out_channels: int = 100, threshold: float = 0.5, padding_value: int = 256):
+    def __init__(self, embedding_size=8, max_len=2**20, out_channels: int = 100, threshold: float = 0.5, padding_idx: int = 256):
         super(NGramConv, self).__init__(
             name="NGramConv", gdrive_id="ModelWeightsNotUploadedYet"
         )
         self.embedding_1 = nn.Embedding(
-            num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_value
+            num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
         )
         self.out_channels = out_channels
         self.conv1d_1 = nn.Conv1d(
@@ -41,9 +41,9 @@ class NGramConv(EmbeddingModel):
         self.dense_2 = nn.Linear(in_features=self.out_channels, out_features=1, bias=True)
 
         self.embedding_size = (embedding_size,)
-        self.max_input_size = max_input_size
+        self.max_len = max_len
         self.threshold = threshold
-        self.invalid_value = padding_value
+        self.invalid_value = padding_idx
         self._expansion = torch.tensor([[-1.0, 1.0]])
 
     def embedding_layer(self):

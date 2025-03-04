@@ -8,21 +8,21 @@ class RandomizedDeletionPreprocessing(DataProcessing):
     RS-Del: Edit Distance Robustness Certificates for Sequence Classifiers via Randomized Deletion
     NeurIPS 2023,
     """
-    def __init__(self, pdel: float = 0.97, num_versions: int = 100, padding_value: int = 256):
+    def __init__(self, pdel: float = 0.03, num_versions: int = 100, padding_idx: int = 256):
         super().__init__()
         self.pdel = pdel
         self.num_versions = num_versions
-        self.padding_value = padding_value
+        self.padding_idx = padding_idx
 
     def _process(self, x: torch.Tensor) -> torch.Tensor:
         x = x.squeeze()  # Remove all dimensions equal to 1
         vecs = []
         for i in range(self.num_versions):
-            mask_value_prob = 1.0 - self.pdel
-            mask = torch.rand(x.shape[0]) > mask_value_prob
+            mask = torch.rand(x.shape[0]) > self.pdel
+            mask = mask.to(x.device)
             masked_x = torch.masked_select(x, mask=mask)
             vecs.append(masked_x)
-        x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_value)
+        x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_idx)
         return x
 
     def invert(self, x: torch.Tensor) -> torch.Tensor:

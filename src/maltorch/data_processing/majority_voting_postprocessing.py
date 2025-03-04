@@ -2,7 +2,7 @@ import torch
 from secmlt.models.data_processing.data_processing import DataProcessing
 
 
-class SmoothingPostprocessing(DataProcessing):
+class MajorityVotingPostprocessing(DataProcessing):
     def __init__(self, threshold: float = 0.5):
         super().__init__()
         self.threshold = threshold
