@@ -26,16 +26,16 @@ class MalConv(EmbeddingModel):
         self.conv1d_1 = nn.Conv1d(
             in_channels=embedding_size,
             out_channels=128,
-            kernel_size=(500,),
-            stride=(500,),
+            kernel_size=(512,),
+            stride=(512,),
             groups=1,
             bias=True,
         )
         self.conv1d_2 = nn.Conv1d(
             in_channels=embedding_size,
             out_channels=128,
-            kernel_size=(500,),
-            stride=(500,),
+            kernel_size=(512,),
+            stride=(512,),
             groups=1,
             bias=True,
         )

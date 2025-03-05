@@ -20,14 +20,20 @@ class BBDnn(EmbeddingModel):
     def __init__(
         self,
         activation: Callable[[torch.Tensor], torch.Tensor] = Activations.Linear,
+        embedding_size: int = 10,
+        max_len: int = 2 ** 20,
+        threshold: float = 0.5,
+        padding_idx: int = 256,
     ):
         super(BBDnn, self).__init__(name="bbdnn", gdrive_id=None)
+        self.max_len = max_len
+        self.threshold = threshold
         self.activation = activation
         self.embedding_1 = torch.nn.Embedding(
-            num_embeddings=257, embedding_dim=10, padding_idx=0
+            num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
         )
         self.conv1d_1 = torch.nn.Conv1d(
-            in_channels=10,
+            in_channels=embedding_size,
             out_channels=96,
             kernel_size=(11,),
             stride=(1,),
@@ -73,7 +79,7 @@ class BBDnn(EmbeddingModel):
 
     def _forward_embed_x(self, x):
         conv1d_1 = self.conv1d_1(x)
-        conv1d_1_activation = self.activation(conv1d_1)
+        conv1d_1_activation = torch.relu(conv1d_1)
         max_pooling1d_1 = torch.max_pool1d(
             conv1d_1_activation,
             kernel_size=(4,),
@@ -81,8 +87,9 @@ class BBDnn(EmbeddingModel):
             padding=0,
             ceil_mode=False,
         )
+
         conv1d_2 = self.conv1d_2(max_pooling1d_1)
-        conv1d_2_activation = self.activation(conv1d_2)
+        conv1d_2_activation = torch.relu(conv1d_2)
         max_pooling1d_2 = torch.max_pool1d(
             conv1d_2_activation,
             kernel_size=(4,),
@@ -90,17 +97,19 @@ class BBDnn(EmbeddingModel):
             padding=0,
             ceil_mode=False,
         )
+
         conv1d_3 = self.conv1d_3(max_pooling1d_2)
-        conv1d_3_activation = self.activation(conv1d_3)
+        conv1d_3_activation = torch.relu(conv1d_3)
         max_pooling1d_3 = torch.max_pool1d(
             conv1d_3_activation,
-            kernel_size=(+4,),
+            kernel_size=(4,),
             stride=(4,),
             padding=0,
             ceil_mode=False,
         )
+
         conv1d_4 = self.conv1d_4(max_pooling1d_3)
-        conv1d_4_activation = self.activation(conv1d_4)
+        conv1d_4_activation = torch.relu(conv1d_4)
         max_pooling1d_4 = torch.max_pool1d(
             conv1d_4_activation,
             kernel_size=(4,),
@@ -108,8 +117,9 @@ class BBDnn(EmbeddingModel):
             padding=0,
             ceil_mode=False,
         )
+
         conv1d_5 = self.conv1d_5(max_pooling1d_4)
-        conv1d_5_activation = self.activation(conv1d_5)
+        conv1d_5_activation = torch.relu(conv1d_5)
         global_max_pooling1d_1 = torch.max_pool1d(
             input=conv1d_5_activation, kernel_size=conv1d_5_activation.size()[2:]
         )
@@ -126,7 +136,9 @@ class BBDnn(EmbeddingModel):
             (global_max_pooling1d_1_flatten, global_average_pooling1d_1_flatten), 1
         )
         dense_1 = self.dense_1(concatenate_1)
-        return dense_1
+        y = torch.sigmoid(dense_1)
+
+        return y
 
     def load_pretrained_model(self, device="cpu", model_path=None):
         if model_path is None:
@@ -136,11 +148,11 @@ class BBDnn(EmbeddingModel):
 
     def embed(self, x):
         emb_x = self.embedding_1(x)
+        emb_x = emb_x.transpose(1, 2)
         return emb_x
 
     def forward(self, x):
-        x = x + 1
-        x = self.embed(x)
+        x = self.embed(x) # Shape: (batch_size, seq_len, embedding_size)
         x = self._forward_embed_x(x)
         return x
 

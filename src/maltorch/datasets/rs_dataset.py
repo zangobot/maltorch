@@ -15,6 +15,7 @@ class RandomizedAblationDataset(BinaryDataset):
                  malware_directory: str = None,
                  max_len: int = 2**20,
                  padding_idx: int = 256,
+                 min_len: int = None,
                  num_versions: int = 100,
                  pabl: float = 0.20,
                  is_training: bool = True):
@@ -23,7 +24,8 @@ class RandomizedAblationDataset(BinaryDataset):
             goodware_directory=goodware_directory,
             malware_directory=malware_directory,
             max_len=max_len,
-            padding_idx=padding_idx
+            padding_idx=padding_idx,
+            min_len=min_len
         )
         self.num_versions = num_versions
         self.pabl = pabl

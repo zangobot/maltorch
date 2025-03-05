@@ -4,6 +4,7 @@ import torch.nn
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+import copy
 
 
 class EarlyStoppingPyTorchTrainer:
@@ -58,17 +59,19 @@ class EarlyStoppingPyTorchTrainer:
         best_loss = float("inf")
         best_model = None
         patience_counter = 0
-        for _ in range(self._epochs):
+        for epoch in range(self._epochs):
             model = self.fit(model, train_loader)
             val_loss = self.validate(model, val_loader)
-            if val_loss < best_loss:
+            if val_loss <= best_loss:
                 best_loss = val_loss
-                best_model = model
+                best_model = copy.deepcopy(model)
                 patience_counter = 0
             else:
                 patience_counter += 1
             if patience_counter >= patience:
                 break
+            print(
+                f"Epoch {epoch}: val_loss = {val_loss}, best_loss = {best_loss}, patience_counter = {patience_counter}")
         return best_model
 
     def fit(self,
@@ -147,6 +150,7 @@ class EarlyStoppingPyTorchTrainer:
                 val_total += y.size(0)
                 val_correct += (y_preds == y).sum().item()
 
+            val_loss = running_loss / val_total
             self.validation_losses.append(running_loss / val_total)
             self.validation_accuracies.append(val_correct / val_total)
-        return loss
+        return val_loss
