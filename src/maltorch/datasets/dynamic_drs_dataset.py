@@ -17,6 +17,7 @@ class DynamicChunkSizeDRSDataset(BinaryDataset, ABC):
                  max_len: int = 2 ** 20,
                  padding_idx: int = 256,
                  min_len: int = None,
+                 sort_by_size: bool = False,
                  file_percentage: float = 0.05,
                  num_chunks: int = 100,
                  is_training: bool = True,
@@ -27,12 +28,18 @@ class DynamicChunkSizeDRSDataset(BinaryDataset, ABC):
             malware_directory=malware_directory,
             max_len=max_len,
             padding_idx=padding_idx,
-            min_len=min_len
+            min_len=min_len,
+            sort_by_size=sort_by_size
         )
         self.is_training = is_training
         self.file_percentage = file_percentage
         self.num_chunks = num_chunks
         self.min_chunk_size = min_chunk_size
+        self.sort_by_size = sort_by_size
+
+        if sort_by_size: #  Reorder files by size
+            #sorted(self.all_files, key=lambda x: x[2])
+            self.all_files.sort(key=lambda filename: filename[2])
 
     def pad_collate_func(self, batch):
         """
