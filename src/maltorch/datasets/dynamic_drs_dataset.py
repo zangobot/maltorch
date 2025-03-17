@@ -2,6 +2,7 @@ import random
 import torch
 from maltorch.datasets.binary_dataset import BinaryDataset
 from abc import ABC, abstractmethod
+import torch.nn.functional as F
 
 
 class DynamicChunkSizeDRSDataset(BinaryDataset, ABC):
@@ -68,7 +69,19 @@ class DynamicChunkSizeDRSDataset(BinaryDataset, ABC):
                 end_location = start_location + chunk_size
                 vecs.append(x[start_location:end_location])
             labels.append(y)
-        x = torch.nn.utils.rnn.pad_sequence(vecs, batch_first=True, padding_value=self.padding_idx)
+
+        # Pad each chunk to `min_len` if necessary
+        padded_Xs = []
+        for x in vecs:
+            if x.shape[0] < self.min_len:
+                padding_size = self.min_len - x.shape[0]
+                # Pad the vector with padding_value (or any other padding value you prefer)
+                padded_x = F.pad(x, (0, padding_size), value=self.padding_idx)
+                padded_Xs.append(padded_x)
+            else:
+                padded_Xs.append(x)
+
+        x = torch.nn.utils.rnn.pad_sequence(padded_Xs, batch_first=True, padding_value=self.padding_idx)
         # stack will give us (B, 1), so index [:,0] to get to just (B)
         y = torch.tensor(labels)
         return x, y
