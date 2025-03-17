@@ -28,8 +28,7 @@ class DynamicChunkSizeDRSDataset(BinaryDataset, ABC):
             malware_directory=malware_directory,
             max_len=max_len,
             padding_idx=padding_idx,
-            min_len=min_len,
-            sort_by_size=sort_by_size
+            min_len=min_len
         )
         self.is_training = is_training
         self.file_percentage = file_percentage
