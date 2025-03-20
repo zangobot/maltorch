@@ -144,9 +144,9 @@ class WeightedBCEPyTorchTrainer:
         with torch.no_grad():
             for x, y in tqdm(dataloader):
                 x, y = x.to(device), y.to(device)
-                weights = y.where(y == 1,
-                                  torch.tensor(self.pos_weight, device=device),
-                                  torch.tensor(self.neg_weight, device=device)).to(device)
+                weights = torch.where(y == 1,
+                                      torch.tensor(self.pos_weight, device=device),
+                                      torch.tensor(self.neg_weight, device=device)).to(device)
                 outputs = model(x)
                 outputs = outputs.squeeze()
                 criterion = torch.nn.BCELoss(weight=weights)
