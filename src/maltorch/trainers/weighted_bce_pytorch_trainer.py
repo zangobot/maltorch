@@ -94,7 +94,7 @@ class WeightedBCEPyTorchTrainer:
         train_correct = 0
         for x, y in tqdm(dataloader):
             x, y = x.to(device), y.to(device)
-            weights = y.where(y == 1,
+            weights = torch.where(y == 1,
                               torch.tensor(self.pos_weight, device=device),
                               torch.tensor(self.neg_weight, device=device)).to(device)
             self._optimizer.zero_grad()
