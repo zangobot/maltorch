@@ -107,6 +107,5 @@ class AvastStyleConv(EmbeddingModel):
         dense_3 = self.dense_3(dense_2_activation)
         dense_3_activation = torch.selu(dense_3)
         dense_4 = self.dense_4(dense_3_activation)
-        y = F.sigmoid(dense_4)
-        return y
+        return dense_4
 

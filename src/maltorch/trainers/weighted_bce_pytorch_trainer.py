@@ -101,7 +101,7 @@ class WeightedBCEPyTorchTrainer:
             outputs = model(x)
             outputs = outputs.squeeze()
 
-            criterion = torch.nn.BCELoss(weight=weights)
+            criterion = torch.nn.BCEWithLogitsLoss(weight=weights)
             loss = criterion(outputs, y.float())
 
             loss.backward()

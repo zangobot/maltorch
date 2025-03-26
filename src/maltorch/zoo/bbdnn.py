@@ -136,9 +136,7 @@ class BBDnn(EmbeddingModel):
             (global_max_pooling1d_1_flatten, global_average_pooling1d_1_flatten), 1
         )
         dense_1 = self.dense_1(concatenate_1)
-        y = torch.sigmoid(dense_1)
-
-        return y
+        return dense_1
 
     def load_pretrained_model(self, device="cpu", model_path=None):
         if model_path is None:
