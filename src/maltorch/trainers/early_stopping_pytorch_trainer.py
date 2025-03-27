@@ -105,7 +105,8 @@ class EarlyStoppingPyTorchTrainer:
             self._optimizer.step()
 
             running_loss += loss.item()
-            y_preds = outputs.round()
+            probs = torch.sigmoid(outputs)
+            y_preds = (probs >= model.threshold).int()
 
             train_total += y.size(0)
             train_correct += (y_preds == y).sum().item()
@@ -145,7 +146,8 @@ class EarlyStoppingPyTorchTrainer:
                 outputs = outputs.squeeze()
                 loss = self._loss(outputs, y.float())
                 running_loss += loss.item()
-                y_preds = outputs.round()
+                probs = torch.sigmoid(outputs)
+                y_preds = (probs >= model.threshold).int()
 
                 val_total += y.size(0)
                 val_correct += (y_preds == y).sum().item()
