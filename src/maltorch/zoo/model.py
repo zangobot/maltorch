@@ -47,7 +47,6 @@ class PytorchModel(Model):
             path = model_path
         state_dict = torch.load(path, map_location=device, weights_only=True)
         self.load_state_dict(state_dict)
-        self.to(device)
 
     @classmethod
     def create_model(
@@ -61,6 +60,7 @@ class PytorchModel(Model):
     ) -> BaseModel:
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
+        net = net.to(device) # Explicitly load model to device
         net.eval()
         net = BasePytorchClassifier(
             model=net,
@@ -114,6 +114,7 @@ class EmbeddingModel(PytorchModel, ABC):
     ) -> BaseEmbeddingPytorchClassifier:
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
+        net = net.to(device) # Explicitly load model to device
         net.eval()
         net = BaseEmbeddingPytorchClassifier(
             model=net,

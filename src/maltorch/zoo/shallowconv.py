@@ -109,8 +109,7 @@ class ShallowConv(EmbeddingModel):
         dense_1_activation = torch.relu(dense_1)
         drop_1 = self.drop_1(dense_1_activation)
         dense_2 = self.dense_2(drop_1)
-        y = F.sigmoid(dense_2)
-        return y
+        return dense_2
 
     def embedding_matrix(self):
         return self.embedding_1.weight

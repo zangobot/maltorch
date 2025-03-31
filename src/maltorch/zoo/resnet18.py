@@ -16,7 +16,6 @@ class ResNet18(PytorchModel):
 
     def forward(self, x):
         y = self.model(x)
-        y = F.sigmoid(y)
         return y
 
 

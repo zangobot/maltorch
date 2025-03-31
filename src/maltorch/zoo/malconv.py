@@ -70,8 +70,7 @@ class MalConv(EmbeddingModel):
         dense_1 = self.dense_1(global_max_pooling1d_1_flatten)
         dense_1_activation = torch.relu(dense_1)
         dense_2 = self.dense_2(dense_1_activation)
-        y = F.sigmoid(dense_2)
-        return y
+        return dense_2
 
     def embedding_matrix(self):
         return self.embedding_1.weight

@@ -1,4 +1,4 @@
-"""PyTorch model trainers with early stopping."""
+"""PyTorch model trainer with early stopping and weighted BCE Loss."""
 
 import torch.nn
 from torch.optim.lr_scheduler import _LRScheduler
@@ -6,12 +6,9 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import copy
 
-
-class EarlyStoppingPyTorchTrainer:
+class WeightedBCEPyTorchTrainer:
     """Trainer for PyTorch models with early stopping."""
-
-    def __init__(self, optimizer: torch.optim.Optimizer, epochs: int = 5,
-                 loss: torch.nn.Module = None, scheduler: _LRScheduler = None) -> None:
+    def __init__(self, optimizer: torch.optim.Optimizer, epochs: int = 5, scheduler: _LRScheduler = None, pos_weight: float = 1.0, neg_weight: float = 1.0) -> None:
         """
         Create PyTorch trainer.
         Parameters
@@ -20,14 +17,11 @@ class EarlyStoppingPyTorchTrainer:
             Optimizer to use for training the model.
         epochs : int, optional
             Number of epochs, by default 5.
-        loss : torch.nn.Module, optional
-            Loss to minimize, by default None.
         scheduler : _LRScheduler, optional
             Scheduler for the optimizer, by default None.
         """
         self._epochs = epochs
         self._optimizer = optimizer
-        self._loss = loss if loss is not None else torch.nn.CrossEntropyLoss()
         self._scheduler = scheduler
 
         self.training_losses = []
@@ -35,10 +29,13 @@ class EarlyStoppingPyTorchTrainer:
         self.validation_losses = []
         self.validation_accuracies = []
 
+        self.pos_weight = pos_weight
+        self.neg_weight = neg_weight
+
     def train(self, model: torch.nn.Module,
-            train_loader: DataLoader,
-            val_loader: DataLoader,
-            patience: int) -> torch.nn.Module:
+              train_loader: DataLoader,
+              val_loader: DataLoader,
+              patience: int) -> torch.nn.Module:
         """
         Train model with given loaders and early stopping.
         Parameters
@@ -75,8 +72,8 @@ class EarlyStoppingPyTorchTrainer:
         return best_model
 
     def fit(self,
-              model: torch.nn.Module,
-              dataloader: DataLoader) -> torch.nn.Module:
+            model: torch.nn.Module,
+            dataloader: DataLoader) -> torch.nn.Module:
         """
         Train model for one epoch with given loader.
         Parameters
@@ -97,16 +94,21 @@ class EarlyStoppingPyTorchTrainer:
         train_correct = 0
         for x, y in tqdm(dataloader):
             x, y = x.to(device), y.to(device)
+            weights = torch.where(y == 1,
+                              torch.tensor(self.pos_weight, device=device),
+                              torch.tensor(self.neg_weight, device=device)).to(device)
             self._optimizer.zero_grad()
             outputs = model(x)
             outputs = outputs.squeeze()
-            loss = self._loss(outputs, y.float())
+
+            criterion = torch.nn.BCEWithLogitsLoss(weight=weights)
+            loss = criterion(outputs, y.float())
+
             loss.backward()
             self._optimizer.step()
 
             running_loss += loss.item()
-            probs = torch.sigmoid(outputs)
-            y_preds = (probs >= model.threshold).int()
+            y_preds = outputs.round()
 
             train_total += y.size(0)
             train_correct += (y_preds == y).sum().item()
@@ -142,12 +144,16 @@ class EarlyStoppingPyTorchTrainer:
         with torch.no_grad():
             for x, y in tqdm(dataloader):
                 x, y = x.to(device), y.to(device)
+                weights = torch.where(y == 1,
+                                      torch.tensor(self.pos_weight, device=device),
+                                      torch.tensor(self.neg_weight, device=device)).to(device)
                 outputs = model(x)
                 outputs = outputs.squeeze()
-                loss = self._loss(outputs, y.float())
+                criterion = torch.nn.BCELoss(weight=weights)
+                loss = criterion(outputs, y.float())
+
                 running_loss += loss.item()
-                probs = torch.sigmoid(outputs)
-                y_preds = (probs >= model.threshold).int()
+                y_preds = outputs.round()
 
                 val_total += y.size(0)
                 val_correct += (y_preds == y).sum().item()

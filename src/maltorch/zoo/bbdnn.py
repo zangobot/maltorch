@@ -136,15 +136,7 @@ class BBDnn(EmbeddingModel):
             (global_max_pooling1d_1_flatten, global_average_pooling1d_1_flatten), 1
         )
         dense_1 = self.dense_1(concatenate_1)
-        y = torch.sigmoid(dense_1)
-
-        return y
-
-    def load_pretrained_model(self, device="cpu", model_path=None):
-        if model_path is None:
-            raise ValueError("Given None to model path for DNN")
-        state_dict = torch.load(model_path, map_location=device)
-        self.load_state_dict(state_dict)
+        return dense_1
 
     def embed(self, x):
         emb_x = self.embedding_1(x)
