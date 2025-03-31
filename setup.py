@@ -1,11 +1,16 @@
-from setuptools import setup
-
+from setuptools import find_packages, setup
 setup(
     name='maltorch',
     version='0.1',
-    packages=['maltorch', 'maltorch.adv', 'maltorch.adv.evasion', 'maltorch.zoo', 'maltorch.data', 'maltorch.optim',
-              'maltorch.utils', 'maltorch.datasets', 'maltorch.trainers', 'maltorch.initializers',
-              'maltorch.manipulations', 'maltorch.data_processing', 'maltorch.data_processing.dynamic'],
+    packages=find_packages(
+        where="src",
+        exclude=[
+            "*.tests",
+            "*.tests.*",
+            "tests.*",
+            "tests",
+        ],
+    ),
     package_dir={'': 'src'},
     url='',
     license='',
