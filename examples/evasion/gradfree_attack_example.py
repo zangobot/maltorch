@@ -1,22 +1,19 @@
 from pathlib import Path
 
 from secmlt.metrics.classification import Accuracy
-from secmlt.trackers import LossTracker, TensorboardTracker
 from torch.utils.data import TensorDataset, DataLoader
 
+from maltorch.adv.evasion.base_optim_attack_creator import OptimizerBackends
 from maltorch.adv.evasion.partialdos import PartialDOS
 from maltorch.data.loader import load_from_folder, create_labels
 from maltorch.zoo.malconv import MalConv
 
 folder = Path(__file__).parent
 X = load_from_folder(folder, "file", 1)
-path = str(Path(__file__).parent / "logs" / "gf-pdos")
-tensorboard_tracker = TensorboardTracker(path, [LossTracker()])
 pdos_attack = PartialDOS(
     query_budget=30,
-    trackers=tensorboard_tracker,
     random_init=False,
-    backend="nevergrad",
+    backend=OptimizerBackends.NG,
     population_size=5,
 )
 malconv = MalConv.create_model()
