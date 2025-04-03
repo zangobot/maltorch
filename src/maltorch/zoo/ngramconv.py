@@ -18,10 +18,16 @@ import torch.nn.functional as F
 from torch import nn
 from maltorch.zoo.model import EmbeddingModel
 
+
 class NGramConv(EmbeddingModel):
-    def __init__(self, embedding_size=8, max_len=2**20, out_channels: int = 100, threshold: float = 0.5, padding_idx: int = 256):
+    def __init__(self,
+                 embedding_size=8,
+                 max_len=2 ** 20,
+                 out_channels: int = 100,
+                 threshold: float = 0.5,
+                 padding_idx: int = 256):
         super(NGramConv, self).__init__(
-            name="NGramConv", gdrive_id="ModelWeightsNotUploadedYet"
+            name="NGramConv", gdrive_id=None
         )
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
@@ -29,7 +35,7 @@ class NGramConv(EmbeddingModel):
         self.out_channels = out_channels
         self.conv1d_1 = nn.Conv1d(
             in_channels=embedding_size,
-            out_channels=self.out_channels ,
+            out_channels=self.out_channels,
             kernel_size=(7,),
             stride=(3,),
             groups=1,

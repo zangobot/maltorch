@@ -1,9 +1,5 @@
-from typing import Optional, Union
-import torch.nn.functional as F
-from secmlt.models.base_trainer import BaseTrainer
-from secmlt.models.data_processing.data_processing import DataProcessing
 from torchvision.models import resnet18
-from maltorch.zoo.model import PytorchModel, BaseGrayscalePytorchClassifier
+from maltorch.zoo.model import PytorchModel
 
 
 class ResNet18(PytorchModel):
