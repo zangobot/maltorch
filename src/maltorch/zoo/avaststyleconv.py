@@ -48,10 +48,10 @@ class AvastStyleConv(EmbeddingModel):
             num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
         )
         if is_embedding_fixed:
-            if padding_value == 256:
+            if padding_idx == 256:
                 for i in range(0, 256):
                     self.embedding_1.weight.data[i, :] = torch.tensor(vec_bin_array(np.asarray([i])))
-            elif padding_value == 0:
+            elif padding_idx == 0:
                 for i in range(1, 257):
                     self.embedding_1.weight.data[i, :] = torch.tensor(vec_bin_array(np.asarray([i])))
             else:
@@ -107,6 +107,5 @@ class AvastStyleConv(EmbeddingModel):
         dense_3 = self.dense_3(dense_2_activation)
         dense_3_activation = torch.selu(dense_3)
         dense_4 = self.dense_4(dense_3_activation)
-        y = F.sigmoid(dense_4)
-        return y
+        return dense_4
 

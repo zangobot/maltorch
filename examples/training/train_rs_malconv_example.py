@@ -1,8 +1,10 @@
 from maltorch.zoo.malconv import MalConv
 from maltorch.datasets.rs_dataset import RandomizedAblationDataset
 from torch.utils.data import DataLoader
-from maltorch.trainers.smoothing_classifier_trainer import SmoothingClassifierTrainer
+from maltorch.trainers.early_stopping_pytorch_trainer import EarlyStoppingPyTorchTrainer
 import multiprocessing
+import torch
+
 
 malconv = MalConv()
 training_dataset = RandomizedAblationDataset(
@@ -37,6 +39,18 @@ validation_dataloader = DataLoader(
     collate_fn=validation_dataset.pad_collate_func
 )
 
-trainer = SmoothingClassifierTrainer(num_epochs=5, patience=2, output_directory_path="models/rs_malconv/")
-trainer.train(malconv, train_dataloader, validation_dataloader)
+criterion = torch.nn.BCELoss()
+optimizer = torch.optim.Adam(malconv.parameters())
 
+trainer = EarlyStoppingPyTorchTrainer(
+    optimizer=optimizer,
+    epochs=5,
+    loss=criterion
+)
+model = trainer.train(
+    malconv,
+    train_dataloader,
+    validation_dataloader,
+    patience=2
+)
+torch.save(model.state_dict(), "models/rs-malconv/model.pth")
