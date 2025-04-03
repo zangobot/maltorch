@@ -16,7 +16,10 @@ class MalConv(EmbeddingModel):
     Architecture implementation.
     """
 
-    def __init__(self, embedding_size: int = 8, max_len: int =2**20, threshold: float =0.5, padding_idx: int = 256):
+    def __init__(self, embedding_size: int = 8,
+                 max_len: int =2**20,
+                 threshold: float =0.5,
+                 padding_idx: int = 256):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
@@ -26,16 +29,16 @@ class MalConv(EmbeddingModel):
         self.conv1d_1 = nn.Conv1d(
             in_channels=embedding_size,
             out_channels=128,
-            kernel_size=(512,),
-            stride=(512,),
+            kernel_size=(500,),
+            stride=(500,),
             groups=1,
             bias=True,
         )
         self.conv1d_2 = nn.Conv1d(
             in_channels=embedding_size,
             out_channels=128,
-            kernel_size=(512,),
-            stride=(512,),
+            kernel_size=(500,),
+            stride=(500,),
             groups=1,
             bias=True,
         )
