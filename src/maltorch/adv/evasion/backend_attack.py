@@ -64,9 +64,10 @@ class BackendAttack(BaseEvasionAttack):
         self._best_loss = torch.zeros((delta.shape[0], 1)).fill_(torch.inf)
 
     def _track_best(self, loss: torch.Tensor, delta: torch.Tensor):
-        where_best = (loss < self._best_loss).squeeze(1)
-        self._best_delta[where_best] = delta[where_best]
-        self._best_loss[where_best] = loss[where_best]
+        delta_to_track = delta.cpu()
+        where_best = (loss.cpu() < self._best_loss.cpu()).squeeze(1)
+        self._best_delta[where_best] = delta_to_track[where_best]
+        self._best_loss[where_best] = loss.cpu()[where_best]
 
     def _get_best_delta(self):
         return self._best_delta
