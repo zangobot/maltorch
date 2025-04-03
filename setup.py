@@ -55,7 +55,7 @@ setup(
         'torch',
         'torchvision',
         'secml-torch',
-        'lightgbm==3.3.5',
+        'lightgbm',
         'lief',
         'nevergrad',
         'joblib>=1.3.2'
