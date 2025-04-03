@@ -5,7 +5,6 @@ from torch.utils.data import TensorDataset, DataLoader
 
 from maltorch.adv.evasion.partialdos import PartialDOS
 from maltorch.data.loader import load_from_folder, create_labels
-from maltorch.zoo.avaststyleconv import AvastStyleConv
 from maltorch.zoo.malconv import MalConv
 
 device = "cpu"

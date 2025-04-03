@@ -47,7 +47,7 @@ class ContentShiftGrad(GradientBackendAttack):
     def __init__(
             self,
             query_budget: int,
-            manipulation_size: int,
+            perturbation_size: int,
             y_target: Union[int, None] = None,
             random_init: bool = False,
             step_size: int = 58,
@@ -55,7 +55,7 @@ class ContentShiftGrad(GradientBackendAttack):
             trackers: Union[List[Tracker], Tracker] = None,
     ):
         initializer = ContentShiftInitializer(
-            random_init=random_init, preferred_manipulation_size=manipulation_size
+            random_init=random_init, preferred_manipulation_size=perturbation_size
         )
         optimizer_cls = MalwareOptimizerFactory.create_bgd(lr=step_size, device=device)
         loss_function = BCEWithLogitsLoss(reduction="none")
