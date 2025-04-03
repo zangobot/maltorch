@@ -1,6 +1,5 @@
 torch
 torchvision
-scikit-learn
 secml-torch
 lightgbm==3.3.5
 lief
