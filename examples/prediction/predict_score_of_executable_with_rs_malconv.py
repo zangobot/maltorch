@@ -13,10 +13,10 @@ preprocessing = RandomizedAblationPreprocessing(
     padding_idx=256
 )
 postprocessing = MajorityVotingPostprocessing()
-malconv = MalConv.create_model(
+classifier = MalConv.create_model(
     model_path=model_path,
     preprocessing=preprocessing,
-    postprocessing=postprocessing
+    postprocessing=postprocessing,
 )
 x = load_single_exe(exe_filepath).to(torch.long).unsqueeze(0)
-print(malconv(x).item())
+print(classifier.predict(x).item())
