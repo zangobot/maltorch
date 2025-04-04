@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Union
-
 import torch
 from secmlt.models.base_model import BaseModel
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
 from secmlt.models.pytorch.base_pytorch_nn import BasePytorchClassifier
-
 from maltorch.utils.config import Config
 from maltorch.utils.utils import download_gdrive
 
@@ -62,13 +60,13 @@ class PytorchModel(Model):
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device) # Explicitly load model to device
         net.eval()
-        net = BasePytorchClassifier(
+        classifier = BasePytorchClassifier(
             model=net,
             preprocessing=preprocessing,
             postprocessing=postprocessing,
             trainer=trainer,
         )
-        return net
+        return classifier
 
 
 class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
@@ -99,6 +97,27 @@ class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
         labels = (scores > self.threshold).int()
         return labels
 
+    def decision_function(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        """
+        Return the decision function from the model.
+
+        Requires override to specify custom args and kwargs passing.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input damples.
+
+        Returns
+        -------
+        torch.Tensor
+            Model output scores.
+        """
+        x = self._preprocessing(x)
+        x = self._decision_function(x)
+        x = x.sigmoid()
+        return self._postprocessing(x)
+
 
 class EmbeddingModel(PytorchModel, ABC):
     @classmethod
@@ -116,14 +135,14 @@ class EmbeddingModel(PytorchModel, ABC):
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device) # Explicitly load model to device
         net.eval()
-        net = BaseEmbeddingPytorchClassifier(
+        classifier = BaseEmbeddingPytorchClassifier(
             model=net,
             preprocessing=preprocessing,
             postprocessing=postprocessing,
             trainer=trainer,
             threshold=threshold,
         )
-        return net
+        return classifier
 
     def __init__(
         self, name: str, gdrive_id: Optional[str], input_embedding: bool = False
@@ -183,3 +202,51 @@ class BaseGrayscalePytorchClassifier(BasePytorchClassifier):
         scores = self.decision_function(x)
         labels = (scores > self.threshold).int()
         return labels
+
+    def decision_function(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        """
+        Return the decision function from the model.
+
+        Requires override to specify custom args and kwargs passing.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input damples.
+
+        Returns
+        -------
+        torch.Tensor
+            Model output scores.
+        """
+        x = self._preprocessing(x)
+        x = self._decision_function(x)
+        x = x.sigmoid()
+        return self._postprocessing(x)
+
+class GrayscalePytorchClassifier(PytorchModel, ABC):
+    @classmethod
+    def create_model(
+        cls,
+        model_path: Optional[str] = None,
+        device: str = "cpu",
+        preprocessing: DataProcessing = None,
+        postprocessing: DataProcessing = None,
+        trainer: BaseTrainer = None,
+        threshold: Optional[Union[float, None]] = 0.5,
+        **kwargs,
+    ) -> BaseGrayscalePytorchClassifier:
+        net = cls(**kwargs)
+        net.load_pretrained_model(device=device, model_path=model_path)
+        net = net.to(device) # Explicitly load model to device
+        net.eval()
+        classifier = BaseGrayscalePytorchClassifier(
+            model=net,
+            preprocessing=preprocessing,
+            postprocessing=postprocessing,
+            trainer=trainer,
+            threshold=threshold,
+        )
+        return classifier
+
+
