@@ -224,7 +224,7 @@ class BaseGrayscalePytorchClassifier(BasePytorchClassifier):
         x = x.sigmoid()
         return self._postprocessing(x)
 
-class GrayscalePytorchClassifier(PytorchModel, ABC):
+class GrayscaleModel(PytorchModel, ABC):
     @classmethod
     def create_model(
         cls,
