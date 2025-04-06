@@ -17,6 +17,7 @@ class MalConv(EmbeddingModel):
     """
 
     def __init__(self, embedding_size: int = 8, max_len: int =2**20, threshold: float =0.5, padding_idx: int = 256, kernel_size: int = 500, stride: int = 500):
+
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )

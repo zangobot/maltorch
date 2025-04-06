@@ -177,7 +177,7 @@ def content_shift_manipulation(
     )
     for i, _ in enumerate(liefpe.sections):
         adv_x = _shift_pointer_to_section_content(
-            liefpe, adv_x, i, extension_amount, pe_shifted_by
+            liefpe, bytearray(adv_x), i, extension_amount, pe_shifted_by
         )
     adv_x = (
             adv_x[:first_content_offset]

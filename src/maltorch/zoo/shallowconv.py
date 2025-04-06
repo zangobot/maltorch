@@ -22,9 +22,14 @@ from maltorch.zoo.model import EmbeddingModel
 
 
 class ShallowConv(EmbeddingModel):
-    def __init__(self, embedding_size=8, max_len=2**20, out_channels: int = 100, threshold: float = 0.5, padding_idx: int = 256):
+    def __init__(self,
+                 embedding_size=8,
+                 max_len=2 ** 20,
+                 out_channels: int = 100,
+                 threshold: float = 0.5,
+                 padding_idx: int = 256):
         super(ShallowConv, self).__init__(
-            name="ShallowConv", gdrive_id="ModelWeightsNotUploadedYet"
+            name="ShallowConv", gdrive_id=None
         )
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
@@ -32,7 +37,7 @@ class ShallowConv(EmbeddingModel):
         self.out_channels = out_channels
         self.conv1d_1 = nn.Conv1d(
             in_channels=embedding_size,
-            out_channels=self.out_channels ,
+            out_channels=self.out_channels,
             kernel_size=(3,),
             stride=(1,),
             groups=1,
@@ -41,7 +46,7 @@ class ShallowConv(EmbeddingModel):
 
         self.conv1d_2 = nn.Conv1d(
             in_channels=embedding_size,
-            out_channels=self.out_channels ,
+            out_channels=self.out_channels,
             kernel_size=(5,),
             stride=(1,),
             groups=1,
@@ -50,14 +55,14 @@ class ShallowConv(EmbeddingModel):
 
         self.conv1d_3 = nn.Conv1d(
             in_channels=embedding_size,
-            out_channels=self.out_channels ,
+            out_channels=self.out_channels,
             kernel_size=(7,),
             stride=(1,),
             groups=1,
             bias=True,
         )
 
-        self.dense_1 = nn.Linear(in_features=self.out_channels*3, out_features=self.out_channels, bias=True)
+        self.dense_1 = nn.Linear(in_features=self.out_channels * 3, out_features=self.out_channels, bias=True)
         self.drop_1 = nn.Dropout1d()
         self.dense_2 = nn.Linear(in_features=self.out_channels, out_features=1, bias=True)
 
@@ -103,7 +108,8 @@ class ShallowConv(EmbeddingModel):
             global_max_pooling1d_3.size(0), -1
         )
 
-        concat_1 = torch.concat([global_max_pooling1d_1_flatten, global_max_pooling1d_2_flatten, global_max_pooling1d_3_flatten], dim=1)
+        concat_1 = torch.concat(
+            [global_max_pooling1d_1_flatten, global_max_pooling1d_2_flatten, global_max_pooling1d_3_flatten], dim=1)
         print(concat_1.shape)
         dense_1 = self.dense_1(concat_1)
         dense_1_activation = torch.relu(dense_1)

@@ -5,7 +5,7 @@ from maltorch.zoo.model import GrayscaleModel
 class ResNet18(GrayscaleModel):
     def __init__(self, threshold: float = 0.5):
         super(ResNet18, self).__init__(
-            name="ResNet18", gdrive_id="ModelWeightsNotUploadedYet"
+            name="ResNet18", gdrive_id=None
         )
         self.model = resnet18(num_classes=1)
         self.threshold = threshold

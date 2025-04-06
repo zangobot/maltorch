@@ -74,7 +74,6 @@ class GAMMASectionInjection(BaseOptimAttackCreator):
             y_target: Union[int, None] = None,
             how_many_sections: int = 75,
             random_init: bool = False,
-            step_size: int = 16,
             population_size: int = 10,
             device: str = "cpu",
             trackers: Union[List[Tracker], Tracker] = None,

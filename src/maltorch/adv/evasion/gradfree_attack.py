@@ -55,6 +55,7 @@ class GradientFreeBackendAttack(BackendAttack):
             .squeeze()
             .long()
         )
+        adversarials = torch.atleast_2d(adversarials)
         original_labels = torch.vstack(original_labels)
         adversarial_dataset = TensorDataset(adversarials, original_labels)
         return DataLoader(

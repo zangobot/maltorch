@@ -30,9 +30,10 @@ class GAMMASectionInjectionManipulation(ByteManipulation):
             perturbation_constraints = []
         self._sections = []
         self._names = [
-            ''.join(random.choices(string.ascii_uppercase + string.digits, k=8) for _ in range(self.how_many_sections))]
+            ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)) for _ in range(self.how_many_sections)
+        ]
         for path in sorted(self.benignware_folder.glob("*")):
-            if not lief.PE.is_pe(str(path)):
+            if not lief.is_pe(str(path)):
                 continue
             lief_pe = lief.parse(str(path))
             for s in lief_pe.sections:
@@ -47,13 +48,13 @@ class GAMMASectionInjectionManipulation(ByteManipulation):
     ) -> tuple[torch.Tensor, torch.Tensor]:
         # TODO: section injection is executed ONLY sample-wise, since it only works with GradFree
         lief_pe: lief.PE = lief.PE.parse(x.data.cpu().flatten().tolist())
-        for delta_i, content, name in zip(delta, self._sections, self._names):
+        for delta_i, content, name in zip(delta.squeeze(), self._sections, self._names):
             s = lief.PE.Section(name=name)
             s.content = content[:int(len(content) * delta_i)]
             lief_pe.add_section(s)
         builder = lief.PE.Builder(lief_pe)
         builder.build()
-        x = torch.Tensor(builder.get_build())
+        x = torch.atleast_2d(torch.Tensor(builder.get_build()).long())
         return x, delta
 
     def initialize(self, samples: torch.Tensor):

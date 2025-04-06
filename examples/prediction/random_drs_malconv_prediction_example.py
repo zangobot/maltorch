@@ -1,15 +1,15 @@
 import torch
 from maltorch.zoo.malconv import MalConv
 from maltorch.data.loader import load_single_exe
-from maltorch.data_processing.rsdel_preprocessing import RandomizedDeletionPreprocessing
+from maltorch.data_processing.random_drs_preprocessing import RandomDeRandomizedPreprocessing
 from maltorch.data_processing.majority_voting_postprocessing import MajorityVotingPostprocessing
 
 exe_filepath = "path/to/exe/file/"
-model_path = "/path/to/mode/state/dict"
+model_path = "/path/to/model/state/dict"
 
-preprocessing = RandomizedDeletionPreprocessing(
-    pdel=0.97,
-    num_versions=100,
+preprocessing = RandomDeRandomizedPreprocessing(
+    file_percentage=0.05,
+    num_chunks=100,
     padding_idx=256
 )
 postprocessing = MajorityVotingPostprocessing()
@@ -20,3 +20,4 @@ classifier = MalConv.create_model(
 )
 x = load_single_exe(exe_filepath).to(torch.long).unsqueeze(0)
 print(classifier.predict(x).item())
+

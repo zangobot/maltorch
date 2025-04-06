@@ -26,14 +26,16 @@ def vec_bin_array(arr, m=8):
     ret = np.zeros(list(arr.shape) + [m], dtype=np.int8)
     for bit_ix in range(0, m):
         fetch_bit_func = np.vectorize(lambda x: x[bit_ix] == '1')
-        ret[...,bit_ix] = fetch_bit_func(strs).astype(np.int8)
+        ret[..., bit_ix] = fetch_bit_func(strs).astype(np.int8)
 
-    return (ret*2-1).astype(np.float32)/16
+    return (ret * 2 - 1).astype(np.float32) / 16
+
 
 class AvastStyleConv(EmbeddingModel):
-    def __init__(self, embedding_size: int = 8, max_len: int = 2**20, threshold: float = 0.5, padding_idx: int = 256, is_embedding_fixed: bool = True, channels: int = 48, window_size: int = 32, stride: int = 4):
+    def __init__(self, embedding_size: int = 8, max_len: int = 512000, threshold: float = 0.5, padding_idx: int = 256,
+                 is_embedding_fixed: bool = True, channels: int = 128, window_size: int = 32, stride: int = 4):
         super(AvastStyleConv, self).__init__(
-            name="AvastStyleConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
+            name="AvastStyleConv", gdrive_id=None
         )
         self.max_len = max_len
         self.threshold = threshold
@@ -62,8 +64,10 @@ class AvastStyleConv(EmbeddingModel):
         self.conv1d_1 = nn.Conv1d(8, self.channels, self.window_size, stride=self.stride, bias=True)
         self.conv1d_2 = nn.Conv1d(self.channels, self.channels * 2, self.window_size, stride=self.stride, bias=True)
         self.pool_1 = nn.MaxPool1d(4)
-        self.conv1d_3 = nn.Conv1d(self.channels * 2, self.channels * 3, self.window_size // 2, stride=self.stride * 2, bias=True)
-        self.conv1d_4 = nn.Conv1d(self.channels * 3, self.channels * 4, self.window_size // 2, stride=self.stride * 2, bias=True)
+        self.conv1d_3 = nn.Conv1d(self.channels * 2, self.channels * 3, self.window_size // 2, stride=self.stride * 2,
+                                  bias=True)
+        self.conv1d_4 = nn.Conv1d(self.channels * 3, self.channels * 4, self.window_size // 2, stride=self.stride * 2,
+                                  bias=True)
 
         self.dense_1 = nn.Linear(self.channels * 4, self.channels * 4)
         self.dense_2 = nn.Linear(self.channels * 4, self.channels * 3)
@@ -108,4 +112,3 @@ class AvastStyleConv(EmbeddingModel):
         dense_3_activation = torch.selu(dense_3)
         dense_4 = self.dense_4(dense_3_activation)
         return dense_4
-

@@ -61,8 +61,8 @@ class Core1DConvNet(EmbeddingModel):
         gdrive_id: str,
         vocab_size: int = 152,
         embedding_size: int = 96,
-        filter_sizes: List[int] = [2, 3, 4, 5],
-        num_filters: List[int] = [128, 128, 128, 128],
+            filter_sizes=None,
+            num_filters=None,
         batch_norm_conv: bool = False,
         hidden_neurons: List[int] = [128],
         batch_norm_ffnn: bool = False,
@@ -70,6 +70,10 @@ class Core1DConvNet(EmbeddingModel):
         output_dim: int = 128
     ):
         super().__init__(name, gdrive_id)
+        if num_filters is None:
+            num_filters = [128, 128, 128, 128]
+        if filter_sizes is None:
+            filter_sizes = [2, 3, 4, 5]
         self.embedding = nn.Embedding(
             num_embeddings=vocab_size,
             embedding_dim=embedding_size,
@@ -181,11 +185,13 @@ class QuoVadis(EmbeddingModel):
             padding_value: int = 256,
             representation_size: int = 128,
             quo_vadis_hidden_neurons: List[int] = [128],
-            module_names: List[str] = ['malconv', 'emulation'], # TODO: extend to other modules
+            module_names=None,
     ):
         super(QuoVadis, self).__init__(
             name="QuoVadis", gdrive_id="NotYetPreTrained"
         )
+        if module_names is None:
+            module_names = ['malconv', 'emulation']
         self.embedding_size = embedding_size
         self.padding_value = padding_value
         self.module_names = module_names
