@@ -40,6 +40,8 @@ class Model(torch.nn.Module, ABC):
 
 class PytorchModel(Model):
     def load_pretrained_model(self, device="cpu", model_path=None):
+        if self.gdrive_id is None:
+            return
         path = self.model_path
         if model_path is None:
             self._fetch_pretrained_model()

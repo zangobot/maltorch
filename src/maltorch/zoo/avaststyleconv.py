@@ -5,41 +5,26 @@ ICLR 2018. Workshop Track Proceedings, 2018.
 https://openreview.net/pdf?id=HkHrmM1PM
 """
 
-import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
 from maltorch.zoo.model import EmbeddingModel
 
 
-def vec_bin_array(arr, m=8):
-    """
-    Arguments:
-    arr: Numpy array of positive integers
-    m: Number of bits of each integer to retain
-
-    Returns a copy of arr with every element replaced with a bit vector.
-    Bits encoded as int8's.
-    """
-    to_str_func = np.vectorize(lambda x: np.binary_repr(x).zfill(m))
-    strs = to_str_func(arr)
-    ret = np.zeros(list(arr.shape) + [m], dtype=np.int8)
-    for bit_ix in range(0, m):
-        fetch_bit_func = np.vectorize(lambda x: x[bit_ix] == '1')
-        ret[..., bit_ix] = fetch_bit_func(strs).astype(np.int8)
-
-    return (ret * 2 - 1).astype(np.float32) / 16
-
-
 class AvastStyleConv(EmbeddingModel):
-    def __init__(self, embedding_size: int = 8, max_len: int = 512000, threshold: float = 0.5, padding_idx: int = 256,
-                 is_embedding_fixed: bool = True, channels: int = 128, window_size: int = 32, stride: int = 4):
+    def __init__(self,
+                 embedding_size: int = 8,
+                 max_len: int = 512000,
+                 threshold: float = 0.5,
+                 padding_idx: int = 256,
+                 channels: int = 128,
+                 window_size: int = 32,
+                 stride: int = 4):
         super(AvastStyleConv, self).__init__(
             name="AvastStyleConv", gdrive_id=None
         )
         self.max_len = max_len
         self.threshold = threshold
-        self.is_embedding_fixed = is_embedding_fixed
         self.invalid_value = padding_idx
         self._expansion = torch.tensor([[-1.0, 1.0]])
         self.channels = channels
@@ -49,17 +34,6 @@ class AvastStyleConv(EmbeddingModel):
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
         )
-        if is_embedding_fixed:
-            if padding_idx == 256:
-                for i in range(0, 256):
-                    self.embedding_1.weight.data[i, :] = torch.tensor(vec_bin_array(np.asarray([i])))
-            elif padding_idx == 0:
-                for i in range(1, 257):
-                    self.embedding_1.weight.data[i, :] = torch.tensor(vec_bin_array(np.asarray([i])))
-            else:
-                raise NotImplementedError
-            for param in self.embedding_1.parameters():
-                param.requires_grad = False
 
         self.conv1d_1 = nn.Conv1d(8, self.channels, self.window_size, stride=self.stride, bias=True)
         self.conv1d_2 = nn.Conv1d(self.channels, self.channels * 2, self.window_size, stride=self.stride, bias=True)
