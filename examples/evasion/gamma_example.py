@@ -3,7 +3,6 @@ from pathlib import Path
 from secmlt.metrics.classification import Accuracy
 from torch.utils.data import TensorDataset, DataLoader
 
-from maltorch.adv.evasion.content_shift import ContentShift
 from maltorch.adv.evasion.gamma_section_injection import GAMMASectionInjection
 from maltorch.data.loader import load_from_folder, create_labels
 from maltorch.zoo.malconv import MalConv
