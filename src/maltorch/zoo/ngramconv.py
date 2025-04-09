@@ -24,6 +24,8 @@ class NGramConv(EmbeddingModel):
                  embedding_size=8,
                  max_len=2 ** 20,
                  out_channels: int = 100,
+                 kernel_size: int = 7,
+                 stride: int = 3,
                  threshold: float = 0.5,
                  padding_idx: int = 256):
         super(NGramConv, self).__init__(
@@ -36,8 +38,8 @@ class NGramConv(EmbeddingModel):
         self.conv1d_1 = nn.Conv1d(
             in_channels=embedding_size,
             out_channels=self.out_channels,
-            kernel_size=(7,),
-            stride=(3,),
+            kernel_size=(kernel_size,),
+            stride=(stride,),
             groups=1,
             bias=True,
         )

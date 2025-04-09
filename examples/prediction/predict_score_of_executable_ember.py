@@ -11,4 +11,3 @@ classifier = EmberGBDT.create_model(
 )
 x = load_single_exe(exe_filepath).to(torch.long).unsqueeze(0)
 print(classifier.predict(x).item())
-

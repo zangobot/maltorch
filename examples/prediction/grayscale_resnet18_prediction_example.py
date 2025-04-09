@@ -13,9 +13,9 @@ preprocessing = GrayscalePreprocessing(
     convert_to_3d_image=True
 )
 
-resnet18 = ResNet18.create_model(
+classifier = ResNet18.create_model(
     model_path=model_path,
     preprocessing=preprocessing,
 )
 x = load_single_exe(exe_filepath).to(torch.long).unsqueeze(0)
-print(resnet18.predict(x).item())
+print(classifier.predict(x).item())
