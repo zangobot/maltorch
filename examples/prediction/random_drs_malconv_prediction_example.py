@@ -13,11 +13,11 @@ preprocessing = RandomDeRandomizedPreprocessing(
     padding_idx=256
 )
 postprocessing = MajorityVotingPostprocessing()
-classifier = MalConv.create_model(
+model = MalConv.create_model(
     model_path=model_path,
     preprocessing=preprocessing,
     postprocessing=postprocessing
 )
 x = load_single_exe(exe_filepath).to(torch.long).unsqueeze(0)
-print(classifier.predict(x).item())
+print(model(x).item())
 

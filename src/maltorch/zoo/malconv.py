@@ -25,7 +25,6 @@ class MalConv(EmbeddingModel):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N"
         )
-
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
         )

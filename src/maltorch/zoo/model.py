@@ -62,13 +62,13 @@ class PytorchModel(Model):
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device) # Explicitly load model to device
         net.eval()
-        classifier = BasePytorchClassifier(
+        net = BasePytorchClassifier(
             model=net,
             preprocessing=preprocessing,
             postprocessing=postprocessing,
             trainer=trainer,
         )
-        return classifier
+        return net
 
 
 class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
@@ -99,27 +99,6 @@ class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
         labels = (scores > self.threshold).int()
         return labels
 
-    def decision_function(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
-        """
-        Return the decision function from the model.
-
-        Requires override to specify custom args and kwargs passing.
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input damples.
-
-        Returns
-        -------
-        torch.Tensor
-            Model output scores.
-        """
-        x = self._preprocessing(x)
-        x = self._decision_function(x)
-        x = x.sigmoid()
-        return self._postprocessing(x)
-
 
 class EmbeddingModel(PytorchModel, ABC):
     @classmethod
@@ -137,14 +116,14 @@ class EmbeddingModel(PytorchModel, ABC):
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device) # Explicitly load model to device
         net.eval()
-        classifier = BaseEmbeddingPytorchClassifier(
+        net = BaseEmbeddingPytorchClassifier(
             model=net,
             preprocessing=preprocessing,
             postprocessing=postprocessing,
             trainer=trainer,
             threshold=threshold,
         )
-        return classifier
+        return net
 
     def __init__(
         self, name: str, gdrive_id: Optional[str], input_embedding: bool = False
@@ -205,26 +184,6 @@ class BaseGrayscalePytorchClassifier(BasePytorchClassifier):
         labels = (scores > self.threshold).int()
         return labels
 
-    def decision_function(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
-        """
-        Return the decision function from the model.
-
-        Requires override to specify custom args and kwargs passing.
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input damples.
-
-        Returns
-        -------
-        torch.Tensor
-            Model output scores.
-        """
-        x = self._preprocessing(x)
-        x = self._decision_function(x)
-        x = x.sigmoid()
-        return self._postprocessing(x)
 
 class GrayscaleModel(PytorchModel, ABC):
     @classmethod
