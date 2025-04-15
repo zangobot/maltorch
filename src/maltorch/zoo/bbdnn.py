@@ -4,31 +4,23 @@ Coull, Scott E., and Christopher Gardner.
 2019 IEEE Security and Privacy Workshops (SPW). IEEE, 2019.
 """
 
-from typing import Callable
 
 import torch
 
 from maltorch.zoo.model import EmbeddingModel
 
 
-class Activations:
-    Linear = (lambda x: x,)
-    ReLU = torch.relu
-
-
 class BBDnn(EmbeddingModel):
     def __init__(
-        self,
-        activation: Callable[[torch.Tensor], torch.Tensor] = Activations.Linear,
-        embedding_size: int = 10,
-        max_len: int = 2 ** 20,
-        threshold: float = 0.5,
-        padding_idx: int = 256,
+            self,
+            embedding_size: int = 10,
+            max_len: int = 2 ** 20,
+            threshold: float = 0.5,
+            padding_idx: int = 256,
     ):
-        super(BBDnn, self).__init__(name="bbdnn", gdrive_id=None)
+        super(BBDnn, self).__init__(name="bbdnn", gdrive_id="1c_9lVHT9zYpBCwQfnUW6ZbCF6SaVabRZ")
         self.max_len = max_len
         self.threshold = threshold
-        self.activation = activation
         self.embedding_1 = torch.nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
         )
@@ -144,7 +136,7 @@ class BBDnn(EmbeddingModel):
         return emb_x
 
     def forward(self, x):
-        x = self.embed(x) # Shape: (batch_size, seq_len, embedding_size)
+        x = self.embed(x)  # Shape: (batch_size, seq_len, embedding_size)
         x = self._forward_embed_x(x)
         return x
 

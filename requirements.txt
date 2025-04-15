@@ -4,6 +4,7 @@ secml-torch
 lightgbm
 lief
 git+https://github.com/zangobot/ember.git
+tqdm
 nevergrad
 joblib>=1.3.2
 requests

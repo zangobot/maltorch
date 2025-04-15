@@ -23,10 +23,10 @@ class AvastStyleConv(EmbeddingModel):
         super(AvastStyleConv, self).__init__(
             name="AvastStyleConv", gdrive_id=None
         )
+        # "14wSZQ-Drns9G8CEqvfbAZjmMVt_ToUbp"
         self.max_len = max_len
         self.threshold = threshold
         self.invalid_value = padding_idx
-        self._expansion = torch.tensor([[-1.0, 1.0]])
         self.channels = channels
         self.window_size = window_size
         self.stride = stride
@@ -52,13 +52,8 @@ class AvastStyleConv(EmbeddingModel):
         return self.embedding_1
 
     def embed(self, x):
-        if self.is_embedding_fixed:
-            with torch.no_grad():
-                emb_x = self.embedding_1(x)
-                emb_x = emb_x.transpose(1, 2)
-        else:
-            emb_x = self.embedding_1(x)
-            emb_x = emb_x.transpose(1, 2)
+        emb_x = self.embedding_1(x)
+        emb_x = emb_x.transpose(1, 2)
         return emb_x
 
     def embedding_matrix(self):

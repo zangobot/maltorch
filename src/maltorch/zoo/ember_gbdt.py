@@ -13,11 +13,14 @@ from maltorch.zoo.model import Model
 
 
 class EmberGBDT(Model):
-    def __init__(self, model_path: str = ""):
+    def __init__(self, model_path: Optional[str] = None):
         super().__init__(
-            name="ember_gbdt", gdrive_id="1MGR7l5c3XSH2dTj2oeefBlKig0bvH2_Z"
+            name="ember_gbdt", gdrive_id="1RWvr3yD8M90EXcTozK2TwW2JEExQ9qDW"
         )
+        self._fetch_pretrained_model()
         self.tree_model = None
+        if model_path is None:
+            model_path = self.model_path
         self.load_pretrained_model(model_path=model_path)
 
     def load_pretrained_model(self, device: str = "cpu", model_path: str = None):
