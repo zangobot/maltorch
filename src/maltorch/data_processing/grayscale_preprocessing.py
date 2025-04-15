@@ -18,14 +18,14 @@ class GrayscalePreprocessing(DataProcessing):
 
         if self.convert_to_3d_image:
             self.preprocess = Compose(
-            [
-                PILToTensor(),
-                ConvertImageDtype(torch.float),
-                Resize((self.width, self.height)),
-                Normalize((0.5), (0.5)),
-                Grayscale(num_output_channels=3)
-            ]
-        )
+                [
+                    PILToTensor(),
+                    ConvertImageDtype(torch.float),
+                    Resize((self.width, self.height)),
+                    Normalize(mean=0.5, std=0.5),
+                    Grayscale(num_output_channels=3)
+                ]
+            )
         else:
             self.preprocess = Compose(
                 [
@@ -36,7 +36,7 @@ class GrayscalePreprocessing(DataProcessing):
                 ]
             )
 
-    def _process(self, x: torch.Tensor) -> torch.Tensor:
+    def _process(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         x_flat = x.view(-1).tolist()
         width, height = get_size(len(x_flat))
 
@@ -45,9 +45,8 @@ class GrayscalePreprocessing(DataProcessing):
         image = self.preprocess(image)
         image = torch.cat([image, image, image])
         return torch.unsqueeze(image, 0)
-        #return image
 
-    def invert(self, x: torch.Tensor) -> torch.Tensor:
+    def invert(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         """
         Apply the inverted transform (if defined).
 
