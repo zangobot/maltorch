@@ -47,7 +47,6 @@ class MalConv(EmbeddingModel):
         self.max_len = max_len
         self.threshold = threshold
         self.invalid_value = padding_idx
-        self._expansion = torch.tensor([[-1.0, 1.0]])
 
     def embedding_layer(self):
         return self.embedding_1
