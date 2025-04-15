@@ -12,7 +12,7 @@ preprocessing = RandomizedAblationPreprocessing(
     num_versions=100,
     padding_idx=256
 )
-postprocessing = MajorityVotingPostprocessing()
+postprocessing = MajorityVotingPostprocessing(apply_sigmoid=True)
 model = MalConv.create_model(
     model_path=model_path,
     preprocessing=preprocessing,
