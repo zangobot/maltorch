@@ -4,7 +4,7 @@ import torch
 
 
 def load_from_folder(
-    path: Path, extension: str = "exe", padding: int = 256, limit=None
+    path: Path, extension: str = "exe", padding: int = 256, limit=None, device="cpu"
 ) -> torch.Tensor:
     """Create a torch.Tensor whose rows are all the file with extension specified in input.
     Tensor are padded to match the same size.
@@ -21,14 +21,16 @@ def load_from_folder(
         if limit is not None and len(X) >= limit:
             break
     X = torch.nn.utils.rnn.pad_sequence(X, padding_value=padding).transpose(0, 1).long()
+    X = X.to(device)
     return X
 
 
-def create_labels(x: torch.Tensor, label: int):
+def create_labels(x: torch.Tensor, label: int, device="cpu"):
     """
     Create the labels for the specified data.
     """
     y = torch.zeros((x.shape[0], 1)) + label
+    y = y.to(device)
     return y
 
 
