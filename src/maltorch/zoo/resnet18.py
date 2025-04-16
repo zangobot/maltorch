@@ -1,4 +1,3 @@
-
 from torchvision.models import resnet18
 from maltorch.zoo.model import GrayscaleModel
 

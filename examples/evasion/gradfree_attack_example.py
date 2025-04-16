@@ -9,7 +9,7 @@ from maltorch.data.loader import load_from_folder, create_labels
 from maltorch.zoo.malconv import MalConv
 
 folder = Path(__file__).parent
-X = load_from_folder(folder, "file", 1)
+X = load_from_folder(folder, "file")
 pdos_attack = PartialDOS(
     query_budget=30,
     random_init=False,

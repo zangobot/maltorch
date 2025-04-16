@@ -5,6 +5,7 @@ from secmlt.adv.evasion.base_evasion_attack import BaseEvasionAttack
 from secmlt.models.base_model import BaseModel
 from secmlt.optimization.initializer import Initializer
 from secmlt.trackers import Tracker
+from torch.utils.data import TensorDataset, DataLoader
 
 from maltorch.manipulations.byte_manipulation import ByteManipulation
 
@@ -91,6 +92,36 @@ class BackendAttack(BaseEvasionAttack):
                         delta=delta,
                         grad=None,
                     )
+
+    def __call__(self, model: BaseModel, data_loader: DataLoader) -> DataLoader:
+        """
+        Compute the attack against the model, using the input data.
+
+        Parameters
+        ----------
+        model : BaseModel
+            Model to test.
+        data_loader : DataLoader
+            Test dataloader.
+
+        Returns
+        -------
+        DataLoader
+            Dataloader with adversarial examples and original labels.
+        """
+        adversarials = []
+        original_labels = []
+        for samples, labels in data_loader:
+            x_adv, _ = self._run(model, samples, labels)
+            adversarials.append(x_adv)
+            original_labels.append(labels)
+        adversarials = torch.vstack(adversarials)
+        original_labels = torch.vstack(original_labels)
+        adversarial_dataset = TensorDataset(adversarials, original_labels)
+        return DataLoader(
+            adversarial_dataset,
+            batch_size=data_loader.batch_size,
+        )
 
     def _run(
         self,
