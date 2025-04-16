@@ -15,9 +15,8 @@ from maltorch.zoo.resnet18 import ResNet18
 # Specify the device to use (cpu, mps, cuda)
 device = "cpu"
 
-# Insert here the path to a file to evaluate
-# exe_filepath = Path("path/to/exe/file/")
-exe_folder = Path("path/to/exe/folder")
+# Insert into this folder the malware to use for the evaluation
+exe_folder = Path(__file__).parent / ".." / "data" / "malware"
 
 # For deep neural networks, we need to create a post-processor that
 # generates probabilities from the logits output

@@ -14,7 +14,7 @@ class BBDnn(EmbeddingModel):
     def __init__(
             self,
             embedding_size: int = 10,
-            max_len: int = 2 ** 20,
+            max_len: int = 102400,
             threshold: float = 0.5,
             padding_idx: int = 256,
     ):
