@@ -8,14 +8,7 @@ from maltorch.adv.evasion.partialdos import PartialDOS
 from maltorch.data.loader import load_from_folder, create_labels
 from maltorch.zoo.ember_gbdt import EmberGBDT
 
-tree_path = (
-    Path(__file__).parent.parent
-    / "src"
-    / "maltorch"
-    / "zoo"
-    / "models"
-    / "ember_model.txt"
-)
+
 
 folder = Path(__file__).parent
 X = load_from_folder(folder, "file", limit=1)
@@ -28,7 +21,7 @@ pdos_attack = PartialDOS(
     backend="nevergrad",
     population_size=5,
 )
-gbdt = EmberGBDT.create_model(str(tree_path))
+gbdt = EmberGBDT.create_model()
 y = create_labels(X, 1)
 dl = DataLoader(TensorDataset(X, y), batch_size=3)
 print("Pre-attack accuracy: ", Accuracy()(gbdt, dl))

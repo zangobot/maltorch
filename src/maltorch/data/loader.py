@@ -25,6 +25,9 @@ def load_from_folder(
 
 
 def create_labels(x: torch.Tensor, label: int):
+    """
+    Create the labels for the specified data.
+    """
     y = torch.zeros((x.shape[0], 1)) + label
     return y
 
