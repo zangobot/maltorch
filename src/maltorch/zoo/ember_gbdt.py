@@ -34,7 +34,7 @@ class EmberGBDT(Model):
     def create_model(
             cls,
             model_path: Optional[str] = None,
-            threshold: int = 0.82,
+            threshold: int = 0.5,
             device: str = "cpu",
             preprocessing: DataProcessing = None,
             postprocessing: DataProcessing = None,
@@ -60,7 +60,10 @@ class _GBDTModel(BaseModel):
         feat_x = np.zeros((x.shape[0], extractor.dim))
         for i in range(n_samples):
             x_i = x[i, :]
-            x_bytes = bytes(x_i.type(torch.int).flatten().tolist())
+            x_i = x_i.type(torch.int).flatten().tolist()
+            if 256 in x_i:
+                x_i = x_i[:x_i.index(256)]
+            x_bytes = bytearray(x_i)
             feat_x[i, :] = torch.Tensor(extractor.feature_vector(x_bytes))
         probabilities = self.tree_model.predict(feat_x)
         probabilities = torch.Tensor(probabilities).unsqueeze(1)

@@ -1,6 +1,6 @@
 
 from torchvision.models import resnet18
-from maltorch.zoo.model import GrayscaleModel
+from maltorch.zoo.model import PytorchModel
 
 
 class ResNet18(GrayscaleModel):
