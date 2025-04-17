@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Union
-
 import torch
 from secmlt.models.base_model import BaseModel
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
 from secmlt.models.pytorch.base_pytorch_nn import BasePytorchClassifier
-
 from maltorch.utils.config import Config
 from maltorch.utils.utils import download_gdrive
 
@@ -185,3 +183,31 @@ class BaseGrayscalePytorchClassifier(BasePytorchClassifier):
         scores = self.decision_function(x)
         labels = (scores > self.threshold).int()
         return labels
+
+
+class GrayscaleModel(PytorchModel, ABC):
+    @classmethod
+    def create_model(
+        cls,
+        model_path: Optional[str] = None,
+        device: str = "cpu",
+        preprocessing: DataProcessing = None,
+        postprocessing: DataProcessing = None,
+        trainer: BaseTrainer = None,
+        threshold: Optional[Union[float, None]] = 0.5,
+        **kwargs,
+    ) -> BaseGrayscalePytorchClassifier:
+        net = cls(**kwargs)
+        net.load_pretrained_model(device=device, model_path=model_path)
+        net = net.to(device) # Explicitly load model to device
+        net.eval()
+        classifier = BaseGrayscalePytorchClassifier(
+            model=net,
+            preprocessing=preprocessing,
+            postprocessing=postprocessing,
+            trainer=trainer,
+            threshold=threshold,
+        )
+        return classifier
+
+
