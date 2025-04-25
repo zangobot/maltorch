@@ -17,7 +17,7 @@ class AvastStyleConv(EmbeddingModel):
                  max_len: int = 512000,
                  threshold: float = 0.5,
                  padding_idx: int = 256,
-                 channels: int = 128,
+                 channels: int = 48,
                  window_size: int = 32,
                  stride: int = 4):
         super(AvastStyleConv, self).__init__(
