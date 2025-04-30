@@ -65,6 +65,7 @@ class EarlyStoppingPyTorchTrainer:
             if val_loss <= best_loss:
                 best_loss = val_loss
                 best_model = copy.deepcopy(model)
+                best_model = best_model.to(next(model.parameters()).device)
                 patience_counter = 0
             else:
                 patience_counter += 1
@@ -95,11 +96,12 @@ class EarlyStoppingPyTorchTrainer:
         running_loss = 0.0
         train_total = 0
         train_correct = 0
+        num_batches = 0
         for x, y in tqdm(dataloader):
             x, y = x.to(device), y.to(device)
             self._optimizer.zero_grad()
             outputs = model(x)
-            outputs = outputs.squeeze()
+            outputs = outputs.view(-1)
             loss = self._loss(outputs, y.float())
             loss.backward()
             self._optimizer.step()
@@ -110,8 +112,8 @@ class EarlyStoppingPyTorchTrainer:
 
             train_total += y.size(0)
             train_correct += (y_preds == y).sum().item()
-
-        self.training_losses.append(running_loss / train_total)
+            num_batches += 1
+        self.training_losses.append(running_loss / num_batches)
         self.training_accuracies.append(train_correct / train_total)
 
         if self._scheduler is not None:
@@ -139,20 +141,21 @@ class EarlyStoppingPyTorchTrainer:
         val_correct = 0
         device = next(model.parameters()).device
         model = model.eval()
+        num_batches = 0
         with torch.no_grad():
             for x, y in tqdm(dataloader):
                 x, y = x.to(device), y.to(device)
                 outputs = model(x)
-                outputs = outputs.squeeze()
+                outputs = outputs.view(-1)
                 loss = self._loss(outputs, y.float())
                 running_loss += loss.item()
                 probs = torch.sigmoid(outputs)
                 y_preds = (probs >= model.threshold).int()
-
                 val_total += y.size(0)
                 val_correct += (y_preds == y).sum().item()
+                num_batches += 1
 
-            val_loss = running_loss / val_total
-            self.validation_losses.append(running_loss / val_total)
+            val_loss = running_loss / num_batches
+            self.validation_losses.append(running_loss / num_batches)
             self.validation_accuracies.append(val_correct / val_total)
         return val_loss
