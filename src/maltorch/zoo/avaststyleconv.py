@@ -66,7 +66,7 @@ class AvastStyleConv(EmbeddingModel):
         conv1d_3 = torch.relu(self.conv1d_3(pool_1))
         conv1d_4 = torch.relu(self.conv1d_4(conv1d_3))
 
-        global_max_pooling1d_1 = F.max_pool1d(
+        global_max_pooling1d_1 = F.avg_pool1d(
             input=conv1d_4, kernel_size=conv1d_4.size()[2:]
         )
         global_max_pooling1d_1_flatten = global_max_pooling1d_1.view(
