@@ -7,10 +7,6 @@ class DeRandomizedSmoothingDataset(BinaryDataset):
     Daniel Gibert, Giulio Zizzo, Quan Le
     Certified Robustness of Static Deep Learning-based Malware Detectors against Patch and Append Attacks
     AISec'23
-
-    Shoumik Saha, Weinxio Wang, Yigitcan Kaya, Soheil Feizi, Tudo Dumitras
-    DRSM: De-Randomized Smoothing on Malware Classifier Providing Certified Robustness
-    ICRL'24
     """
     def __init__(self,
                  csv_filepath: str = None,
