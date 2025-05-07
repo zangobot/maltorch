@@ -1,3 +1,4 @@
+import pandas as pd
 from torch.utils.data import Dataset
 from typing import Tuple
 import torch
@@ -12,18 +13,36 @@ class BinaryDataset(Dataset):
                  malware_directory: str = None,
                  max_len: int = None,
                  padding_idx: int = 256,
-                 min_len: int = None):
+                 min_len: int = None,
+                 max_date: str = None):
         self.all_files = []
         self.max_len = max_len
         self.min_len = min_len
         self.padding_idx = padding_idx
 
-        if csv_filepath is not None:
+        if csv_filepath is not None and max_date is None:
             with open(csv_filepath, "r") as input_file:
                 lines = input_file.readlines()
                 for line in lines:
                     tokens = line.strip().split(",")
                     self.all_files.append([tokens[0], int(tokens[1]), os.path.getsize(tokens[0])])
+
+
+        # in this case, csv file must contain a column labeled "timestamp" formatted as YYYY-MM, and it will be read with pandas.
+        # The rest of the file should have column labels "path", "hash", "label"
+        elif csv_filepath is not None and max_date is not None:
+            rows = pd.read_csv(csv_filepath)
+
+            # Ensure required columns are present
+            required_columns = {"timestamp", "hash", "path", "label"}
+            if not required_columns.issubset(rows.columns):
+                raise ValueError(f"CSV file must contain the following columns: {required_columns}")
+            rows = rows[pd.to_datetime(rows["timestamp"], format="%Y-%m") <= pd.to_datetime(max_date, format="%Y-%m")]
+            for _, row in rows.iterrows():
+                self.all_files.append([os.path.join(row["path"], row["hash"]), row["label"],
+                                       os.path.getsize(os.path.join(row["path"], row["hash"]))])
+
+
         elif goodware_directory is not None and malware_directory is not None:
             self.all_files.extend(
                 [[os.path.join(goodware_directory, filename), 0, os.path.getsize(os.path.join(goodware_directory, filename))] for filename in os.listdir(goodware_directory)])
