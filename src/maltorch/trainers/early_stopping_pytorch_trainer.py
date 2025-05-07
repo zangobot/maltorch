@@ -27,7 +27,7 @@ class EarlyStoppingPyTorchTrainer:
         """
         self._epochs = epochs
         self._optimizer = optimizer
-        self._loss = loss if loss is not None else torch.nn.CrossEntropyLoss()
+        self._loss = loss if loss is not None else torch.nn.BCEWithLogitsLoss()
         self._scheduler = scheduler
 
         self.training_losses = []
@@ -56,6 +56,10 @@ class EarlyStoppingPyTorchTrainer:
         torch.nn.Module
             Trained model.
         """
+        # Check model has .threshold
+        if not hasattr(model, 'threshold'):
+            raise AttributeError("Model must have a 'threshold' attribute for binary classification.")
+
         best_loss = float("inf")
         best_model = None
         patience_counter = 0
@@ -70,6 +74,7 @@ class EarlyStoppingPyTorchTrainer:
             else:
                 patience_counter += 1
             if patience_counter >= patience:
+                print(f"Early stopping triggered. The validation losss hasn't improved for {patience_counter} epochs")
                 break
             print(
                 f"Epoch {epoch}: val_loss = {val_loss}, best_loss = {best_loss}, patience_counter = {patience_counter}")
@@ -128,7 +133,7 @@ class EarlyStoppingPyTorchTrainer:
         Parameters
         ----------
         model : torch.nn.Module
-            Pytorch model to be balidated.
+            Pytorch model to be validated.
         dataloader : DataLoader
             Validation data loader.
         Returns
