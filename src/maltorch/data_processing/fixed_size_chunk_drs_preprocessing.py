@@ -2,7 +2,7 @@ import torch
 from secmlt.models.data_processing.data_processing import DataProcessing
 
 
-class DeRandomizedPreprocessing(DataProcessing):
+class FixedSizeChunkDeRandomizedPreprocessing(DataProcessing):
     """
     Daniel Gibert, Giulio Zizzo, Quan Le
     Certified Robustness of Static Deep Learning-based Malware Detectors against Patch and Append Attacks

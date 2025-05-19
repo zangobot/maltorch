@@ -4,7 +4,7 @@ from maltorch.datasets.binary_dataset import BinaryDataset
 import math
 
 
-class DeRandomizedSmoothingDataset(BinaryDataset):
+class KPartitionDeRandomizedSmoothingDataset(BinaryDataset):
     """
     Shoumik Saha, Weinxio Wang, Yigitcan Kaya, Soheil Feizi, Tudo Dumitras
     DRSM: De-Randomized Smoothing on Malware Classifier Providing Certified Robustness

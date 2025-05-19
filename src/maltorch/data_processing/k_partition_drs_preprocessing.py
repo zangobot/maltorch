@@ -2,7 +2,7 @@ import torch
 from secmlt.models.data_processing.data_processing import DataProcessing
 import math
 
-class DeRandomizedPreprocessing(DataProcessing):
+class KPartitionDeRandomizedPreprocessing(DataProcessing):
     """
     Shoumik Saha, Weinxio Wang, Yigitcan Kaya, Soheil Feizi, Tudo Dumitras
     DRSM: De-Randomized Smoothing on Malware Classifier Providing Certified Robustness

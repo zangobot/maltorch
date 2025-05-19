@@ -2,7 +2,7 @@ import random
 import torch
 from maltorch.datasets.binary_dataset import BinaryDataset
 
-class DeRandomizedSmoothingDataset(BinaryDataset):
+class FixedSizeChunkDeRandomizedSmoothingDataset(BinaryDataset):
     """
     Daniel Gibert, Giulio Zizzo, Quan Le
     Certified Robustness of Static Deep Learning-based Malware Detectors against Patch and Append Attacks
