@@ -38,8 +38,6 @@ class Model(torch.nn.Module, ABC):
 
 class PytorchModel(Model):
     def load_pretrained_model(self, device="cpu", model_path=None):
-        if self.gdrive_id is None:
-            return
         path = self.model_path
         if model_path is None:
             self._fetch_pretrained_model()
@@ -61,7 +59,7 @@ class PytorchModel(Model):
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device) # Explicitly load model to device
-        net.eval()
+        net = net.eval()
         net = BasePytorchClassifier(
             model=net,
             preprocessing=preprocessing,
@@ -115,7 +113,7 @@ class EmbeddingModel(PytorchModel, ABC):
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device) # Explicitly load model to device
-        net.eval()
+        net = net.eval()
         net = BaseEmbeddingPytorchClassifier(
             model=net,
             preprocessing=preprocessing,
@@ -200,7 +198,7 @@ class GrayscaleModel(PytorchModel, ABC):
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device) # Explicitly load model to device
-        net.eval()
+        net = net.eval()
         classifier = BaseGrayscalePytorchClassifier(
             model=net,
             preprocessing=preprocessing,

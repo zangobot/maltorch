@@ -2,7 +2,7 @@ import torch
 from secmlt.models.data_processing.data_processing import DataProcessing
 from random import randint
 
-class RandomDeRandomizedPreprocessing(DataProcessing):
+class DynamicRandomDeRandomizedPreprocessing(DataProcessing):
     """
     Daniel Gibert, Giulio Zizzo, Quan Le, Jordi Planes
     Adversarial Robustness of Deep Learning-based Malware Detectors via (De) Randomized Smoothing

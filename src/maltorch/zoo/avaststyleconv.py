@@ -17,7 +17,7 @@ class AvastStyleConv(EmbeddingModel):
                  max_len: int = 512000,
                  threshold: float = 0.5,
                  padding_idx: int = 256,
-                 channels: int = 128,
+                 channels: int = 48,
                  window_size: int = 32,
                  stride: int = 4):
         super(AvastStyleConv, self).__init__(
@@ -66,14 +66,14 @@ class AvastStyleConv(EmbeddingModel):
         conv1d_3 = torch.relu(self.conv1d_3(pool_1))
         conv1d_4 = torch.relu(self.conv1d_4(conv1d_3))
 
-        global_max_pooling1d_1 = F.max_pool1d(
+        global_avg_pooling1d_1 = F.avg_pool1d(
             input=conv1d_4, kernel_size=conv1d_4.size()[2:]
         )
-        global_max_pooling1d_1_flatten = global_max_pooling1d_1.view(
-            global_max_pooling1d_1.size(0), -1
+        global_avg_pooling1d_1_flatten = global_avg_pooling1d_1.view(
+            global_avg_pooling1d_1.size(0), -1
         )
 
-        dense_1 = self.dense_1(global_max_pooling1d_1_flatten)
+        dense_1 = self.dense_1(global_avg_pooling1d_1_flatten)
         dense_1_activation = torch.selu(dense_1)
         dense_2 = self.dense_2(dense_1_activation)
         dense_2_activation = torch.selu(dense_2)
