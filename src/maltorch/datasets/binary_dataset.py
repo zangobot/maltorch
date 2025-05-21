@@ -14,13 +14,14 @@ class BinaryDataset(Dataset):
                  max_len: int = None,
                  padding_idx: int = 256,
                  min_len: int = None,
-                 max_date: str = None):
+                 max_date: str = None,
+                 min_date: str = None):
         self.all_files = []
         self.max_len = max_len
         self.min_len = min_len
         self.padding_idx = padding_idx
 
-        if csv_filepath is not None and max_date is None:
+        if csv_filepath is not None and max_date is None and min_date is None:
             with open(csv_filepath, "r") as input_file:
                 lines = input_file.readlines()
                 for line in lines:
@@ -30,14 +31,26 @@ class BinaryDataset(Dataset):
 
         # in this case, csv file must contain a column labeled "timestamp" formatted as YYYY-MM, and it will be read with pandas.
         # The rest of the file should have column labels "path", "hash", "label"
-        elif csv_filepath is not None and max_date is not None:
+        elif csv_filepath is not None:
             rows = pd.read_csv(csv_filepath)
 
             # Ensure required columns are present
             required_columns = {"timestamp", "hash", "path", "label"}
             if not required_columns.issubset(rows.columns):
                 raise ValueError(f"CSV file must contain the following columns: {required_columns}")
-            rows = rows[pd.to_datetime(rows["timestamp"], format="%Y-%m") <= pd.to_datetime(max_date, format="%Y-%m")]
+            if min_date is not None and max_date is None:
+                rows = rows[
+                    (pd.to_datetime(rows["timestamp"], format="%Y-%m") >= pd.to_datetime(min_date, format="%Y-%m"))]
+            # if two data boundaries are provided, the data will be filtered to only include samples within the range
+            elif min_date is not None and max_date is not None:
+                rows = rows[
+                    (pd.to_datetime(rows["timestamp"], format="%Y-%m") >= pd.to_datetime(min_date, format="%Y-%m")) &
+                    (pd.to_datetime(rows["timestamp"], format="%Y-%m") <= pd.to_datetime(max_date, format="%Y-%m"))
+                ]
+            elif max_date is not None and min_date is None:
+                rows = rows[pd.to_datetime(rows["timestamp"], format="%Y-%m") <= pd.to_datetime(max_date, format="%Y-%m")]
+            else:
+                raise ValueError("max_date or/and min_date must be specified to filter the dataset by timestamp")
             for _, row in rows.iterrows():
                 self.all_files.append([os.path.join(row["path"], row["hash"]), row["label"],
                                        os.path.getsize(os.path.join(row["path"], row["hash"]))])
