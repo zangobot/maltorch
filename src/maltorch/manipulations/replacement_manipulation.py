@@ -23,7 +23,8 @@ class ReplacementManipulation(ByteManipulation):
     ) -> tuple[Tensor, Tensor]:
         for i, idx in enumerate(self.indexes_to_perturb):
             idx = idx.to(x.device)
-            x[i, idx[idx != -1]] = delta[i].to(x.device).long()
+            size_indexes = idx[idx != -1].shape[-1]
+            x[i, idx[idx != -1]] = delta[i][:size_indexes].to(x.device).long()
         return x, delta
 
     def initialize(self, samples: torch.Tensor):

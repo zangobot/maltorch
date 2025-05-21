@@ -1,4 +1,6 @@
+import lief
 import requests
+import torch
 
 
 def download_gdrive(gdrive_id, fname_save):
@@ -10,12 +12,12 @@ def download_gdrive(gdrive_id, fname_save):
                 return value
 
         return None
-    
+
     def get_uuid_token(response):
         # TODO: rude way, might want to implement proper HTML parsing
         if 'uuid" value="' not in response.text:
             return None
-        
+
         uuid = response.text.split("uuid")[1].replace('" value="', "").split('"')[0]
         return uuid
 
@@ -38,7 +40,7 @@ def download_gdrive(gdrive_id, fname_save):
     uuid = get_uuid_token(response)
 
     if token:
-        params = {"id": gdrive_id, "confirm": token,  "export": "download"}
+        params = {"id": gdrive_id, "confirm": token, "export": "download"}
         response = session.get(docs_domain, params=params, stream=True)
     elif uuid:
         params = {"id": gdrive_id, "uuid": uuid, "export": "download", "confirm": "t"}
@@ -47,3 +49,8 @@ def download_gdrive(gdrive_id, fname_save):
     save_response_content(response, fname_save)
     session.close()
     print("Download finished: path={} (gdrive_id={})".format(fname_save, gdrive_id))
+
+
+def convert_torch_exe_to_list(x: torch.Tensor):
+    list_x = x[x != 256].data.cpu().flatten().tolist()
+    return list_x

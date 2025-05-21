@@ -9,24 +9,24 @@ from maltorch.adv.evasion.base_optim_attack_creator import (
 )
 from maltorch.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from maltorch.adv.evasion.gradient_attack import GradientBackendAttack
+from maltorch.initializers.dos_initializer import DOSHeaderStubInitializer
 from maltorch.manipulations.replacement_manipulation import (
     ReplacementManipulation,
 )
-from maltorch.initializers.dos_initializer import PartialDOSInitializer
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
 
-class PartialDOSGradFree(GradientFreeBackendAttack):
+class FullDOSGradFree(GradientFreeBackendAttack):
     def __init__(
-        self,
-        query_budget: int,
-        y_target: Union[int, None] = None,
-        population_size: int = 10,
-        random_init: bool = False,
-        trackers: Union[List[Tracker], Tracker] = None,
+            self,
+            query_budget: int,
+            y_target: Union[int, None] = None,
+            population_size: int = 10,
+            random_init: bool = False,
+            trackers: Union[List[Tracker], Tracker] = None,
     ):
         loss_function = BCEWithLogitsLoss(reduction="none")
-        initializer = PartialDOSInitializer(random_init=random_init)
+        initializer = DOSHeaderStubInitializer(random_init=random_init)
         manipulation_function = ReplacementManipulation(initializer=initializer)
         optimizer_cls = MalwareOptimizerFactory.create_ga(
             population_size=population_size
@@ -42,18 +42,18 @@ class PartialDOSGradFree(GradientFreeBackendAttack):
         )
 
 
-class PartialDOSGrad(GradientBackendAttack):
+class FullDOSGrad(GradientBackendAttack):
     def __init__(
-        self,
-        query_budget: int,
-        y_target: Union[int, None] = None,
-        random_init: bool = False,
-        step_size: int = 58,
-        device: str = "cpu",
-        trackers: Union[List[Tracker], Tracker] = None,
+            self,
+            query_budget: int,
+            y_target: Union[int, None] = None,
+            random_init: bool = False,
+            step_size: int = 58,
+            device: str = "cpu",
+            trackers: Union[List[Tracker], Tracker] = None,
     ):
         loss_function = BCEWithLogitsLoss(reduction="none")
-        initializer = PartialDOSInitializer(random_init=random_init)
+        initializer = DOSHeaderStubInitializer(random_init=random_init)
         manipulation_function = ReplacementManipulation(initializer=initializer)
         optimizer_cls = MalwareOptimizerFactory.create_bgd(lr=step_size, device=device)
         super().__init__(
@@ -67,29 +67,29 @@ class PartialDOSGrad(GradientBackendAttack):
         )
 
 
-class PartialDOS(BaseOptimAttackCreator):
+class FullDOS(BaseOptimAttackCreator):
     @staticmethod
     def get_backends() -> set[str]:
         return {OptimizerBackends.GRADIENT, OptimizerBackends.NG}
 
     @staticmethod
-    def _get_nevergrad_implementation() -> Type[PartialDOSGradFree]:
-        return PartialDOSGradFree
+    def _get_nevergrad_implementation() -> Type[FullDOSGradFree]:
+        return FullDOSGradFree
 
     @staticmethod
-    def _get_native_implementation() -> Type[PartialDOSGrad]:
-        return PartialDOSGrad
+    def _get_native_implementation() -> Type[FullDOSGrad]:
+        return FullDOSGrad
 
     def __new__(
-        cls,
-        query_budget: int,
-        y_target: Union[int, None] = None,
-        random_init: bool = False,
-        step_size: int = 16,
-        population_size: int = 10,
-        device: str = "cpu",
-        trackers: Union[List[Tracker], Tracker] = None,
-        backend: str = OptimizerBackends.GRADIENT,
+            cls,
+            query_budget: int,
+            y_target: Union[int, None] = None,
+            random_init: bool = False,
+            step_size: int = 16,
+            population_size: int = 10,
+            device: str = "cpu",
+            trackers: Union[List[Tracker], Tracker] = None,
+            backend: str = OptimizerBackends.GRADIENT,
     ) -> Callable:
         implementation: Callable = cls.get_implementation(backend)
         if backend == OptimizerBackends.GRADIENT:
