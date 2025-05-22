@@ -40,6 +40,8 @@ class PytorchModel(Model):
     def load_pretrained_model(self, device="cpu", model_path=None):
         path = self.model_path
         if model_path is None:
+            if self.gdrive_id is None:
+                return
             self._fetch_pretrained_model()
         else:
             path = model_path
