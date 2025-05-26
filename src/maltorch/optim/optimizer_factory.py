@@ -17,7 +17,7 @@ class MalwareOptimizerFactory:
         if optim_cls == "bgd":
             return MalwareOptimizerFactory.create_bgd(**optimizer_args)
         if optim_cls == "ga":
-            return MalwareOptimizerFactory.create_ga()
+            return MalwareOptimizerFactory.create_ga(**optimizer_args)
         raise NotImplementedError(f"Optimizer {optim_cls} not included.")
 
     @staticmethod

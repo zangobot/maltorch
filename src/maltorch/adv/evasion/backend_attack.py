@@ -44,7 +44,8 @@ class BackendAttack(BaseEvasionAttack):
     def _init_attack_manipulation(
         self, samples: torch.Tensor
     ) -> (torch.Tensor, torch.Tensor):
-        return self.manipulation_function.initialize(samples.data)
+        return  self.manipulation_function.initialize(samples.data)
+
 
     def _apply_manipulation(
         self, x: torch.Tensor, delta: torch.Tensor
@@ -137,7 +138,7 @@ class BackendAttack(BaseEvasionAttack):
             else labels
         ).type(labels.dtype)
         target = target.to(labels.device)
-        x_adv, delta = self._init_attack_manipulation(samples)
+        samples, delta = self._init_attack_manipulation(samples)
         self.optimizer = self._init_optimizer(model, delta)
         budget = 0
         self._init_best_tracking(delta)

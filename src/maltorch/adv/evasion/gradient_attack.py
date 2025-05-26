@@ -10,6 +10,7 @@ class GradientBackendAttack(BackendAttack):
         self, samples: torch.Tensor
     ) -> (torch.Tensor, torch.Tensor):
         x_adv, delta = self.manipulation_function.initialize(samples.data)
+        x_adv = x_adv.long()
         delta = delta.to(samples.device)
         delta.requires_grad = True
         return x_adv, delta
@@ -36,4 +37,4 @@ class GradientBackendAttack(BackendAttack):
         return delta
 
     def _consumed_budget(self):
-        return 2
+        return 1
