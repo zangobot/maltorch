@@ -17,7 +17,6 @@ class EmberGBDT(Model):
         super().__init__(
             name="ember_gbdt", gdrive_id="1RWvr3yD8M90EXcTozK2TwW2JEExQ9qDW"
         )
-        self._fetch_pretrained_model()
         self.tree_model = None
         if model_path is None:
             model_path = self.model_path
