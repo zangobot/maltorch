@@ -18,8 +18,6 @@ class EmberGBDT(Model):
             name="ember_gbdt", gdrive_id="1RWvr3yD8M90EXcTozK2TwW2JEExQ9qDW"
         )
         self.tree_model = None
-        if model_path is None:
-            model_path = self.model_path
         self.load_pretrained_model(model_path=model_path)
 
     def load_pretrained_model(self, device: str = "cpu", model_path: str = None):
