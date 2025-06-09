@@ -24,4 +24,5 @@ class PaddingInitializer(ByteBasedInitializer):
             deltas.append(delta)
             indexes.append(padding_indexes)
         x, delta, indexes = self._pad_samples_same_length(X, deltas, torch.Tensor(indexes))
+        x = x.long()
         return x, delta, indexes

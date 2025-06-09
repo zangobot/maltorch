@@ -47,11 +47,11 @@ class _GBDTModel(BaseModel):
         self.tree_model: lightgbm.Booster = tree_model
         self.threshold: float = threshold
 
-    def predict(self, x: torch.Tensor) -> torch.Tensor:
+    def predict(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         y = self._decision_function(x)
         return torch.Tensor(y > self.threshold).int()
 
-    def _decision_function(self, x: torch.Tensor) -> torch.Tensor:
+    def _decision_function(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         extractor = ember.features.PEFeatureExtractor(print_feature_warning=False)
         n_samples = x.shape[0]
         feat_x = np.zeros((x.shape[0], extractor.dim))
@@ -66,7 +66,7 @@ class _GBDTModel(BaseModel):
         probabilities = torch.Tensor(probabilities).unsqueeze(1)
         return probabilities
 
-    def gradient(self, x: torch.Tensor, y: int) -> torch.Tensor:
+    def gradient(self, x: torch.Tensor, y: int, *args, **kwargs) -> torch.Tensor:
         raise NotImplementedError("No gradient for GBDT model.")
 
     def train(self, dataloader: DataLoader) -> "BaseModel":

@@ -8,6 +8,7 @@ import torch
 
 from maltorch.initializers.initializers import IdentityInitializer
 from maltorch.manipulations.byte_manipulation import ByteManipulation
+from maltorch.utils.utils import convert_torch_exe_to_list
 
 
 class GAMMASectionInjectionManipulation(ByteManipulation):
@@ -47,7 +48,7 @@ class GAMMASectionInjectionManipulation(ByteManipulation):
             self, x: torch.Tensor, delta: torch.Tensor
     ) -> tuple[torch.Tensor, torch.Tensor]:
         # TODO: section injection is executed ONLY sample-wise, since it only works with GradFree
-        lief_pe: lief.PE = lief.PE.parse(x.data.cpu().flatten().tolist())
+        lief_pe: lief.PE = lief.PE.parse(convert_torch_exe_to_list(x))
         for delta_i, content, name in zip(delta.squeeze(), self._sections, self._names):
             s = lief.PE.Section(name=name)
             s.content = content[:int(len(content) * delta_i)]
