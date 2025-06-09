@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Optional
+
 import lief
 import requests
 import torch
@@ -54,3 +57,12 @@ def download_gdrive(gdrive_id, fname_save):
 def convert_torch_exe_to_list(x: torch.Tensor):
     list_x = x[x != 256].data.cpu().flatten().tolist()
     return list_x
+
+
+def dump_torch_exe_to_file(x: torch.Tensor, filepath: Optional[Path]) -> bytes:
+    list_x = convert_torch_exe_to_list(x)
+    bytes_x = b"".join([bytes([i]) for i in list_x])
+    if filepath is not None:
+        with open(str(filepath), 'wb') as f:
+            f.write(bytes_x)
+    return bytes_x
