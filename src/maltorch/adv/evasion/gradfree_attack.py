@@ -50,10 +50,11 @@ class GradientFreeBackendAttack(BackendAttack):
                 sample = sample.unsqueeze(0)
                 label = label.unsqueeze(0)
                 x_adv, _ = self._run(model, sample, label)
-                adversarials.append(x_adv)
+                adversarials.append(x_adv.transpose(0,1))
                 original_labels.append(label)
         adversarials = (
             torch.nn.utils.rnn.pad_sequence(adversarials, padding_value=256)
+            .transpose(0,1)
             .squeeze()
             .long()
         )
