@@ -114,9 +114,14 @@ class BackendAttack(BaseEvasionAttack):
         original_labels = []
         for samples, labels in data_loader:
             x_adv, _ = self._run(model, samples, labels)
-            adversarials.append(x_adv)
+            adversarials += [x.transpose(0,1) for x in torch.split(x_adv, 1, dim=0)]
             original_labels.append(labels)
-        adversarials = torch.vstack(adversarials)
+        adversarials = (
+            torch.nn.utils.rnn.pad_sequence(adversarials, padding_value=256)
+            .transpose(0, 1)
+            .squeeze()
+            .long()
+        )
         original_labels = torch.vstack(original_labels)
         adversarial_dataset = TensorDataset(adversarials, original_labels)
         return DataLoader(
