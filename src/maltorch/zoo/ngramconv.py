@@ -29,7 +29,7 @@ class NGramConv(EmbeddingModel):
                  threshold: float = 0.5,
                  padding_idx: int = 256):
         super(NGramConv, self).__init__(
-            name="NGramConv", gdrive_id=None
+            name="NGramConv", gdrive_id=None, max_len=max_len
         )
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx

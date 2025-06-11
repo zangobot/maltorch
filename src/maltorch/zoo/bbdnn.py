@@ -14,11 +14,12 @@ class BBDnn(EmbeddingModel):
     def __init__(
             self,
             embedding_size: int = 10,
+            min_len: int = 4096,
             max_len: int = 102400,
             threshold: float = 0.5,
             padding_idx: int = 256,
     ):
-        super(BBDnn, self).__init__(name="bbdnn", gdrive_id="1c_9lVHT9zYpBCwQfnUW6ZbCF6SaVabRZ")
+        super(BBDnn, self).__init__(name="bbdnn", gdrive_id="1c_9lVHT9zYpBCwQfnUW6ZbCF6SaVabRZ", min_len=min_len, max_len=max_len)
         self.max_len = max_len
         self.threshold = threshold
         self.embedding_1 = torch.nn.Embedding(
@@ -134,11 +135,6 @@ class BBDnn(EmbeddingModel):
         emb_x = self.embedding_1(x)
         emb_x = emb_x.transpose(1, 2)
         return emb_x
-
-    def forward(self, x):
-        x = self.embed(x)  # Shape: (batch_size, seq_len, embedding_size)
-        x = self._forward_embed_x(x)
-        return x
 
     def embedding_matrix(self):
         return self.embedding_1.weight
