@@ -14,6 +14,7 @@ from maltorch.zoo.model import EmbeddingModel
 class AvastStyleConv(EmbeddingModel):
     def __init__(self,
                  embedding_size: int = 8,
+                 min_len: int = 10244,
                  max_len: int = 512000,
                  threshold: float = 0.5,
                  padding_idx: int = 256,
@@ -21,7 +22,7 @@ class AvastStyleConv(EmbeddingModel):
                  window_size: int = 32,
                  stride: int = 4):
         super(AvastStyleConv, self).__init__(
-            name="AvastStyleConv", gdrive_id=None
+            name="AvastStyleConv", gdrive_id=None, min_len=min_len, max_len=max_len
         )
         # "14wSZQ-Drns9G8CEqvfbAZjmMVt_ToUbp"
         self.max_len = max_len
