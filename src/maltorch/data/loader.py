@@ -1,10 +1,11 @@
 from pathlib import Path
+from typing import Optional
 
 import torch
 
 
 def load_from_folder(
-    path: Path, extension: str = "exe", padding: int = 256, limit=None, device="cpu"
+    path: Path, extension: Optional[str] = None, padding: int = 256, limit=None, device="cpu"
 ) -> torch.Tensor:
     """Create a torch.Tensor whose rows are all the file with extension specified in input.
     Tensor are padded to match the same size.
@@ -15,7 +16,11 @@ def load_from_folder(
     :return: a torch.Tensor containing all the file converted into tensors
     """
     X = []
-    for filepath in path.glob(f"*.{extension}"):
+    if extension is None:
+        pattern = f"*"
+    else:
+        pattern = f"*.{extension}"
+    for filepath in path.glob(pattern):
         x = load_single_exe(filepath)
         X.append(x)
         if limit is not None and len(X) >= limit:
