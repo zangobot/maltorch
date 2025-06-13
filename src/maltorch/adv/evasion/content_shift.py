@@ -1,7 +1,7 @@
 from typing import Type, Union, List, Callable
 
 from secmlt.trackers import Tracker
-from torch.nn import BCEWithLogitsLoss
+from torch.nn import BCEWithLogitsLoss, BCELoss
 
 from maltorch.adv.evasion.base_optim_attack_creator import (
     BaseOptimAttackCreator,
@@ -22,6 +22,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
             y_target: Union[int, None] = None,
             population_size: int = 10,
             random_init: bool = False,
+            model_outputs_logits:bool=True,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
         initializer = ContentShiftInitializer(
@@ -30,7 +31,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
         optimizer_cls = MalwareOptimizerFactory.create_ga(
             population_size=population_size
         )
-        loss_function = BCEWithLogitsLoss(reduction="none")
+        loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         manipulation_function = ReplacementManipulation(initializer=initializer)
         super().__init__(
             y_target=y_target,
@@ -40,6 +41,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
             manipulation_function=manipulation_function,
             optimizer_cls=optimizer_cls,
             trackers=trackers,
+            model_outputs_logits=model_outputs_logits
         )
 
 
@@ -52,13 +54,14 @@ class ContentShiftGrad(GradientBackendAttack):
             random_init: bool = False,
             step_size: int = 58,
             device: str = "cpu",
+            model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
         initializer = ContentShiftInitializer(
             random_init=random_init, preferred_manipulation_size=perturbation_size
         )
         optimizer_cls = MalwareOptimizerFactory.create_bgd(lr=step_size, device=device)
-        loss_function = BCEWithLogitsLoss(reduction="none")
+        loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         manipulation_function = ReplacementManipulation(initializer=initializer)
         super().__init__(
             y_target=y_target,
@@ -68,6 +71,7 @@ class ContentShiftGrad(GradientBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
+            model_outputs_logits=model_outputs_logits
         )
 
 
@@ -101,6 +105,7 @@ class ContentShift(BaseOptimAttackCreator):
             step_size: int = 16,
             population_size: int = 10,
             device: str = "cpu",
+            model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.GRADIENT,
     ) -> Callable:
@@ -117,5 +122,6 @@ class ContentShift(BaseOptimAttackCreator):
             y_target=y_target,
             trackers=trackers,
             random_init=random_init,
+            model_outputs_logits=model_outputs_logits,
             **kwargs,
         )

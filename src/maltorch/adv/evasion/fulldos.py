@@ -1,7 +1,7 @@
 from typing import Union, List, Type, Callable
 
 from secmlt.trackers.trackers import Tracker
-from torch.nn import BCEWithLogitsLoss
+from torch.nn import BCEWithLogitsLoss, BCELoss
 
 from maltorch.adv.evasion.base_optim_attack_creator import (
     BaseOptimAttackCreator,
@@ -23,9 +23,10 @@ class FullDOSGradFree(GradientFreeBackendAttack):
             y_target: Union[int, None] = None,
             population_size: int = 10,
             random_init: bool = False,
+            model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
-        loss_function = BCEWithLogitsLoss(reduction="none")
+        loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = DOSHeaderStubInitializer(random_init=random_init)
         manipulation_function = ReplacementManipulation(initializer=initializer)
         optimizer_cls = MalwareOptimizerFactory.create_ga(
@@ -39,6 +40,7 @@ class FullDOSGradFree(GradientFreeBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
+            model_outputs_logits=model_outputs_logits
         )
 
 
@@ -50,9 +52,10 @@ class FullDOSGrad(GradientBackendAttack):
             random_init: bool = False,
             step_size: int = 58,
             device: str = "cpu",
+            model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
-        loss_function = BCEWithLogitsLoss(reduction="none")
+        loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = DOSHeaderStubInitializer(random_init=random_init)
         manipulation_function = ReplacementManipulation(initializer=initializer)
         optimizer_cls = MalwareOptimizerFactory.create_bgd(lr=step_size, device=device)
@@ -64,6 +67,7 @@ class FullDOSGrad(GradientBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
+            model_outputs_logits=model_outputs_logits
         )
 
 
@@ -88,6 +92,7 @@ class FullDOS(BaseOptimAttackCreator):
             step_size: int = 16,
             population_size: int = 10,
             device: str = "cpu",
+            model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.GRADIENT,
     ) -> Callable:
@@ -103,5 +108,6 @@ class FullDOS(BaseOptimAttackCreator):
             y_target=y_target,
             trackers=trackers,
             random_init=random_init,
+            model_outputs_logits=model_outputs_logits,
             **kwargs,
         )

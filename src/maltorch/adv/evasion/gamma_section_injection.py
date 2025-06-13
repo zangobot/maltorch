@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Type, Union, List, Callable
 
 from secmlt.trackers import Tracker
-from torch.nn import BCEWithLogitsLoss
+from torch.nn import BCEWithLogitsLoss, BCELoss
 
 from maltorch.adv.evasion.base_optim_attack_creator import (
     BaseOptimAttackCreator,
@@ -24,6 +24,7 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             y_target: Union[int, None] = None,
             population_size: int = 10,
             random_init: bool = False,
+            model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
         if which_sections is None:
@@ -34,7 +35,7 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
         optimizer_cls = MalwareOptimizerFactory.create_ga(
             population_size=population_size
         )
-        loss_function = BCEWithLogitsLoss(reduction="none")
+        loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         manipulation_function = GAMMASectionInjectionManipulation(benignware_folder=benignware_folder,
                                                                   which_sections=which_sections,
                                                                   how_many_sections=how_many_sections)
@@ -76,6 +77,7 @@ class GAMMASectionInjection(BaseOptimAttackCreator):
             random_init: bool = False,
             population_size: int = 10,
             device: str = "cpu",
+            model_outputs_logits: bool=True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.NG,
     ) -> Callable:
@@ -90,4 +92,5 @@ class GAMMASectionInjection(BaseOptimAttackCreator):
             y_target=y_target,
             trackers=trackers,
             random_init=random_init,
+            model_outputs_logits=model_outputs_logits,
         )
