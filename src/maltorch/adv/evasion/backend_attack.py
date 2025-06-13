@@ -119,7 +119,7 @@ class BackendAttack(BaseEvasionAttack):
         adversarials = (
             torch.nn.utils.rnn.pad_sequence(adversarials, padding_value=256)
             .transpose(0, 1)
-            .squeeze()
+            .squeeze(dim=-1)
             .long()
         )
         original_labels = torch.vstack(original_labels)

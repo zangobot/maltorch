@@ -7,6 +7,8 @@ from secmlt.models.data_processing.data_processing import DataProcessing
 from secmlt.models.pytorch.base_pytorch_nn import BasePytorchClassifier
 from maltorch.utils.config import Config
 from maltorch.utils.utils import download_gdrive
+import torch.nn.functional as F
+
 
 
 class Model(torch.nn.Module, ABC):
@@ -126,10 +128,12 @@ class EmbeddingModel(PytorchModel, ABC):
         return net
 
     def __init__(
-        self, name: str, gdrive_id: Optional[str], input_embedding: bool = False
+        self, name: str, gdrive_id: Optional[str], input_embedding: bool = False, min_len : Optional[int] = None, max_len: Optional[int] = None
     ):
         super().__init__(name, gdrive_id)
         self.input_embedding = input_embedding
+        self.min_len = min_len
+        self.max_len = max_len
 
     @abstractmethod
     def embed(self, x):
@@ -147,6 +151,21 @@ class EmbeddingModel(PytorchModel, ABC):
     def _forward_embed_x(self, x):
         pass
 
+    def _conform_input_size(self, x: torch.Tensor, padding: int = 256) -> torch.Tensor:
+
+        if self.max_len is None and self.min_len is None:
+            return x
+
+        batch_size, current_size = x.shape
+
+        if self.min_len is not None:
+            padding_needed = max(0, self.min_len - current_size)
+            x = F.pad(x, (0, padding_needed), "constant", padding)
+
+        x = x[:, :self.max_len]
+
+        return x
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Forward pass.
@@ -160,6 +179,7 @@ class EmbeddingModel(PytorchModel, ABC):
         torch.Tensor
             the result of the forward pass
         """
+        x = self._conform_input_size(x)
         x = self.embed(x)
         output = self._forward_embed_x(x)
         return output
