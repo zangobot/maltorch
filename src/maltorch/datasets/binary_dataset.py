@@ -55,12 +55,13 @@ class BinaryDataset(Dataset):
                 self.all_files.append([os.path.join(row["path"], row["hash"]), row["label"],
                                        os.path.getsize(os.path.join(row["path"], row["hash"]))])
 
-
-        elif goodware_directory is not None and malware_directory is not None:
-            self.all_files.extend(
-                [[os.path.join(goodware_directory, filename), 0, os.path.getsize(os.path.join(goodware_directory, filename))] for filename in os.listdir(goodware_directory)])
-            self.all_files.extend(
-                [[os.path.join(malware_directory, filename), 1, os.path.getsize(os.path.join(malware_directory, filename))] for filename in os.listdir(malware_directory)])
+        elif goodware_directory is not None or malware_directory is not None:
+            if goodware_directory is not None:
+                self.all_files.extend(
+                    [[os.path.join(goodware_directory, filename), 0, os.path.getsize(os.path.join(goodware_directory, filename))] for filename in os.listdir(goodware_directory)])
+            if malware_directory is not None:
+                self.all_files.extend(
+                    [[os.path.join(malware_directory, filename), 1, os.path.getsize(os.path.join(malware_directory, filename))] for filename in os.listdir(malware_directory)])
         else:
             raise NotImplementedError("You need to either provide CSV file containing (sample,label) "
                                       "or the paths where the goodware and malware are stored.")
