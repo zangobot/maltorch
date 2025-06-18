@@ -20,8 +20,8 @@ class MalConv(EmbeddingModel):
                  max_len: int =2**20,
                  threshold: float =0.5,
                  padding_idx: int = 256,
-                 kernel_size=500,
-                 stride=500):
+                 kernel_size=512,
+                 stride=512):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N", max_len=max_len
         )

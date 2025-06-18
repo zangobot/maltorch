@@ -2,6 +2,6 @@
 
 ## Installation
 ```bash
-pip install maltoch
+pip install maltorch
 pip install git+https://github.com/zangobot/ember.git
 ```

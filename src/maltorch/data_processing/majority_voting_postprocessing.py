@@ -16,7 +16,7 @@ class MajorityVotingPostprocessing(DataProcessing):
         y_preds = torch.where(x >= self.threshold, 1, 0)
         num_benign = torch.sum(y_preds == 0)
         num_malicious = torch.sum(y_preds == 1)
-        return num_malicious/(num_benign+num_malicious)
+        return torch.atleast_2d(num_malicious / (num_benign + num_malicious))
 
     def invert(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         """
