@@ -24,4 +24,5 @@ class ContentShiftInitializer(ByteBasedInitializer):
             deltas.append(delta)
             indexes.append(torch.Tensor(shift_indexes))
         x, delta, indexes = self._pad_samples_same_length(X, deltas, indexes)
+        x = x.long()
         return x, delta, indexes

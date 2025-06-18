@@ -18,7 +18,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
     def __init__(
             self,
             query_budget: int,
-            manipulation_size: int,
+            perturbation_size: int,
             y_target: Union[int, None] = None,
             population_size: int = 10,
             random_init: bool = False,
@@ -26,7 +26,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
             trackers: Union[List[Tracker], Tracker] = None,
     ):
         initializer = ContentShiftInitializer(
-            random_init=random_init, preferred_manipulation_size=manipulation_size
+            random_init=random_init, preferred_manipulation_size=perturbation_size
         )
         optimizer_cls = MalwareOptimizerFactory.create_ga(
             population_size=population_size
