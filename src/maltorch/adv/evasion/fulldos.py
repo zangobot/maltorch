@@ -23,6 +23,7 @@ class FullDOSGradFree(GradientFreeBackendAttack):
             y_target: Union[int, None] = None,
             population_size: int = 10,
             random_init: bool = False,
+            device:str="cpu",
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
@@ -40,7 +41,8 @@ class FullDOSGradFree(GradientFreeBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
-            model_outputs_logits=model_outputs_logits
+            model_outputs_logits=model_outputs_logits,
+            device=device
         )
 
 
@@ -67,7 +69,8 @@ class FullDOSGrad(GradientBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
-            model_outputs_logits=model_outputs_logits
+            model_outputs_logits=model_outputs_logits,
+            device=device
         )
 
 
@@ -109,5 +112,6 @@ class FullDOS(BaseOptimAttackCreator):
             trackers=trackers,
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
+            device=device
             **kwargs,
         )

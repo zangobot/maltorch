@@ -18,13 +18,14 @@ from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
 class PartialDOSGradFree(GradientFreeBackendAttack):
     def __init__(
-        self,
-        query_budget: int,
-        y_target: Union[int, None] = None,
-        population_size: int = 10,
-        random_init: bool = False,
-        model_outputs_logits: bool = True,
-        trackers: Union[List[Tracker], Tracker] = None,
+            self,
+            query_budget: int,
+            y_target: Union[int, None] = None,
+            population_size: int = 10,
+            random_init: bool = False,
+            model_outputs_logits: bool = True,
+            device: str = "cpu",
+            trackers: Union[List[Tracker], Tracker] = None,
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = PartialDOSInitializer(random_init=random_init)
@@ -41,19 +42,20 @@ class PartialDOSGradFree(GradientFreeBackendAttack):
             initializer=initializer,
             model_outputs_logits=model_outputs_logits,
             trackers=trackers,
+            device=device
         )
 
 
 class PartialDOSGrad(GradientBackendAttack):
     def __init__(
-        self,
-        query_budget: int,
-        y_target: Union[int, None] = None,
-        random_init: bool = False,
-        step_size: int = 58,
-        device: str = "cpu",
-        model_outputs_logits: bool = True,
-        trackers: Union[List[Tracker], Tracker] = None,
+            self,
+            query_budget: int,
+            y_target: Union[int, None] = None,
+            random_init: bool = False,
+            step_size: int = 58,
+            device: str = "cpu",
+            model_outputs_logits: bool = True,
+            trackers: Union[List[Tracker], Tracker] = None,
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = PartialDOSInitializer(random_init=random_init)
@@ -68,6 +70,7 @@ class PartialDOSGrad(GradientBackendAttack):
             initializer=initializer,
             model_outputs_logits=model_outputs_logits,
             trackers=trackers,
+            device=device
         )
 
 
@@ -85,16 +88,16 @@ class PartialDOS(BaseOptimAttackCreator):
         return PartialDOSGrad
 
     def __new__(
-        cls,
-        query_budget: int,
-        y_target: Union[int, None] = None,
-        random_init: bool = False,
-        step_size: int = 16,
-        population_size: int = 10,
-        device: str = "cpu",
-        model_outputs_logits: bool = True,
-        trackers: Union[List[Tracker], Tracker] = None,
-        backend: str = OptimizerBackends.GRADIENT,
+            cls,
+            query_budget: int,
+            y_target: Union[int, None] = None,
+            random_init: bool = False,
+            step_size: int = 16,
+            population_size: int = 10,
+            device: str = "cpu",
+            model_outputs_logits: bool = True,
+            trackers: Union[List[Tracker], Tracker] = None,
+            backend: str = OptimizerBackends.GRADIENT,
     ) -> Callable:
         implementation: Callable = cls.get_implementation(backend)
         if backend == OptimizerBackends.GRADIENT:
@@ -109,5 +112,6 @@ class PartialDOS(BaseOptimAttackCreator):
             trackers=trackers,
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
+            device=device,
             **kwargs,
         )

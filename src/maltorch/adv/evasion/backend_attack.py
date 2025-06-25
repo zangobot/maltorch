@@ -20,15 +20,16 @@ class BackendAttack(BaseEvasionAttack):
         pass
 
     def __init__(
-        self,
-        y_target: Union[int, None],
-        query_budget: int,
-        loss_function: Union[str, torch.nn.Module],
-        optimizer_cls: Callable,
-        manipulation_function: ByteManipulation,
-        initializer: Initializer,
-        trackers: Union[List[Tracker], Tracker] = None,
-        **kwargs
+            self,
+            y_target: Union[int, None],
+            query_budget: int,
+            loss_function: Union[str, torch.nn.Module],
+            optimizer_cls: Callable,
+            manipulation_function: ByteManipulation,
+            initializer: Initializer,
+            device: str = "cpu",
+            trackers: Union[List[Tracker], Tracker] = None,
+            **kwargs
     ):
         self.y_target = y_target
         self.query_budget = query_budget
@@ -38,17 +39,17 @@ class BackendAttack(BaseEvasionAttack):
         self.trackers = trackers
         self.optimizer = None
         self.optimizer_cls = optimizer_cls
+        self.device = device
         self._best_loss = None
         self._best_delta = None
 
     def _init_attack_manipulation(
-        self, samples: torch.Tensor
+            self, samples: torch.Tensor
     ) -> (torch.Tensor, torch.Tensor):
-        return  self.manipulation_function.initialize(samples.data)
-
+        return self.manipulation_function.initialize(samples.data)
 
     def _apply_manipulation(
-        self, x: torch.Tensor, delta: torch.Tensor
+            self, x: torch.Tensor, delta: torch.Tensor
     ) -> (torch.Tensor, torch.Tensor):
         raise NotImplementedError()
 
@@ -75,12 +76,12 @@ class BackendAttack(BaseEvasionAttack):
         return self._best_delta
 
     def _track(
-        self,
-        iteration: int,
-        loss: torch.Tensor,
-        scores: torch.Tensor,
-        x_adv: torch.Tensor,
-        delta: torch.Tensor,
+            self,
+            iteration: int,
+            loss: torch.Tensor,
+            scores: torch.Tensor,
+            x_adv: torch.Tensor,
+            delta: torch.Tensor,
     ):
         if self._trackers_allowed():
             if self.trackers:
@@ -114,7 +115,7 @@ class BackendAttack(BaseEvasionAttack):
         original_labels = []
         for samples, labels in data_loader:
             x_adv, _ = self._run(model, samples, labels)
-            adversarials += [x.transpose(0,1) for x in torch.split(x_adv, 1, dim=0)]
+            adversarials += [x.transpose(0, 1) for x in torch.split(x_adv, 1, dim=0)]
             original_labels.append(labels)
         adversarials = (
             torch.nn.utils.rnn.pad_sequence(adversarials, padding_value=256)
@@ -130,11 +131,11 @@ class BackendAttack(BaseEvasionAttack):
         )
 
     def _run(
-        self,
-        model: BaseModel,
-        samples: torch.Tensor,
-        labels: torch.Tensor,
-        **optim_kwargs,
+            self,
+            model: BaseModel,
+            samples: torch.Tensor,
+            labels: torch.Tensor,
+            **optim_kwargs,
     ) -> (torch.Tensor, torch.Tensor):
         multiplier = 1 if self.y_target is not None else -1
         target = (
@@ -142,7 +143,8 @@ class BackendAttack(BaseEvasionAttack):
             if self.y_target is not None
             else labels
         ).type(labels.dtype)
-        target = target.to(labels.device)
+        samples = samples.to(self.device)
+        target = target.to(self.device)
         samples, delta = self._init_attack_manipulation(samples)
         self.optimizer = self._init_optimizer(model, delta)
         budget = 0

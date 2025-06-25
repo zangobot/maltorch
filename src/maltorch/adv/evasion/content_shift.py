@@ -23,6 +23,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
             population_size: int = 10,
             random_init: bool = False,
             model_outputs_logits:bool=True,
+            device:str="cpu",
             trackers: Union[List[Tracker], Tracker] = None,
     ):
         initializer = ContentShiftInitializer(
@@ -41,7 +42,8 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
             manipulation_function=manipulation_function,
             optimizer_cls=optimizer_cls,
             trackers=trackers,
-            model_outputs_logits=model_outputs_logits
+            model_outputs_logits=model_outputs_logits,
+            device=device
         )
 
 
@@ -71,7 +73,8 @@ class ContentShiftGrad(GradientBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
-            model_outputs_logits=model_outputs_logits
+            model_outputs_logits=model_outputs_logits,
+            device=device
         )
 
 
@@ -123,5 +126,6 @@ class ContentShift(BaseOptimAttackCreator):
             trackers=trackers,
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
+            device=device,
             **kwargs,
         )

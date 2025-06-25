@@ -25,6 +25,7 @@ class PaddingGradFree(GradientFreeBackendAttack):
             population_size: int = 10,
             random_init: bool = False,
             model_outputs_logits: bool = True,
+            device:str="cpu",
             trackers: Union[List[Tracker], Tracker] = None,
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
@@ -41,6 +42,7 @@ class PaddingGradFree(GradientFreeBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
+            device=device
         )
 
 
@@ -68,6 +70,7 @@ class PaddingGrad(GradientBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
+            device=device
         )
 
 
@@ -111,5 +114,6 @@ class Padding(BaseOptimAttackCreator):
             trackers=trackers,
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
+            device=device,
             **kwargs,
         )
