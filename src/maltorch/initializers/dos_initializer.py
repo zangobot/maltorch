@@ -36,4 +36,7 @@ class DOSHeaderStubInitializer(ByteBasedInitializer):
             else torch.randint(0, 255, indexes.shape)
         ).float()
         delta[indexes == -1] = -1
+        delta = delta.float()
+        delta = delta.to(x.device)
+        indexes = indexes.to(x.device)
         return x, delta, indexes

@@ -36,21 +36,25 @@ if not rs_bbdnn_path.exists():
 if not rsdel_bbdnn_path.exists():
     download_gdrive(gdrive_id="1Kq7HngMv4cVD0HjpaqHctqEpQlicOjW_", fname_save=rsdel_bbdnn_path)
 
+stride = 512
+kernel_size = 512
+max_len = 2000000
+
 # Create the deep neural networks we want to evaluate.
 # All the parameters of the networks are fetched online, since we are not passing
 # the model_path into the create_model function.
 networks = {
     'MalConv RSDel': MalConv.create_model(model_path=str(rsdel_malconv_path),
-                                          max_len=2000000,
-                                          kernel_size=512,
-                                          stride=512,
+                                          max_len=max_len,
+                                          kernel_size=kernel_size,
+                                          stride=stride,
                                           preprocessing=rsdel_preprocessing,
                                           postprocessing=majority_voting,
                                           device=device),
     'MalConv RS': MalConv.create_model(model_path=str(rs_malconv_path),
-                                       max_len=2000000,
-                                       kernel_size=500,
-                                       stride=500,
+                                       max_len=max_len,
+                                       kernel_size=kernel_size,
+                                       stride=stride,
                                        preprocessing=rs_preprocessing,
                                        postprocessing=majority_voting,
                                        device=device),

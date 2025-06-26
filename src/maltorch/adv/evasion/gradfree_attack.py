@@ -12,7 +12,7 @@ class GradientFreeBackendAttack(BackendAttack):
         self, delta: nevergrad.p.Array, loss: torch.Tensor
     ) -> nevergrad.p.Array:
         if isinstance(delta, torch.Tensor):
-            delta = self.optimizer.parametrization.spawn_child(new_value=delta.numpy())
+            delta = self.optimizer.parametrization.spawn_child(new_value=delta.cpu().numpy())
         self.optimizer.tell(delta, loss.item())
         return self.optimizer.ask()
 
@@ -21,6 +21,8 @@ class GradientFreeBackendAttack(BackendAttack):
         self, x: torch.Tensor, delta: nevergrad.p.Array
     ) -> (torch.Tensor, torch.Tensor):
         p_delta = torch.from_numpy(delta.value)
+        p_delta = p_delta.float()
+        p_delta = p_delta.to(x.device)
         return self.manipulation_function(x.data, p_delta)
 
     def _consumed_budget(self):
@@ -31,7 +33,7 @@ class GradientFreeBackendAttack(BackendAttack):
     ) -> (torch.Tensor, nevergrad.p.Array):
         x_adv, delta = super()._init_attack_manipulation(samples)
         optim_delta = nevergrad.p.Array(shape=delta.shape, lower=0.0, upper=255.0)
-        optim_delta.value = delta.numpy()
+        optim_delta.value = delta.cpu().numpy()
         return x_adv, optim_delta
 
     def _init_optimizer(self, model: BaseModel, delta: nevergrad.p.Array) -> Optimizer:

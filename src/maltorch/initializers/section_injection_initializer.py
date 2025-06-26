@@ -31,5 +31,10 @@ class SectionInjectionInitializer(ByteBasedInitializer):
             )
             deltas.append(delta)
             indexes.append(shift_indexes)
+        device = x.device
         x, delta, indexes = self._pad_samples_same_length(X, deltas, indexes)
+        x = x.to(device)
+        delta = delta.float()
+        delta = delta.to(device)
+        indexes = indexes.to(device)
         return x, delta, indexes

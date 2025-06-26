@@ -55,7 +55,7 @@ class GAMMASectionInjectionManipulation(ByteManipulation):
             lief_pe.add_section(s)
         builder = lief.PE.Builder(lief_pe)
         builder.build()
-        x = torch.atleast_2d(torch.Tensor(builder.get_build()).long())
+        x = torch.atleast_2d(torch.Tensor(builder.get_build()).long()).to(x.device)
         return x, delta
 
     def initialize(self, samples: torch.Tensor):

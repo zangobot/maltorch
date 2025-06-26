@@ -126,6 +126,5 @@ class ContentShift(BaseOptimAttackCreator):
             trackers=trackers,
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
-            device=device,
             **kwargs,
         )

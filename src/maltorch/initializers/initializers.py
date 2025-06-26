@@ -37,4 +37,6 @@ class IdentityInitializer(ByteBasedInitializer):
 
     def __call__(self, x: torch.Tensor) -> [torch.Tensor, torch.Tensor, list]:
         delta = torch.rand_like(x) if self.random_init else torch.zeros_like(x)
+        delta = delta.float()
+        delta = delta.to(x.device)
         return x, delta, []

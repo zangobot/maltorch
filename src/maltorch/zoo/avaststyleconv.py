@@ -21,10 +21,10 @@ class AvastStyleConv(EmbeddingModel):
                  channels: int = 48,
                  window_size: int = 32,
                  stride: int = 4):
+        #https://drive.google.com/file/d/1KOB-o-2avfPtsQaGuguRW-b1HDbX8r8v/view?usp=drive_link
         super(AvastStyleConv, self).__init__(
-            name="AvastStyleConv", gdrive_id=None, min_len=min_len, max_len=max_len
+            name="AvastStyleConv", gdrive_id="1KOB-o-2avfPtsQaGuguRW-b1HDbX8r8v", min_len=min_len, max_len=max_len
         )
-        # "14wSZQ-Drns9G8CEqvfbAZjmMVt_ToUbp"
         self.max_len = max_len
         self.threshold = threshold
         self.invalid_value = padding_idx

@@ -23,6 +23,11 @@ class ContentShiftInitializer(ByteBasedInitializer):
             )
             deltas.append(delta)
             indexes.append(torch.Tensor(shift_indexes))
+        device = x.device
         x, delta, indexes = self._pad_samples_same_length(X, deltas, indexes)
         x = x.long()
+        x = x.to(device)
+        delta = delta.float()
+        delta = delta.to(device)
+        indexes = indexes.to(device)
         return x, delta, indexes

@@ -22,8 +22,9 @@ class MalConv(EmbeddingModel):
                  padding_idx: int = 256,
                  kernel_size=512,
                  stride=512):
+        #https://drive.google.com/file/d/1Uk7QHjjXMEy-RADX5kHD9vIYk6UT2nii/view?usp=drive_link
         super(MalConv, self).__init__(
-            name="MalConv", gdrive_id="1Hg8I7Jx13LmnSPBjsPGr8bvmmS874Y9N", max_len=max_len
+            name="MalConv", gdrive_id="1Uk7QHjjXMEy-RADX5kHD9vIYk6UT2nii", max_len=max_len
         )
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx

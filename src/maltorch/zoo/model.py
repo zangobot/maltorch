@@ -10,7 +10,6 @@ from maltorch.utils.utils import download_gdrive
 import torch.nn.functional as F
 
 
-
 class Model(torch.nn.Module, ABC):
     def __init__(self, name: str, gdrive_id: Optional[str]):
         super().__init__()
@@ -25,17 +24,19 @@ class Model(torch.nn.Module, ABC):
             if self.gdrive_id is not None:
                 download_gdrive(gdrive_id=self.gdrive_id, fname_save=self.model_path)
 
-    def load_pretrained_model(self, device="cpu", model_path=None): ...
+    def load_pretrained_model(self, device="cpu", model_path=None):
+        ...
 
     @classmethod
     def create_model(
-        cls,
-        model_path: Optional[str] = None,
-        device: str = "cpu",
-        preprocessing: DataProcessing = None,
-        postprocessing: DataProcessing = None,
-        trainer: BaseTrainer = None,
-    ) -> BaseModel: ...
+            cls,
+            model_path: Optional[str] = None,
+            device: str = "cpu",
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+    ) -> BaseModel:
+        ...
 
 
 class PytorchModel(Model):
@@ -52,17 +53,17 @@ class PytorchModel(Model):
 
     @classmethod
     def create_model(
-        cls,
-        model_path: Optional[str] = None,
-        device: str = "cpu",
-        preprocessing: DataProcessing = None,
-        postprocessing: DataProcessing = None,
-        trainer: BaseTrainer = None,
-        **kwargs,
+            cls,
+            model_path: Optional[str] = None,
+            device: str = "cpu",
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+            **kwargs,
     ) -> BaseModel:
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
-        net = net.to(device) # Explicitly load model to device
+        net = net.to(device)  # Explicitly load model to device
         net = net.eval()
         net = BasePytorchClassifier(
             model=net,
@@ -75,12 +76,12 @@ class PytorchModel(Model):
 
 class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
     def __init__(
-        self,
-        model: torch.nn.Module,
-        preprocessing: DataProcessing = None,
-        postprocessing: DataProcessing = None,
-        trainer: BaseTrainer = None,
-        threshold: Optional[Union[float, None]] = 0.5,
+            self,
+            model: torch.nn.Module,
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+            threshold: Optional[Union[float, None]] = 0.5,
     ):
         super().__init__(model, preprocessing, postprocessing, trainer)
         self.threshold = threshold
@@ -105,18 +106,18 @@ class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
 class EmbeddingModel(PytorchModel, ABC):
     @classmethod
     def create_model(
-        cls,
-        model_path: Optional[str] = None,
-        device: str = "cpu",
-        preprocessing: DataProcessing = None,
-        postprocessing: DataProcessing = None,
-        trainer: BaseTrainer = None,
-        threshold: Optional[Union[float, None]] = 0.5,
-        **kwargs,
+            cls,
+            model_path: Optional[str] = None,
+            device: str = "cpu",
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+            threshold: Optional[Union[float, None]] = 0.5,
+            **kwargs,
     ) -> BaseEmbeddingPytorchClassifier:
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
-        net = net.to(device) # Explicitly load model to device
+        net = net.to(device)  # Explicitly load model to device
         net = net.eval()
         net = BaseEmbeddingPytorchClassifier(
             model=net,
@@ -128,7 +129,11 @@ class EmbeddingModel(PytorchModel, ABC):
         return net
 
     def __init__(
-        self, name: str, gdrive_id: Optional[str], input_embedding: bool = False, min_len : Optional[int] = None, max_len: Optional[int] = None
+            self, name: str,
+            gdrive_id: Optional[str],
+            input_embedding: bool = False,
+            min_len: Optional[int] = None,
+            max_len: Optional[int] = None
     ):
         super().__init__(name, gdrive_id)
         self.input_embedding = input_embedding
@@ -152,18 +157,13 @@ class EmbeddingModel(PytorchModel, ABC):
         pass
 
     def _conform_input_size(self, x: torch.Tensor, padding: int = 256) -> torch.Tensor:
-
         if self.max_len is None and self.min_len is None:
             return x
-
         batch_size, current_size = x.shape
-
         if self.min_len is not None:
             padding_needed = max(0, self.min_len - current_size)
             x = F.pad(x, (0, padding_needed), "constant", padding)
-
         x = x[:, :self.max_len]
-
         return x
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -187,12 +187,12 @@ class EmbeddingModel(PytorchModel, ABC):
 
 class BaseGrayscalePytorchClassifier(BasePytorchClassifier):
     def __init__(
-        self,
-        model: torch.nn.Module,
-        preprocessing: DataProcessing = None,
-        postprocessing: DataProcessing = None,
-        trainer: BaseTrainer = None,
-        threshold: Optional[Union[float, None]] = 0.5,
+            self,
+            model: torch.nn.Module,
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+            threshold: Optional[Union[float, None]] = 0.5,
     ):
         super().__init__(model, preprocessing, postprocessing, trainer)
         self.threshold = threshold
@@ -208,18 +208,18 @@ class BaseGrayscalePytorchClassifier(BasePytorchClassifier):
 class GrayscaleModel(PytorchModel, ABC):
     @classmethod
     def create_model(
-        cls,
-        model_path: Optional[str] = None,
-        device: str = "cpu",
-        preprocessing: DataProcessing = None,
-        postprocessing: DataProcessing = None,
-        trainer: BaseTrainer = None,
-        threshold: Optional[Union[float, None]] = 0.5,
-        **kwargs,
+            cls,
+            model_path: Optional[str] = None,
+            device: str = "cpu",
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+            threshold: Optional[Union[float, None]] = 0.5,
+            **kwargs,
     ) -> BaseGrayscalePytorchClassifier:
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
-        net = net.to(device) # Explicitly load model to device
+        net = net.to(device)  # Explicitly load model to device
         net = net.eval()
         classifier = BaseGrayscalePytorchClassifier(
             model=net,
@@ -229,5 +229,3 @@ class GrayscaleModel(PytorchModel, ABC):
             threshold=threshold,
         )
         return classifier
-
-

@@ -25,6 +25,7 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             population_size: int = 10,
             random_init: bool = False,
             model_outputs_logits: bool = True,
+            device:str="cpu",
             trackers: Union[List[Tracker], Tracker] = None,
     ):
         if which_sections is None:
@@ -47,6 +48,7 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             manipulation_function=manipulation_function,
             optimizer_cls=optimizer_cls,
             trackers=trackers,
+            device=device
         )
 
 
@@ -93,4 +95,5 @@ class GAMMASectionInjection(BaseOptimAttackCreator):
             trackers=trackers,
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
+            device=device
         )
