@@ -21,15 +21,16 @@ from maltorch.zoo.model import EmbeddingModel
 
 class NGramConv(EmbeddingModel):
     def __init__(self,
-                 embedding_size=8,
-                 max_len=2 ** 20,
+                 embedding_size: int = 8,
+                 max_len: int = 2 ** 20,
+                 min_len: int = 512,
                  out_channels: int = 100,
                  kernel_size: int = 7,
                  stride: int = 3,
                  threshold: float = 0.5,
                  padding_idx: int = 256):
         super(NGramConv, self).__init__(
-            name="NGramConv", gdrive_id=None, max_len=max_len
+            name="NGramConv", gdrive_id=None, max_len=max_len, min_len=min_len
         )
         self.embedding_1 = nn.Embedding(
             num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
