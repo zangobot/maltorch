@@ -23,7 +23,7 @@ class FullDOSGradFree(GradientFreeBackendAttack):
             y_target: Union[int, None] = None,
             population_size: int = 10,
             random_init: bool = False,
-            device:str="cpu",
+            device: str = "cpu",
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
@@ -101,7 +101,7 @@ class FullDOS(BaseOptimAttackCreator):
     ) -> Callable:
         implementation: Callable = cls.get_implementation(backend)
         if backend == OptimizerBackends.GRADIENT:
-            kwargs = {"step_size": step_size, "device": device}
+            kwargs = {"step_size": step_size}
         else:
             kwargs = {
                 "population_size": population_size,
@@ -112,5 +112,6 @@ class FullDOS(BaseOptimAttackCreator):
             trackers=trackers,
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
+            device=device,
             **kwargs,
         )

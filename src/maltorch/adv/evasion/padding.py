@@ -102,7 +102,7 @@ class Padding(BaseOptimAttackCreator):
     ) -> Callable:
         implementation: Callable = cls.get_implementation(backend)
         if backend == OptimizerBackends.GRADIENT:
-            kwargs = {"step_size": step_size, "device": device}
+            kwargs = {"step_size": step_size}
         else:
             kwargs = {
                 "population_size": population_size,
@@ -114,5 +114,6 @@ class Padding(BaseOptimAttackCreator):
             trackers=trackers,
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
+            device=device,
             **kwargs,
         )
