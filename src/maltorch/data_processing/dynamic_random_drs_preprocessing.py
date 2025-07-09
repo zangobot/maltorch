@@ -22,8 +22,8 @@ class DynamicRandomDeRandomizedPreprocessing(DataProcessing):
         self.file_percentage = file_percentage
         self.num_chunks = num_chunks
         self.padding_idx = padding_idx
-        self.min_len = min_len,
-        self.max_len = max_len,
+        self.min_len = min_len
+        self.max_len = max_len
         self.min_chunk_size = min_chunk_size
 
 
