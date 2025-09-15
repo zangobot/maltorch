@@ -1,20 +1,15 @@
 import abc
 from typing import Optional
 
-import ember.features
 import lightgbm
-import numpy as np
-import torch
 from secmlt.models.base_model import BaseModel
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
-from torch.utils.data import DataLoader
 
 from maltorch.data_processing.thrember_preprocessing import THREMBERPreprocessing
 from maltorch.zoo.gbdt import GBDTModel
 from maltorch.zoo.model import Model
 
-from maltorch.data_processing.ember_preprocessing import EMBERPreprocessing
 
 
 class ThremberGBDT(Model, abc.ABC):

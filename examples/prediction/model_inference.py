@@ -5,34 +5,31 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from maltorch.data.loader import load_from_folder, create_labels
 from maltorch.data_processing.grayscale_preprocessing import GrayscalePreprocessing
-from maltorch.data_processing.sigmoid_postprocessor import SigmoidPostprocessor
 from maltorch.zoo.avaststyleconv import AvastStyleConv
 from maltorch.zoo.bbdnn import BBDnn
 from maltorch.zoo.ember_gbdt import EmberGBDT
 from maltorch.zoo.malconv import MalConv
 from maltorch.zoo.resnet18 import ResNet18
+from maltorch.zoo.thrember_gbdt import ThremberGBDT
 
 # Specify the device to use (cpu, mps, cuda)
 device = "cpu"
 
 # Insert into this folder the malware to use for the evaluation
 exe_folder = Path(__file__).parent / ".." / "data" / "malware"
-
-# For deep neural networks, we need to create a post-processor that
-# generates probabilities from the logits output
-sigmoid_postprocessor = SigmoidPostprocessor()
+models_folder = Path(__file__).parent / ".." / "data" / "models"
 
 # Create the deep neural networks we want to evaluate.
 # All the parameters of the networks are fetched online, since we are not passing
 # the model_path into the create_model function.
 networks = {
-    'BBDnn': BBDnn.create_model(postprocessing=sigmoid_postprocessor, device=device),
-    'Malconv': MalConv.create_model(postprocessing=sigmoid_postprocessor, device=device),
-    'AvastStyleConv': AvastStyleConv.create_model(postprocessing=sigmoid_postprocessor, device=device),
     'EMBER GBDT': EmberGBDT.create_model(),
+    'THREMBER GBDT': ThremberGBDT.create_model(model_path=str(models_folder / "EMBER2024_PE.model")),
+    'BBDnn': BBDnn.create_model(device=device),
+    'Malconv': MalConv.create_model(device=device),
+    'AvastStyleConv': AvastStyleConv.create_model(device=device),
     'Grayscale ResNet18': ResNet18.create_model(
         preprocessing=GrayscalePreprocessing(),
-        postprocessing=sigmoid_postprocessor,
         device=device),
 }
 
