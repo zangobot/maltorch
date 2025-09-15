@@ -1,4 +1,3 @@
-import itertools
 import math
 import struct
 
@@ -83,8 +82,8 @@ def _shift_pe_header(
     raw_code[pe_position + 60 + 20 + 4: pe_position + 60 + 20 + 4 + 4] = struct.pack(
         "<I", liefpe.optional_header.sizeof_headers + amount
     )
-    pattern = itertools.cycle("I love ToucanStrike <3")
-    [raw_code.insert(pe_position, ord(next(pattern))) for _ in range(amount)]
+#     pattern = itertools.cycle("I love ToucanStrike <3")
+    [raw_code.insert(pe_position, 0x00) for _ in range(amount)]
 
     return raw_code
 
@@ -110,6 +109,9 @@ def extend_manipulation(
     if preferable_extension_amount == 0:
         return x, []
     adv_x = x.flatten().tolist()
+    if 256 in adv_x:
+        last_index = adv_x.index(256)
+        adv_x = adv_x[:last_index]
     liefpe = lief.PE.parse(adv_x)
     section_file_alignment = liefpe.optional_header.file_alignment
     if section_file_alignment == 0:
@@ -122,7 +124,7 @@ def extend_manipulation(
     index_to_perturb = list(range(2, 0x3C)) + list(
         range(0x40, first_content_offset + extension_amount)
     )
-    adv_x = _shift_pe_header(liefpe, x, extension_amount)
+    adv_x = _shift_pe_header(liefpe, adv_x, extension_amount)
     for i, _ in enumerate(liefpe.sections):
         adv_x = _shift_pointer_to_section_content(
             liefpe, bytearray(adv_x), i, extension_amount, extension_amount
@@ -163,7 +165,6 @@ def content_shift_manipulation(
     if not preferable_extension_amount:
         return x, []
     adv_x = x.flatten().tolist()
-    original_len = len(adv_x)
     if 256 in adv_x:
         last_index = adv_x.index(256)
         adv_x = adv_x[:last_index]
@@ -188,7 +189,6 @@ def content_shift_manipulation(
             + b"\x00" * extension_amount
             + adv_x[first_content_offset:]
     )
-
     x = torch.Tensor(adv_x)
     return x, index_to_perturb
 

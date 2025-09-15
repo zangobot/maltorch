@@ -4,6 +4,7 @@ secml-torch
 lightgbm
 lief
 git+https://github.com/zangobot/ember.git
+git+https://github.com/FutureComputing4AI/EMBER2024.git
 tqdm
 nevergrad
 joblib>=1.3.2

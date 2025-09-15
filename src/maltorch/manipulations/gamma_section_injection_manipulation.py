@@ -63,3 +63,15 @@ class GAMMASectionInjectionManipulation(ByteManipulation):
         if self.initializer.random_init:
             delta = torch.rand((samples.shape[0], self.how_many_sections))
         return samples, delta
+
+
+if __file__ == "__main__":
+    benignware_folder = Path()
+    for path in sorted(benignware_folder.glob("*")):
+        if not lief.is_pe(str(path)):
+            continue
+        lief_pe = lief.parse(str(path))
+        for s in lief_pe.sections:
+            if s.name not in ['.rdata']:
+                continue
+            print(path, len(s.content))

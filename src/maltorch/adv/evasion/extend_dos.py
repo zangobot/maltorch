@@ -9,12 +9,12 @@ from maltorch.adv.evasion.base_optim_attack_creator import (
 )
 from maltorch.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from maltorch.adv.evasion.gradient_attack import GradientBackendAttack
-from maltorch.initializers.content_shift_initializer import ContentShiftInitializer
+from maltorch.initializers.extend_dos_initializer import ExtendDOSInitializer
 from maltorch.manipulations.replacement_manipulation import ReplacementManipulation
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
 
-class ContentShiftGradFree(GradientFreeBackendAttack):
+class ExtendDOSGradFree(GradientFreeBackendAttack):
     def __init__(
             self,
             query_budget: int,
@@ -26,7 +26,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
             device:str="cpu",
             trackers: Union[List[Tracker], Tracker] = None,
     ):
-        initializer = ContentShiftInitializer(
+        initializer = ExtendDOSInitializer(
             random_init=random_init, preferred_manipulation_size=perturbation_size
         )
         optimizer_cls = MalwareOptimizerFactory.create_ga(
@@ -46,7 +46,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
             device=device
         )
 
-class ContentShiftGrad(GradientBackendAttack):
+class ExtendDOSGrad(GradientBackendAttack):
     def __init__(
             self,
             query_budget: int,
@@ -58,7 +58,7 @@ class ContentShiftGrad(GradientBackendAttack):
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
-        initializer = ContentShiftInitializer(
+        initializer = ExtendDOSInitializer(
             random_init=random_init, preferred_manipulation_size=perturbation_size
         )
         optimizer_cls = MalwareOptimizerFactory.create_bgd(lr=step_size, device=device)
@@ -77,7 +77,7 @@ class ContentShiftGrad(GradientBackendAttack):
         )
 
 
-class ContentShift(BaseOptimAttackCreator):
+class ExtendDOS(BaseOptimAttackCreator):
     """
     Content Shift attack
 
@@ -91,12 +91,12 @@ class ContentShift(BaseOptimAttackCreator):
         return {OptimizerBackends.GRADIENT, OptimizerBackends.NG}
 
     @staticmethod
-    def _get_nevergrad_implementation() -> Type[ContentShiftGradFree]:
-        return ContentShiftGradFree
+    def _get_nevergrad_implementation() -> Type[ExtendDOSGradFree]:
+        return ExtendDOSGradFree
 
     @staticmethod
-    def _get_native_implementation() -> Type[ContentShiftGrad]:
-        return ContentShiftGrad
+    def _get_native_implementation() -> Type[ExtendDOSGrad]:
+        return ExtendDOSGrad
 
     def __new__(
             cls,

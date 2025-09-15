@@ -17,7 +17,7 @@ def load_from_folder(
     """
     X = []
     if extension is None:
-        pattern = f"*"
+        pattern = "*"
     else:
         pattern = f"*.{extension}"
     for filepath in path.glob(pattern):

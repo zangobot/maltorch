@@ -98,7 +98,7 @@ class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
     def predict(self, x: torch.Tensor):
         if self.threshold is None:
             return super().predict(x)
-        scores = self.decision_function(x)
+        scores = torch.sigmoid(self.decision_function(x))
         labels = (scores > self.threshold).int()
         return labels
 

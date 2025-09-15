@@ -1,2 +1,7 @@
 .idea
 src/maltorch/zoo/models/*
+*.pyc
+dist
+.DS_STORE
+*.exe
+*.egg-info

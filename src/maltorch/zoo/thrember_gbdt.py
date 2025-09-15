@@ -1,20 +1,26 @@
+import abc
 from typing import Optional
 
+import ember.features
 import lightgbm
+import numpy as np
+import torch
 from secmlt.models.base_model import BaseModel
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
+from torch.utils.data import DataLoader
 
+from maltorch.data_processing.thrember_preprocessing import THREMBERPreprocessing
 from maltorch.zoo.gbdt import GBDTModel
 from maltorch.zoo.model import Model
 
 from maltorch.data_processing.ember_preprocessing import EMBERPreprocessing
 
 
-class EmberGBDT(Model):
+class ThremberGBDT(Model, abc.ABC):
     def __init__(self, model_path: Optional[str] = None):
         super().__init__(
-            name="ember_gbdt", gdrive_id="1RWvr3yD8M90EXcTozK2TwW2JEExQ9qDW"
+            name="gbdt", gdrive_id="1RWvr3yD8M90EXcTozK2TwW2JEExQ9qDW"
         )
         self.tree_model = None
         self.load_pretrained_model(model_path=model_path)
@@ -36,6 +42,4 @@ class EmberGBDT(Model):
             trainer: BaseTrainer = None,
     ) -> BaseModel:
         model = cls(model_path=model_path)
-        return GBDTModel(tree_model=model.tree_model, threshold=threshold, preprocessing=EMBERPreprocessing())
-
-
+        return GBDTModel(tree_model=model.tree_model, threshold=threshold, preprocessing=THREMBERPreprocessing())
