@@ -32,6 +32,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
         optimizer_cls = MalwareOptimizerFactory.create_ga(
             population_size=population_size
         )
+        # optimizer_cls = MalwareOptimizerFactory.create_ngopt()
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         manipulation_function = ReplacementManipulation(initializer=initializer)
         super().__init__(

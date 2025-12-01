@@ -23,7 +23,7 @@ Maltorch contains most of the practical manipulations of this field:
 * Section injection with optimized or goodware content (GAMMA)
 * Padding
 
-Most of the manipulations can be used either with gradient-based and gradient-free optimization.
+Most of manipulations can be used either with gradient-based and gradient-free optimization.
 
 ## Loading AI-based Models
 The library already provides *tons* of pre-trained models, you can instantiate one by just:
@@ -53,4 +53,7 @@ dl = DataLoader(TensorDataset(X, y), batch_size=3)
 # Store adversarial EXEmples into a new DataLoader
 attack = PartialDOS(query_budget=3)
 adversarial_loader = attack(model, torch_data_loader)
+```
+# Table of Contents
+```{tableofcontents}
 ```

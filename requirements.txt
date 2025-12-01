@@ -2,7 +2,7 @@ torch
 torchvision
 secml-torch
 lightgbm
-lief
+lief==0.16.4
 git+https://github.com/zangobot/ember.git
 git+https://github.com/FutureComputing4AI/EMBER2024.git
 tqdm

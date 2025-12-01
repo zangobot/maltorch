@@ -1,0 +1,14 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: intro
+chapters:
+- file: evaluation
+  sections:
+  - file: tutorials/01-models.ipynb
+  - file: tutorials/02-grad_evasion.ipynb
+  - file: tutorials/03-gradfree_evasion.ipynb
+- file: extending
+  # sections:
+  # - file: tutorials/01-models.ipynb
