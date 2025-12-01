@@ -1,11 +1,11 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import torch
 
 
 def load_from_folder(
-    path: Path, extension: Optional[str] = None, padding: int = 256, limit=None, device="cpu"
+        path: Path, extension: Optional[str] = None, padding: int = 256, limit=None, device="cpu"
 ) -> torch.Tensor:
     """Create a torch.Tensor whose rows are all the file with extension specified in input.
     Tensor are padded to match the same size.
@@ -20,11 +20,12 @@ def load_from_folder(
         pattern = "*"
     else:
         pattern = f"*.{extension}"
-    for filepath in path.glob(pattern):
+    for filepath in sorted(path.glob(pattern)):
         x = load_single_exe(filepath)
-        X.append(x)
-        if limit is not None and len(X) >= limit:
-            break
+        if x is not None:
+            X.append(x)
+            if limit is not None and len(X) >= limit:
+                break
     X = torch.nn.utils.rnn.pad_sequence(X, padding_value=padding).transpose(0, 1).long()
     X = X.to(device)
     return X
@@ -39,13 +40,14 @@ def create_labels(x: torch.Tensor, label: int, device="cpu"):
     return y
 
 
-def load_single_exe(path: Path) -> torch.Tensor:
+def load_single_exe(path: Path) -> Union[torch.Tensor, None]:
     """
     Create a torch.Tensor from the file pointed in the path
     :param path: a pathlib Path
-    :return: torch.Tensor containing the bytes of the file as a tensor
+    :return: torch.Tensor containing the bytes of the file as a tensor, None if the file is not an exe
     """
     with open(path, "rb") as h:
         code = h.read()
-    x = torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.float)
-    return x
+    if len(code) != 0 and code[:2] == b'MZ':
+        return torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.float)
+    return None

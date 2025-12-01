@@ -1,4 +1,5 @@
 import nevergrad
+import numpy as np
 import torch
 from nevergrad.optimization import Optimizer
 from secmlt.models.base_model import BaseModel
@@ -40,9 +41,12 @@ class GradientFreeBackendAttack(BackendAttack):
         self.optimizer = self.optimizer_cls(
             parametrization=nevergrad.p.Array(
                 shape=delta.value.shape, lower=0.0, upper=255.0
-            )
+            ), budget=self.query_budget
         )
         return self.optimizer
+
+    def _delta_norm(self, x: nevergrad.p.Array):
+        return np.linalg.norm(x, ord=2)
 
     def __call__(self, model: BaseModel, data_loader: DataLoader) -> DataLoader:
         adversarials = []

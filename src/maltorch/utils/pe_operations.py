@@ -173,6 +173,8 @@ def content_shift_manipulation(
     if section_file_alignment == 0:
         return x, []
     first_content_offset = liefpe.sections[0].offset
+    if first_content_offset > len(adv_x):
+        return x, []
     extension_amount = (
             int(math.ceil(preferable_extension_amount / section_file_alignment))
             * section_file_alignment
