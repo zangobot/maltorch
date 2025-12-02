@@ -7,7 +7,6 @@ from secmlt.models.data_processing.data_processing import DataProcessing
 from secmlt.models.pytorch.base_pytorch_nn import BasePytorchClassifier
 from maltorch.utils.config import Config
 from maltorch.utils.utils import download_gdrive
-import torch.nn.functional as F
 
 
 class Model(torch.nn.Module, ABC):

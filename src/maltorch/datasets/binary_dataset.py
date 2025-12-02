@@ -6,7 +6,6 @@ from typing import Tuple, Union
 import torch
 import os
 
-from maltorch.data.loader import load_single_exe
 
 
 class BinaryDataset(Dataset):
