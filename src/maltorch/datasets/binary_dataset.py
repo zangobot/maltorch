@@ -7,6 +7,9 @@ from pathlib import Path
 
 
 class BinaryDataset(Dataset):
+    """
+    Load samples from sources.
+    """
     def __init__(self,
                  csv_filepath: str = None,
                  goodware_directory: str = None,
@@ -86,23 +89,3 @@ class BinaryDataset(Dataset):
         y = torch.stack(labels).float()
 
         return x, y
-
-
-def load_single_exe(path: Path, max_len: int = None, min_len: int = None, padding_idx: int = 256) -> torch.Tensor:
-    """
-    Create a torch.Tensor from the file pointed in the path
-    :param path: a pathlib Path
-    :return: torch.Tensor containing the bytes of the file as a tensor
-    """
-    with open(path, "rb") as h:
-        if max_len is None:
-            code = h.read()
-        else:
-            code = h.read(max_len)
-    x = torch.frombuffer(bytearray(code), dtype=torch.uint8)
-    x = x.to(torch.long)
-    if min_len is not None: # Pad the tensor to the minimum length - required for some architectures
-        if x.shape[0] < min_len:
-            padding_idx = torch.tensor(padding_idx, dtype=torch.long)
-            x = torch.nn.functional.pad(x, (0, min_len - x.shape[0]), mode='constant', value=padding_idx)
-    return x

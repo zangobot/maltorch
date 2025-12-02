@@ -3,23 +3,30 @@ Coull, Scott E., and Christopher Gardner.
 "Activation analysis of a byte-based deep neural network for malware classification."
 2019 IEEE Security and Privacy Workshops (SPW). IEEE, 2019.
 """
-
+from typing import Optional, Union
 
 import torch
+from secmlt.models.base_trainer import BaseTrainer
+from secmlt.models.data_processing.data_processing import DataProcessing
 
-from maltorch.zoo.model import EmbeddingModel
+from maltorch.data_processing.e2e_preprocessor import PaddingPreprocessing
+from maltorch.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
 
 
 class BBDnn(EmbeddingModel):
+    DEFAULT_MAX_LENGTH = 102400
+    DEFAULT_MIN_LENGTH = 4096
+
     def __init__(
             self,
             embedding_size: int = 10,
-            min_len: int = 4096,
-            max_len: int = 102400,
+            min_len: int = DEFAULT_MIN_LENGTH,
+            max_len: int = DEFAULT_MAX_LENGTH,
             threshold: float = 0.5,
             padding_idx: int = 256,
     ):
-        super(BBDnn, self).__init__(name="bbdnn", gdrive_id="1c_9lVHT9zYpBCwQfnUW6ZbCF6SaVabRZ", min_len=min_len, max_len=max_len)
+        super(BBDnn, self).__init__(name="bbdnn", gdrive_id="1c_9lVHT9zYpBCwQfnUW6ZbCF6SaVabRZ", min_len=min_len,
+                                    max_len=max_len)
         self.max_len = max_len
         self.threshold = threshold
         self.embedding_1 = torch.nn.Embedding(
@@ -138,3 +145,29 @@ class BBDnn(EmbeddingModel):
 
     def embedding_matrix(self):
         return self.embedding_1.weight
+
+    @classmethod
+    def create_model(
+            cls,
+            model_path: Optional[str] = None,
+            device: str = "cpu",
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+            threshold: Optional[Union[float, None]] = 0.5,
+            **kwargs,
+    ) -> BaseEmbeddingPytorchClassifier:
+        if preprocessing is None:
+            preprocessing = PaddingPreprocessing(max_len=BBDnn.DEFAULT_MAX_LENGTH)
+        net = cls(**kwargs)
+        net.load_pretrained_model(device=device, model_path=model_path)
+        net = net.to(device)  # Explicitly load model to device
+        net = net.eval()
+        net = BaseEmbeddingPytorchClassifier(
+            model=net,
+            preprocessing=preprocessing,
+            postprocessing=postprocessing,
+            trainer=trainer,
+            threshold=threshold,
+        )
+        return net

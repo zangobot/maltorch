@@ -3,8 +3,11 @@ from secmlt.models.data_processing.data_processing import DataProcessing
 
 
 class PaddingPreprocessing(DataProcessing):
+    """
+    The preprocessor needed to pad each test-time sample to the maximum length of the networks.
+    """
     def _process(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
-        padding = torch.nn.ConstantPad1d((0, self.max_len), 256)
+        padding = torch.nn.ConstantPad1d((0, self.max_len - x.shape[-1]), 256)
         return padding(x)
 
     def invert(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:

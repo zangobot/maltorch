@@ -12,17 +12,25 @@ ACM Conference on Data and Application Security and Privacy (CODASPY 2017)
 Loosely based on the shallow convolutional neural network architecture defined in Gibert et al. 2017 and
 McLaughlin et al. 2017 but with only a convolutional layer with kernel size equals to 3.
 """
+from typing import Optional, Union
 
 import torch
 import torch.nn.functional as F
+from secmlt.models.base_trainer import BaseTrainer
+from secmlt.models.data_processing.data_processing import DataProcessing
 from torch import nn
-from maltorch.zoo.model import EmbeddingModel
+
+from maltorch.data_processing.e2e_preprocessor import PaddingPreprocessing
+from maltorch.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
 
 
 class NGramConv(EmbeddingModel):
+
+    DEFAULT_MAX_LENGTH = 2**20
+
     def __init__(self,
                  embedding_size=8,
-                 max_len=2 ** 20,
+                 max_len=DEFAULT_MAX_LENGTH,
                  out_channels: int = 100,
                  kernel_size: int = 7,
                  stride: int = 3,
@@ -51,8 +59,6 @@ class NGramConv(EmbeddingModel):
         self.embedding_size = (embedding_size,)
         self.max_len = max_len
         self.threshold = threshold
-        self.invalid_value = padding_idx
-        self._expansion = torch.tensor([[-1.0, 1.0]])
 
     def embedding_layer(self):
         return self.embedding_1
@@ -81,3 +87,29 @@ class NGramConv(EmbeddingModel):
 
     def embedding_matrix(self):
         return self.embedding_1.weight
+
+    @classmethod
+    def create_model(
+            cls,
+            model_path: Optional[str] = None,
+            device: str = "cpu",
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+            threshold: Optional[Union[float, None]] = 0.5,
+            **kwargs,
+    ) -> BaseEmbeddingPytorchClassifier:
+        if preprocessing is None:
+            preprocessing = PaddingPreprocessing(max_len=NGramConv.DEFAULT_MAX_LENGTH)
+        net = cls(**kwargs)
+        net.load_pretrained_model(device=device, model_path=model_path)
+        net = net.to(device)  # Explicitly load model to device
+        net = net.eval()
+        net = BaseEmbeddingPytorchClassifier(
+            model=net,
+            preprocessing=preprocessing,
+            postprocessing=postprocessing,
+            trainer=trainer,
+            threshold=threshold,
+        )
+        return net

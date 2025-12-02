@@ -156,15 +156,15 @@ class EmbeddingModel(PytorchModel, ABC):
     def _forward_embed_x(self, x):
         pass
 
-    def _conform_input_size(self, x: torch.Tensor, padding: int = 256) -> torch.Tensor:
-        if self.max_len is None and self.min_len is None:
-            return x
-        batch_size, current_size = x.shape
-        if self.min_len is not None:
-            padding_needed = max(0, self.min_len - current_size)
-            x = F.pad(x, (0, padding_needed), "constant", padding)
-        x = x[:, :self.max_len]
-        return x
+    # def _conform_input_size(self, x: torch.Tensor, padding: int = 256) -> torch.Tensor:
+    #     if self.max_len is None and self.min_len is None:
+    #         return x
+    #     batch_size, current_size = x.shape
+    #     if self.min_len is not None:
+    #         padding_needed = max(0, self.min_len - current_size)
+    #         x = F.pad(x, (0, padding_needed), "constant", padding)
+    #     x = x[:, :self.max_len]
+    #     return x
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -179,7 +179,6 @@ class EmbeddingModel(PytorchModel, ABC):
         torch.Tensor
             the result of the forward pass
         """
-        x = self._conform_input_size(x)
         x = self.embed(x)
         output = self._forward_embed_x(x)
         return output

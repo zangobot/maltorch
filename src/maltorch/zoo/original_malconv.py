@@ -2,6 +2,7 @@
 Malware Detection by Eating a Whole EXE
 Edward Raff, Jon Barker, Jared Sylvester, Robert Brandon, Bryan Catanzaro, Charles Nicholas
 https://arxiv.org/abs/1710.09435
+This specific model has been trained by TODO.
 """
 from typing import Optional, Union
 
@@ -15,7 +16,7 @@ from maltorch.data_processing.e2e_preprocessor import PaddingPreprocessing
 from maltorch.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
 
 
-class MalConv(EmbeddingModel):
+class OriginalMalConv(EmbeddingModel):
     """
     Architecture implementation.
     """
@@ -24,16 +25,16 @@ class MalConv(EmbeddingModel):
     def __init__(self, embedding_size: int = 8,
                  max_len: int =DEFAULT_MAX_LENGTH,
                  threshold: float =0.5,
-                 padding_idx: int = 256,
-                 kernel_size=512,
-                 stride=512):
-        #https://drive.google.com/file/d/1Uk7QHjjXMEy-RADX5kHD9vIYk6UT2nii/view?usp=drive_link
-        super(MalConv, self).__init__(
-            name="MalConv", gdrive_id="1Uk7QHjjXMEy-RADX5kHD9vIYk6UT2nii", max_len=max_len
+                 ):
+        #https://drive.google.com/file/d/1sPI-gKNAX2hlS-jjepoOu8kwcXZl4VaM/view?usp=drive_link
+        super(OriginalMalConv, self).__init__(
+            name="Original", gdrive_id="1sPI-gKNAX2hlS-jjepoOu8kwcXZl4VaM", max_len=max_len
         )
+        kernel_size = 500
+        stride = 500
         out_channels = 128
         output_size=1
-        self.embedding_1 = nn.Embedding(num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx)
+        self.embedding_1 = nn.Embedding(num_embeddings=257, embedding_dim=embedding_size, padding_idx=256)
         self.conv1d_1 = nn.Conv1d(in_channels=embedding_size, out_channels=out_channels, kernel_size=(kernel_size,),
                                   stride=(stride,),
                                   groups=1, bias=True)
@@ -45,7 +46,6 @@ class MalConv(EmbeddingModel):
         self.embedding_size = (embedding_size,)
         self.max_len = max_len
         self.threshold = threshold
-        self.invalid_value = padding_idx
 
     def embedding_layer(self):
         return self.embedding_1
@@ -87,7 +87,7 @@ class MalConv(EmbeddingModel):
             **kwargs,
     ) -> BaseEmbeddingPytorchClassifier:
         if preprocessing is None:
-            preprocessing = PaddingPreprocessing(max_len=MalConv.DEFAULT_MAX_LENGTH)
+            preprocessing = PaddingPreprocessing(max_len=OriginalMalConv.DEFAULT_MAX_LENGTH)
         net = cls(**kwargs)
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device)  # Explicitly load model to device

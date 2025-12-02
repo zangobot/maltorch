@@ -92,7 +92,7 @@ class PartialDOS(BaseOptimAttackCreator):
             query_budget: int,
             y_target: Union[int, None] = None,
             random_init: bool = False,
-            step_size: int = 16,
+            step_size: int = 58,
             population_size: int = 10,
             device: str = "cpu",
             model_outputs_logits: bool = True,
