@@ -142,7 +142,7 @@ class BackendAttack(BaseEvasionAttack):
             labels: torch.Tensor,
             **optim_kwargs,
     ) -> (torch.Tensor, torch.Tensor):
-        multiplier = 1 if self.y_target is not None else -1
+        multiplier = -1 if self.y_target is None else 1
         target = (
             torch.zeros_like(labels) + self.y_target
             if self.y_target is not None
