@@ -12,7 +12,7 @@ from maltorch.zoo.model import Model
 
 
 
-class ThremberGBDT(Model, abc.ABC):
+class ThremberGBDT(Model):
     def __init__(self, model_path: Optional[str] = None):
         # https://drive.google.com/file/d/1UUYwTT9ST_0Cs_854aVHXUOfgSVXACaD/view?usp=drive_link
         super().__init__(

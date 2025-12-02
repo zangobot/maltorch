@@ -40,31 +40,3 @@ class EmberGBDT(Model):
         return GBDTModel(tree_model=model.tree_model, threshold=threshold, preprocessing=EMBERPreprocessing())
 
 
-class ThremberGBDT(Model):
-    def __init__(self, model_path: Optional[str] = None):
-        super().__init__(
-            name="thrember_gbdt", gdrive_id="1RWvr3yD8M90EXcTozK2TwW2JEExQ9qDW"
-        )
-        self.tree_model = None
-        self.load_pretrained_model(model_path=model_path)
-
-    def load_pretrained_model(self, device: str = "cpu", model_path: str = None):
-        if model_path is None:
-            self._fetch_pretrained_model()
-            self.tree_model = lightgbm.Booster(model_file=self.model_path)
-        else:
-            self.tree_model = lightgbm.Booster(model_file=model_path)
-
-    @classmethod
-    def create_model(
-            cls,
-            model_path: Optional[str] = None,
-            threshold: int = 0.5,
-            preprocessing: DataProcessing = None,
-            postprocessing: DataProcessing = None,
-            trainer: BaseTrainer = None,
-    ) -> BaseModel:
-        model = cls(model_path=model_path)
-        return GBDTModel(tree_model=model.tree_model, threshold=threshold, preprocessing=THREMBERPreprocessing())
-
-

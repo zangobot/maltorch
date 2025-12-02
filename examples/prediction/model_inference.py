@@ -36,9 +36,9 @@ networks = {
 }
 
 # Load all the executables from the specified folder.
-X = load_from_folder(exe_folder, None, device=device)
+X = load_from_folder(exe_folder,  device=device)
 y = create_labels(X, 1)
-data_loader = DataLoader(TensorDataset(X, y), batch_size=3)
+data_loader = DataLoader(TensorDataset(X, y), batch_size=16)
 
 # Compute all predictions, depending on the model
 print("Computing maliciousness of loaded data...")
