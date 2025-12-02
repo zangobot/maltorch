@@ -1,9 +1,12 @@
+from pathlib import Path
+
 import pandas as pd
 from torch.utils.data import Dataset
-from typing import Tuple
+from typing import Tuple, Union
 import torch
 import os
-from pathlib import Path
+
+from maltorch.data.loader import load_single_exe
 
 
 class BinaryDataset(Dataset):
@@ -74,7 +77,7 @@ class BinaryDataset(Dataset):
 
     def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
         to_load, label, _ = self.all_files[index]
-        x = load_single_exe(to_load, max_len=self.max_len, min_len=self.min_len, padding_idx=self.padding_idx)
+        x = self.load_and_pad_samples(to_load, max_len=self.max_len, min_len=self.min_len, padding_idx=self.padding_idx)
         return x, torch.tensor(label)
 
     def pad_collate_func(self, batch):
@@ -89,3 +92,17 @@ class BinaryDataset(Dataset):
         y = torch.stack(labels).float()
 
         return x, y
+
+    def load_and_pad_samples(self, path: Path, max_len:int, min_len:int, padding_idx:int=256) -> Union[torch.Tensor, None]:
+        """
+        Create a torch.Tensor from the file pointed in the path
+        :param path: a pathlib Path
+        :return: torch.Tensor containing the bytes of the file as a tensor, None if the file is not an exe
+        """
+        with open(path, "rb") as h:
+            code = h.read(max_len)
+        x = torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.float)
+        if len(code) < min_len:
+            padding = torch.nn.ConstantPad1d((0, len(code) - min_len), padding_idx)
+            x = padding(x)
+        return x
