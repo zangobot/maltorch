@@ -22,7 +22,7 @@ class GAMMASectionInjectionManipulation(ByteManipulation):
     ):
         self.how_many_sections = how_many_sections
         if which_sections is None:
-            which_sections = [".rodata"]
+            which_sections = [".rdata"]
         self.benignware_folder = benignware_folder
         self.which_sections = which_sections
         if domain_constraints is None:
@@ -47,7 +47,6 @@ class GAMMASectionInjectionManipulation(ByteManipulation):
     def _apply_manipulation(
             self, x: torch.Tensor, delta: torch.Tensor
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        # TODO: section injection is executed ONLY sample-wise, since it only works with GradFree
         lief_pe: lief.PE = lief.PE.parse(convert_torch_exe_to_list(x))
         for delta_i, content, name in zip(delta.squeeze(), self._sections, self._names):
             s = lief.PE.Section(name=name)

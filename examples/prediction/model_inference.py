@@ -36,7 +36,7 @@ networks = {
 }
 
 # Load all the executables from the specified folder.
-X = load_from_folder(exe_folder, "exe", device=device)
+X = load_from_folder(exe_folder, None, device=device)
 y = create_labels(X, 1)
 data_loader = DataLoader(TensorDataset(X, y), batch_size=3)
 

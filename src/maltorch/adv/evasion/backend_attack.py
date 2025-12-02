@@ -133,7 +133,7 @@ class BackendAttack(BaseEvasionAttack):
         )
 
     def _delta_norm(self, x: torch.Tensor):
-        return x.norm(dim=-1, p=2)
+        return torch.atleast_2d(x.norm(dim=-1, p=2)).transpose(0,1)
 
     def _run(
             self,

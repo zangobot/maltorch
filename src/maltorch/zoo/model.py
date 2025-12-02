@@ -5,6 +5,8 @@ from secmlt.models.base_model import BaseModel
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
 from secmlt.models.pytorch.base_pytorch_nn import BasePytorchClassifier
+
+from maltorch.data_processing.grayscale_preprocessing import GrayscalePreprocessing
 from maltorch.utils.config import Config
 from maltorch.utils.utils import download_gdrive
 
@@ -219,6 +221,8 @@ class GrayscaleModel(PytorchModel, ABC):
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device)  # Explicitly load model to device
         net = net.eval()
+        if preprocessing is None:
+            preprocessing = GrayscalePreprocessing()
         classifier = BaseGrayscalePytorchClassifier(
             model=net,
             preprocessing=preprocessing,

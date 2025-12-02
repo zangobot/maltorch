@@ -1,15 +1,12 @@
-from functools import partial
 from pathlib import Path
-from typing import Type, Union, List, Callable, Optional
+from typing import Type, Union, List, Callable
 
 import nevergrad
 from nevergrad.optimization import Optimizer
 from secmlt.models.base_model import BaseModel
 
 from secmlt.trackers import Tracker
-from torch import Tensor
 from torch.nn import BCEWithLogitsLoss, BCELoss
-from torch.nn.modules.loss import _WeightedLoss
 
 from maltorch.adv.evasion.base_optim_attack_creator import (
     BaseOptimAttackCreator,
@@ -44,7 +41,6 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
         optimizer_cls = MalwareOptimizerFactory.create_ga(
             population_size=population_size
         )
-        # optimizer_cls = MalwareOptimizerFactory.create_ngopt()
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         manipulation_function = GAMMASectionInjectionManipulation(benignware_folder=benignware_folder,
                                                                   which_sections=which_sections,
