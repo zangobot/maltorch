@@ -9,6 +9,7 @@ from maltorch.zoo.avaststyleconv import AvastStyleConv
 from maltorch.zoo.bbdnn import BBDnn
 from maltorch.zoo.ember_gbdt import EmberGBDT
 from maltorch.zoo.malconv import MalConv
+from maltorch.zoo.original_malconv import OriginalMalConv
 from maltorch.zoo.resnet18 import ResNet18
 from maltorch.zoo.thrember_gbdt import ThremberGBDT
 
@@ -24,9 +25,10 @@ models_folder = Path(__file__).parent / ".." / "data" / "models"
 # the model_path into the create_model function.
 networks = {
     'EMBER GBDT': EmberGBDT.create_model(),
-    'THREMBER GBDT': ThremberGBDT.create_model(model_path=str(models_folder / "EMBER2024_PE.model")),
+    'THREMBER GBDT': ThremberGBDT.create_model(),
     'BBDnn': BBDnn.create_model(device=device),
     'Malconv': MalConv.create_model(device=device),
+    'OriginalMalconv': OriginalMalConv.create_model(device=device),
     'AvastStyleConv': AvastStyleConv.create_model(device=device),
     'Grayscale ResNet18': ResNet18.create_model(
         preprocessing=GrayscalePreprocessing(),

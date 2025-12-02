@@ -14,8 +14,9 @@ from maltorch.zoo.model import Model
 
 class ThremberGBDT(Model, abc.ABC):
     def __init__(self, model_path: Optional[str] = None):
+        # https://drive.google.com/file/d/1UUYwTT9ST_0Cs_854aVHXUOfgSVXACaD/view?usp=drive_link
         super().__init__(
-            name="gbdt", gdrive_id="1RWvr3yD8M90EXcTozK2TwW2JEExQ9qDW"
+            name="ember2024_gbdt", gdrive_id="1UUYwTT9ST_0Cs_854aVHXUOfgSVXACaD"
         )
         self.tree_model = None
         self.load_pretrained_model(model_path=model_path)
