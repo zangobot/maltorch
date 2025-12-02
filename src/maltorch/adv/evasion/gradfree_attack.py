@@ -12,8 +12,6 @@ class GradientFreeBackendAttack(BackendAttack):
     def _optimizer_step(
         self, delta: nevergrad.p.Array, loss: torch.Tensor
     ) -> nevergrad.p.Array:
-        # if isinstance(delta, torch.Tensor):
-        #     delta = self.optimizer.parametrization.spawn_child(new_value=delta.cpu().numpy())
         self.optimizer.tell(delta, loss.item())
         return self.optimizer.ask()
 

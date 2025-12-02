@@ -157,7 +157,7 @@ class BackendAttack(BaseEvasionAttack):
         while budget < self.query_budget:
             x_adv, delta = self._apply_manipulation(samples, delta)
             scores = model.decision_function(x_adv)
-            loss = self.loss_function(scores, target) * multiplier + self.reg_parameter * self._delta_norm(delta)
+            loss = multiplier * (self.loss_function(scores, target) + self.reg_parameter * self._delta_norm(delta))
             delta = self._optimizer_step(delta, loss)
             budget += self._consumed_budget()
             self._track(budget, loss, scores, x_adv, delta)

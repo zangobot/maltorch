@@ -14,6 +14,7 @@ from maltorch.adv.evasion.base_optim_attack_creator import (
 )
 from maltorch.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from maltorch.initializers.initializers import IdentityInitializer
+from maltorch.manipulations.fast_gamma_section_injection_manipulation import FastGAMMASectionInjectionManipulation
 from maltorch.manipulations.gamma_section_injection_manipulation import GAMMASectionInjectionManipulation
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
@@ -42,7 +43,7 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             population_size=population_size
         )
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
-        manipulation_function = GAMMASectionInjectionManipulation(benignware_folder=benignware_folder,
+        manipulation_function = FastGAMMASectionInjectionManipulation(benignware_folder=benignware_folder,
                                                                   which_sections=which_sections,
                                                                   how_many_sections=how_many_sections)
         super().__init__(
