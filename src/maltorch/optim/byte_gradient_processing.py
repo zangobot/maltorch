@@ -1,6 +1,5 @@
 import torch
 from secmlt.optimization.gradient_processing import GradientProcessing
-from torch.nn.functional import normalize
 
 
 class ByteGradientProcessing(GradientProcessing):
