@@ -1,0 +1,33 @@
+import torch
+
+from maltorch.initializers.initializers import ByteBasedInitializer
+from maltorch.utils.pe_operations import extend_manipulation
+
+
+class ExtendDOSInitializer(ByteBasedInitializer):
+    def __init__(self, preferred_manipulation_size, random_init=False):
+        super().__init__(random_init=random_init)
+        self.manipulation_size = preferred_manipulation_size
+
+    def __call__(self, x: torch.Tensor) -> [torch.Tensor, torch.Tensor]:
+        X = []
+        deltas = []
+        indexes = []
+        for x_i in x:
+            x_i, shift_indexes = extend_manipulation(x_i, self.manipulation_size)
+            X.append(x_i)
+            delta = (
+                torch.zeros(len(shift_indexes))
+                if not self.random_init
+                else torch.randint(0, 255, (len(shift_indexes),))
+            )
+            deltas.append(delta)
+            indexes.append(torch.Tensor(shift_indexes))
+        device = x.device
+        x, delta, indexes = self._pad_samples_same_length(X, deltas, indexes)
+        x = x.long()
+        x = x.to(device)
+        delta = delta.float()
+        delta = delta.to(device)
+        indexes = indexes.to(device)
+        return x, delta, indexes
