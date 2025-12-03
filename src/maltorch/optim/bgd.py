@@ -47,10 +47,11 @@ def token_gradient_descent(
         step_size_index = (
             gradient_f[j, :][index_to_perturb[j].view(-1)]
             .norm(dim=1)
-            .argsort()[:step_size]
+            .argsort(descending=True)[:step_size]
         )
         for i in step_size_index:
-            gradient_f_i = -gradient_f[j, i] #maltorch is written to minimize the loss
+            byte_in_grad = index_to_perturb[j, i]
+            gradient_f_i = -gradient_f[j, byte_in_grad] #maltorch is written to minimize the loss
             x_i = emb_x[j, i]
             token_to_chose = single_token_gradient_update(
                 start_token=x_i,

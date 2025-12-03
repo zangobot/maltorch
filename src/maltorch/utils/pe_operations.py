@@ -4,6 +4,8 @@ import struct
 import lief
 import torch
 
+from maltorch.utils.zangope import Binary
+
 
 def _shift_pointer_to_section_content(
         liefpe: lief.PE.Binary,
@@ -229,6 +231,24 @@ def section_injection_manipulation(
     builder.build()
     x_init = builder.get_build()
     pe = lief.PE.parse(raw=x_init)
+    index_to_perturb = []
+    for section in pe.sections:
+        if section.name != default_sect_name:
+            continue
+        indexes = []  # add 8 of name + index of content
+        index_to_perturb.extend(indexes)
+    x_init = torch.Tensor(x_init)
+    return x_init, index_to_perturb
+
+
+def fast_section_injection_manipulation(
+        x: torch.Tensor, how_many_sections: int, size_per_section: int = 0x200
+) -> (list, list):
+    pe = Binary(bytez=bytearray(x.flatten().tolist()))
+    default_sect_name = "MLADVEXE"
+    for _ in range(how_many_sections):
+        pe.add_robust_section(default_sect_name, 0x40000040, bytearray([0] * size_per_section))
+    x_init = pe.get_bytes()
     index_to_perturb = []
     for section in pe.sections:
         if section.name != default_sect_name:
