@@ -1,7 +1,8 @@
 from pathlib import Path
 
+import torch
 from secmlt.metrics.classification import Accuracy
-from secmlt.trackers import LossTracker, ScoresTracker
+from secmlt.trackers import ScoresTracker
 from torch.utils.data import TensorDataset, DataLoader
 
 from maltorch.adv.evasion.partialdos import PartialDOS
@@ -11,19 +12,25 @@ from maltorch.zoo.bbdnn import BBDnn
 from maltorch.zoo.malconv import MalConv
 from maltorch.zoo.original_malconv import OriginalMalConv
 
+import lief
+
+lief.logging.disable()
+
 device = "cpu"
 
 exe_folder = Path(__file__).parent / ".." / "data" / "malware"
 X = load_from_folder(exe_folder, device=device)
 y = create_labels(X, 1, device=device)
-dl = DataLoader(TensorDataset(X, y), batch_size=10)
+dl = DataLoader(TensorDataset(X, y), batch_size=32)
+
+tracker = ScoresTracker()
 
 query_budget = 10
 
 grad_attack = PartialDOS(
     query_budget=query_budget,
     random_init=False,
-    device=device
+    device=device,
 )
 # Create the deep neural networks we want to evaluate.
 # All the parameters of the networks are fetched online, since we are not passing

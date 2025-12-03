@@ -19,11 +19,11 @@ lief.logging.disable()
 device = "cpu"
 
 exe_folder = Path(__file__).parent / ".." / "data" / "malware"
-X = load_from_folder(exe_folder, device=device, limit=30)
+X = load_from_folder(exe_folder, device=device)
 y = create_labels(X, 1, device=device)
 dl = DataLoader(TensorDataset(X, y), batch_size=16)
 
-query_budget = 40
+query_budget = 100
 how_many_sections = 30
 
 attack = GAMMASectionInjection(
@@ -63,6 +63,6 @@ attack = GAMMASectionInjection(
 for k in other:
     print(k)
     model = other[k]
-    print("- - - Pre-attack accuracy: ", Accuracy()(model, dl))
+    print("Pre-attack accuracy: ", Accuracy()(model, dl))
     adv_dl = attack(model, dl)
-    print("- - - Accuracy: ", Accuracy()(model, adv_dl))
+    print("Accuracy: ", Accuracy()(model, adv_dl))
