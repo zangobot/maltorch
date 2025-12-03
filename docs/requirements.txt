@@ -1,0 +1,4 @@
+-e .
+jupyter-book
+matplotlib
+numpy

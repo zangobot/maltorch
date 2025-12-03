@@ -38,8 +38,8 @@ pdos_attack = FullDOS(
 networks = {
     'OriginalMalconv': OriginalMalConv.create_model(device=device),
     'MalConv': MalConv.create_model(device=device),
-    # 'BBDnn': BBDnn.create_model(device=device),
-    # 'AvastStyleConv': AvastStyleConv.create_model(device=device),
+    'BBDnn': BBDnn.create_model(device=device),
+    'AvastStyleConv': AvastStyleConv.create_model(device=device),
 }
 for k in networks:
     print(k)

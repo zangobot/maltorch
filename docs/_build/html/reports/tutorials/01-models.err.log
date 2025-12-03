@@ -1,0 +1,69 @@
+Traceback (most recent call last):
+  File "/Users/zangobot/miniconda3/envs/maltorch/lib/python3.12/site-packages/jupyter_core/utils/__init__.py", line 154, in wrapped
+    asyncio.get_running_loop()
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/zangobot/miniconda3/envs/maltorch/lib/python3.12/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/Users/zangobot/miniconda3/envs/maltorch/lib/python3.12/site-packages/nbclient/client.py", line 1319, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zangobot/miniconda3/envs/maltorch/lib/python3.12/site-packages/jupyter_core/utils/__init__.py", line 158, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zangobot/miniconda3/envs/maltorch/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/zangobot/miniconda3/envs/maltorch/lib/python3.12/site-packages/nbclient/client.py", line 709, in async_execute
+    await self.async_execute_cell(
+  File "/Users/zangobot/miniconda3/envs/maltorch/lib/python3.12/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/Users/zangobot/miniconda3/envs/maltorch/lib/python3.12/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from torch.utils.data import DataLoader, TensorDataset
+
+# We now load all .exe file from the folder, and we load them 
+# on the same device as the models.
+# All data are used as Pytorch dataloaders, 
+# so that inference can be computed in batch (if the model allows it).
+
+X = load_from_folder(exe_folder, "exe", device=device)
+y = create_labels(X, 1)
+data_loader = DataLoader(TensorDataset(X, y), batch_size=3)
+------------------
+
+
+[31m---------------------------------------------------------------------------[39m
+[31mRuntimeError[39m                              Traceback (most recent call last)
+[36mCell[39m[36m [39m[32mIn[3][39m[32m, line 8[39m
+[32m      1[39m [38;5;28;01mfrom[39;00m[38;5;250m [39m[34;01mtorch[39;00m[34;01m.[39;00m[34;01mutils[39;00m[34;01m.[39;00m[34;01mdata[39;00m[38;5;250m [39m[38;5;28;01mimport[39;00m DataLoader, TensorDataset
+[32m      3[39m [38;5;66;03m# We now load all .exe file from the folder, and we load them [39;00m
+[32m      4[39m [38;5;66;03m# on the same device as the models.[39;00m
+[32m      5[39m [38;5;66;03m# All data are used as Pytorch dataloaders, [39;00m
+[32m      6[39m [38;5;66;03m# so that inference can be computed in batch (if the model allows it).[39;00m
+[32m----> [39m[32m8[39m X = [43mload_from_folder[49m[43m([49m[43mexe_folder[49m[43m,[49m[43m [49m[33;43m"[39;49m[33;43mexe[39;49m[33;43m"[39;49m[43m,[49m[43m [49m[43mdevice[49m[43m=[49m[43mdevice[49m[43m)[49m
+[32m      9[39m y = create_labels(X, [32m1[39m)
+[32m     10[39m data_loader = DataLoader(TensorDataset(X, y), batch_size=[32m3[39m)
+
+[36mFile [39m[32m~/Documents/Repositories/maltorch/src/maltorch/data/loader.py:28[39m, in [36mload_from_folder[39m[34m(path, extension, padding, limit, device)[39m
+[32m     26[39m     [38;5;28;01mif[39;00m limit [38;5;129;01mis[39;00m [38;5;129;01mnot[39;00m [38;5;28;01mNone[39;00m [38;5;129;01mand[39;00m [38;5;28mlen[39m(X) >= limit:
+[32m     27[39m         [38;5;28;01mbreak[39;00m
+[32m---> [39m[32m28[39m X = [43mtorch[49m[43m.[49m[43mnn[49m[43m.[49m[43mutils[49m[43m.[49m[43mrnn[49m[43m.[49m[43mpad_sequence[49m[43m([49m[43mX[49m[43m,[49m[43m [49m[43mpadding_value[49m[43m=[49m[43mpadding[49m[43m)[49m.transpose([32m0[39m, [32m1[39m).long()
+[32m     29[39m X = X.to(device)
+[32m     30[39m [38;5;28;01mreturn[39;00m X
+
+[36mFile [39m[32m~/miniconda3/envs/maltorch/lib/python3.12/site-packages/torch/nn/utils/rnn.py:481[39m, in [36mpad_sequence[39m[34m(sequences, batch_first, padding_value, padding_side)[39m
+[32m    477[39m         sequences = sequences.unbind([32m0[39m)  [38;5;66;03m# type: ignore[assignment][39;00m
+[32m    479[39m [38;5;66;03m# assuming trailing dimensions and type of all the Tensors[39;00m
+[32m    480[39m [38;5;66;03m# in sequences are same and fetching those from sequences[0][39;00m
+[32m--> [39m[32m481[39m [38;5;28;01mreturn[39;00m [43mtorch[49m[43m.[49m[43m_C[49m[43m.[49m[43m_nn[49m[43m.[49m[43mpad_sequence[49m[43m([49m
+[32m    482[39m [43m    [49m[43msequences[49m[43m,[49m[43m [49m[43mbatch_first[49m[43m,[49m[43m [49m[43mpadding_value[49m[43m,[49m[43m [49m[43mpadding_side[49m[43m  [49m[38;5;66;43;03m# type: ignore[arg-type][39;49;00m
+[32m    483[39m [43m[49m[43m)[49m
+
+[31mRuntimeError[39m: received an empty list of sequences
+

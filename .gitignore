@@ -1,2 +1,4 @@
 .idea
 src/maltorch/zoo/models/*
+/examples/data/malware/*
+/examples/data/benignware/*
