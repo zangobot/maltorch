@@ -10,6 +10,7 @@ from maltorch.adv.evasion.base_optim_attack_creator import (
 from maltorch.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from maltorch.adv.evasion.gradient_attack import GradientBackendAttack
 from maltorch.initializers.content_shift_initializer import ContentShiftInitializer
+from maltorch.manipulations.gradient_free_wrapper_manipulation import GradientFreeWrapperManipulation
 from maltorch.manipulations.replacement_manipulation import ReplacementManipulation
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
@@ -33,7 +34,7 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
             population_size=population_size
         )
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
-        manipulation_function = ReplacementManipulation(initializer=initializer)
+        manipulation_function = GradientFreeWrapperManipulation(ReplacementManipulation(initializer=initializer))
         super().__init__(
             y_target=y_target,
             query_budget=query_budget,
@@ -45,7 +46,6 @@ class ContentShiftGradFree(GradientFreeBackendAttack):
             model_outputs_logits=model_outputs_logits,
             device=device
         )
-
 
 class ContentShiftGrad(GradientBackendAttack):
     def __init__(

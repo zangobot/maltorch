@@ -4,6 +4,7 @@ from typing import Union, Callable
 from nevergrad.optimization.differentialevolution import (
     DifferentialEvolution,
 )
+from nevergrad.optimization.optimizerlib import NGOpt
 
 from maltorch.optim.bgd import BGD
 from maltorch.optim.byte_gradient_processing import ByteGradientProcessing
@@ -31,4 +32,8 @@ class MalwareOptimizerFactory:
 
     @staticmethod
     def create_ga(population_size: int = 10) -> DifferentialEvolution:
-        return DifferentialEvolution(popsize=population_size, crossover="twopoints")
+        return DifferentialEvolution(popsize=population_size, crossover="onepoint")
+
+    @staticmethod
+    def create_ngopt() -> partial[NGOpt]:
+        return partial(NGOpt)

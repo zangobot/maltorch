@@ -1,9 +1,10 @@
-import itertools
 import math
 import struct
 
 import lief
 import torch
+
+from maltorch.utils.zangope import Binary
 
 
 def _shift_pointer_to_section_content(
@@ -83,8 +84,8 @@ def _shift_pe_header(
     raw_code[pe_position + 60 + 20 + 4: pe_position + 60 + 20 + 4 + 4] = struct.pack(
         "<I", liefpe.optional_header.sizeof_headers + amount
     )
-    pattern = itertools.cycle("I love ToucanStrike <3")
-    [raw_code.insert(pe_position, ord(next(pattern))) for _ in range(amount)]
+#     pattern = itertools.cycle("I love ToucanStrike <3")
+    [raw_code.insert(pe_position, 0x00) for _ in range(amount)]
 
     return raw_code
 
@@ -110,6 +111,9 @@ def extend_manipulation(
     if preferable_extension_amount == 0:
         return x, []
     adv_x = x.flatten().tolist()
+    if 256 in adv_x:
+        last_index = adv_x.index(256)
+        adv_x = adv_x[:last_index]
     liefpe = lief.PE.parse(adv_x)
     section_file_alignment = liefpe.optional_header.file_alignment
     if section_file_alignment == 0:
@@ -122,7 +126,7 @@ def extend_manipulation(
     index_to_perturb = list(range(2, 0x3C)) + list(
         range(0x40, first_content_offset + extension_amount)
     )
-    adv_x = _shift_pe_header(liefpe, x, extension_amount)
+    adv_x = _shift_pe_header(liefpe, adv_x, extension_amount)
     for i, _ in enumerate(liefpe.sections):
         adv_x = _shift_pointer_to_section_content(
             liefpe, bytearray(adv_x), i, extension_amount, extension_amount
@@ -163,7 +167,6 @@ def content_shift_manipulation(
     if not preferable_extension_amount:
         return x, []
     adv_x = x.flatten().tolist()
-    original_len = len(adv_x)
     if 256 in adv_x:
         last_index = adv_x.index(256)
         adv_x = adv_x[:last_index]
@@ -172,6 +175,8 @@ def content_shift_manipulation(
     if section_file_alignment == 0:
         return x, []
     first_content_offset = liefpe.sections[0].offset
+    if first_content_offset > len(adv_x):
+        return x, []
     extension_amount = (
             int(math.ceil(preferable_extension_amount / section_file_alignment))
             * section_file_alignment
@@ -188,7 +193,6 @@ def content_shift_manipulation(
             + b"\x00" * extension_amount
             + adv_x[first_content_offset:]
     )
-
     x = torch.Tensor(adv_x)
     return x, index_to_perturb
 
@@ -227,6 +231,24 @@ def section_injection_manipulation(
     builder.build()
     x_init = builder.get_build()
     pe = lief.PE.parse(raw=x_init)
+    index_to_perturb = []
+    for section in pe.sections:
+        if section.name != default_sect_name:
+            continue
+        indexes = []  # add 8 of name + index of content
+        index_to_perturb.extend(indexes)
+    x_init = torch.Tensor(x_init)
+    return x_init, index_to_perturb
+
+
+def fast_section_injection_manipulation(
+        x: torch.Tensor, how_many_sections: int, size_per_section: int = 0x200
+) -> (list, list):
+    pe = Binary(bytez=bytearray(x.flatten().tolist()))
+    default_sect_name = "MLADVEXE"
+    for _ in range(how_many_sections):
+        pe.add_robust_section(default_sect_name, 0x40000040, bytearray([0] * size_per_section))
+    x_init = pe.get_bytes()
     index_to_perturb = []
     for section in pe.sections:
         if section.name != default_sect_name:

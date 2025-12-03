@@ -28,6 +28,7 @@ class BackendAttack(BaseEvasionAttack):
             manipulation_function: ByteManipulation,
             initializer: Initializer,
             device: str = "cpu",
+            reg_parameter: float = 0,
             trackers: Union[List[Tracker], Tracker] = None,
             **kwargs
     ):
@@ -40,6 +41,7 @@ class BackendAttack(BaseEvasionAttack):
         self.optimizer = None
         self.optimizer_cls = optimizer_cls
         self.device = device
+        self.reg_parameter = reg_parameter
         self._best_loss = None
         self._best_delta = None
 
@@ -130,6 +132,9 @@ class BackendAttack(BaseEvasionAttack):
             batch_size=data_loader.batch_size,
         )
 
+    def _delta_norm(self, x: torch.Tensor):
+        return torch.atleast_2d(x.norm(dim=-1, p=2)).transpose(0,1)
+
     def _run(
             self,
             model: BaseModel,
@@ -137,7 +142,7 @@ class BackendAttack(BaseEvasionAttack):
             labels: torch.Tensor,
             **optim_kwargs,
     ) -> (torch.Tensor, torch.Tensor):
-        multiplier = 1 if self.y_target is not None else -1
+        multiplier = -1 if self.y_target is None else 1
         target = (
             torch.zeros_like(labels) + self.y_target
             if self.y_target is not None
@@ -152,7 +157,7 @@ class BackendAttack(BaseEvasionAttack):
         while budget < self.query_budget:
             x_adv, delta = self._apply_manipulation(samples, delta)
             scores = model.decision_function(x_adv)
-            loss = self.loss_function(scores, target) * multiplier
+            loss = multiplier * (self.loss_function(scores, target) + self.reg_parameter * self._delta_norm(delta))
             delta = self._optimizer_step(delta, loss)
             budget += self._consumed_budget()
             self._track(budget, loss, scores, x_adv, delta)

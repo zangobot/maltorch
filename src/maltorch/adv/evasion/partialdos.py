@@ -9,6 +9,7 @@ from maltorch.adv.evasion.base_optim_attack_creator import (
 )
 from maltorch.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from maltorch.adv.evasion.gradient_attack import GradientBackendAttack
+from maltorch.manipulations.gradient_free_wrapper_manipulation import GradientFreeWrapperManipulation
 from maltorch.manipulations.replacement_manipulation import (
     ReplacementManipulation,
 )
@@ -29,7 +30,7 @@ class PartialDOSGradFree(GradientFreeBackendAttack):
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = PartialDOSInitializer(random_init=random_init)
-        manipulation_function = ReplacementManipulation(initializer=initializer)
+        manipulation_function = GradientFreeWrapperManipulation(ReplacementManipulation(initializer=initializer))
         optimizer_cls = MalwareOptimizerFactory.create_ga(
             population_size=population_size
         )
@@ -92,7 +93,7 @@ class PartialDOS(BaseOptimAttackCreator):
             query_budget: int,
             y_target: Union[int, None] = None,
             random_init: bool = False,
-            step_size: int = 16,
+            step_size: int = 58,
             population_size: int = 10,
             device: str = "cpu",
             model_outputs_logits: bool = True,

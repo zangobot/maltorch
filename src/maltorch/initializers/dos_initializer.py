@@ -11,7 +11,7 @@ class PartialDOSInitializer(ByteBasedInitializer):
     def __call__(self, x: torch.Tensor):
         indexes = torch.arange(2, 60).long().repeat((x.shape[0], 1))
         delta = (
-            torch.zeros((x.shape[0], 58))
+            x.data[:, 2:60]
             if not self.random_init
             else torch.randint(0, 255, (x.shape[0], 58))
         ).float()

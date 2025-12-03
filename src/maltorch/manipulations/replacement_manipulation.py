@@ -29,6 +29,7 @@ class ReplacementManipulation(ByteManipulation):
 
     def initialize(self, samples: torch.Tensor):
         self.indexes_to_perturb = []
-        samples.data, delta, indexes = self.initializer(samples.data)
+        modified_sample, delta, indexes = self.initializer(samples.data)
         self.indexes_to_perturb = indexes
+        samples.data = modified_sample
         return samples, delta

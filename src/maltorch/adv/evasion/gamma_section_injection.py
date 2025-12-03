@@ -1,6 +1,10 @@
 from pathlib import Path
 from typing import Type, Union, List, Callable
 
+import nevergrad
+from nevergrad.optimization import Optimizer
+from secmlt.models.base_model import BaseModel
+
 from secmlt.trackers import Tracker
 from torch.nn import BCEWithLogitsLoss, BCELoss
 
@@ -10,6 +14,7 @@ from maltorch.adv.evasion.base_optim_attack_creator import (
 )
 from maltorch.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from maltorch.initializers.initializers import IdentityInitializer
+from maltorch.manipulations.fast_gamma_section_injection_manipulation import FastGAMMASectionInjectionManipulation
 from maltorch.manipulations.gamma_section_injection_manipulation import GAMMASectionInjectionManipulation
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
@@ -25,7 +30,8 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             population_size: int = 10,
             random_init: bool = False,
             model_outputs_logits: bool = True,
-            device:str="cpu",
+            device: str = "cpu",
+            reg_parameter: float = 1e-5,
             trackers: Union[List[Tracker], Tracker] = None,
     ):
         if which_sections is None:
@@ -37,7 +43,7 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             population_size=population_size
         )
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
-        manipulation_function = GAMMASectionInjectionManipulation(benignware_folder=benignware_folder,
+        manipulation_function = FastGAMMASectionInjectionManipulation(benignware_folder=benignware_folder,
                                                                   which_sections=which_sections,
                                                                   how_many_sections=how_many_sections)
         super().__init__(
@@ -48,8 +54,17 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             manipulation_function=manipulation_function,
             optimizer_cls=optimizer_cls,
             trackers=trackers,
-            device=device
+            device=device,
+            reg_parameter=reg_parameter
         )
+
+    def _init_optimizer(self, model: BaseModel, delta: nevergrad.p.Array) -> Optimizer:
+        self.optimizer = self.optimizer_cls(
+            parametrization=nevergrad.p.Array(
+                shape=delta.value.shape, lower=0.0, upper=1.0
+            ), budget=self.query_budget
+        )
+        return self.optimizer
 
 
 class GAMMASectionInjection(BaseOptimAttackCreator):
@@ -78,8 +93,9 @@ class GAMMASectionInjection(BaseOptimAttackCreator):
             how_many_sections: int = 75,
             random_init: bool = False,
             population_size: int = 10,
+            reg_parameter: float = 1e-5,
             device: str = "cpu",
-            model_outputs_logits: bool=True,
+            model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.NG,
     ) -> Callable:
@@ -95,5 +111,6 @@ class GAMMASectionInjection(BaseOptimAttackCreator):
             trackers=trackers,
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
-            device=device
+            device=device,
+            reg_parameter=reg_parameter
         )

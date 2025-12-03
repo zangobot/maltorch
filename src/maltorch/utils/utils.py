@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Optional
-
-import lief
+import hashlib
 import requests
 import torch
 
@@ -57,6 +56,15 @@ def download_gdrive(gdrive_id, fname_save):
 def convert_torch_exe_to_list(x: torch.Tensor):
     list_x = x[x != 256].data.cpu().flatten().tolist()
     return list_x
+
+def convert_torch_exe_to_bytes(x:torch.Tensor):
+    return  b"".join([bytes([i]) for i in convert_torch_exe_to_list(x)])
+
+def compute_hash_from_sample(x : torch.Tensor):
+    bytes_x = convert_torch_exe_to_bytes(x)
+    sha256_hash = hashlib.sha256()
+    sha256_hash.update(bytes_x)
+    return sha256_hash.hexdigest()
 
 
 def dump_torch_exe_to_file(x: torch.Tensor, filepath: Optional[Path]) -> bytes:

@@ -18,19 +18,17 @@ class BGD(BaseByteOptimizer):
                         "Otherwise, the model itself is not differentiable and gradients can not be computed."
                     )
                 grad_embedding = self._embedding_grad[0]
-                grad_embedding = self.gradient_processing(grad_embedding)
+                # grad_embedding = self.gradient_processing(grad_embedding)
                 updated_delta = token_gradient_descent(
                     embedding_tokens=self.embedding_matrix,
                     emb_x=self.embedding_matrix[delta.long()],
                     gradient_f=grad_embedding,
                     step_size=self.step_size,
                     index_to_perturb=self.indexes_to_perturb,
-                    admitted_tokens=torch.LongTensor(range(0, 256)),
                     unavailable_tokens=torch.LongTensor([256]),
                 )
                 updated_delta = updated_delta.to(delta.device)
                 to_update = updated_delta != INVALID
-
                 if torch.any(to_update):
                     delta.data[to_update] = updated_delta[to_update]
         return None
@@ -42,7 +40,6 @@ def token_gradient_descent(
     gradient_f: torch.Tensor,
     step_size: int,
     index_to_perturb: torch.LongTensor,
-    admitted_tokens: torch.LongTensor,
     unavailable_tokens: Optional[torch.Tensor] = None,
 ) -> Tensor:
     optimized_tokens = torch.zeros(*emb_x.shape[:2]) + INVALID
@@ -50,16 +47,16 @@ def token_gradient_descent(
         step_size_index = (
             gradient_f[j, :][index_to_perturb[j].view(-1)]
             .norm(dim=1)
-            .argsort()[:step_size]
+            .argsort(descending=True)[:step_size]
         )
         for i in step_size_index:
-            gradient_f_i = -gradient_f[j, i]
+            byte_in_grad = index_to_perturb[j, i]
+            gradient_f_i = -gradient_f[j, byte_in_grad] #maltorch is written to minimize the loss
             x_i = emb_x[j, i]
             token_to_chose = single_token_gradient_update(
-                start_token=x_i.cpu(),
-                gradient=gradient_f_i.cpu(),
-                embedded_tokens=embedding_tokens.cpu(),
-                admitted_tokens=admitted_tokens.cpu(),
+                start_token=x_i,
+                gradient=gradient_f_i,
+                embedded_tokens=embedding_tokens,
                 unavailable_tokens=unavailable_tokens,
             )
             optimized_tokens[j, i] = token_to_chose
@@ -70,7 +67,6 @@ def single_token_gradient_update(
     start_token: torch.Tensor,
     gradient: torch.Tensor,
     embedded_tokens: torch.Tensor,
-    admitted_tokens: torch.LongTensor,
     invalid_val=INVALID,
     unavailable_tokens: Optional[torch.Tensor] = None,
 ):
@@ -95,24 +91,31 @@ def single_token_gradient_update(
     -------
 
     """
-    if torch.equal(gradient, torch.zeros(gradient.shape)):
-        return INVALID
-    distance = torch.zeros(len(admitted_tokens))
-    for i, b in enumerate(embedded_tokens[admitted_tokens, :].cpu()):
-        if torch.all(start_token == b):
-            distance[i] = invalid_val
-            continue
-        if unavailable_tokens is not None:
-            if i in unavailable_tokens:
-                distance[i] = INVALID
-        bts = b - start_token
-        s_i = torch.dot(gradient, bts)
-        if s_i <= 0:
-            distance[i] = invalid_val
-        else:
-            d_i = torch.norm(b - (start_token + s_i * gradient))
-            distance[i] = d_i
-    min_value, token_to_chose = torch.min(distance, dim=0, keepdim=True)
-    if min_value == INVALID:
-        return INVALID
-    return token_to_chose
+    if torch.equal(gradient, torch.zeros_like(gradient)):
+        return invalid_val
+    gradient = gradient / gradient.norm()
+    B = embedded_tokens
+    distance = torch.full((B.shape[0],), invalid_val, device=B.device)
+    same_mask = torch.all(B == start_token, dim=1)
+    if unavailable_tokens is not None:
+        unavail_mask = torch.zeros_like(distance, dtype=torch.bool)
+        unavail_mask[unavailable_tokens] = True
+    else:
+        unavail_mask = torch.zeros_like(distance, dtype=torch.bool)
+
+    W = B - start_token  # (N, D)
+    s = torch.sum(W * gradient, dim=1)  # (N,)
+    forward_mask = s >= 0
+    valid_mask = (~same_mask) & (~unavail_mask) & forward_mask
+    if not torch.any(valid_mask):
+        return invalid_val
+
+    proj = start_token + s[valid_mask].unsqueeze(1) * gradient  # (Nv, D)
+    dist_valid = torch.norm(B[valid_mask] - proj, dim=1)
+    distance[valid_mask] = dist_valid
+    min_value, token_to_choose = torch.min(distance, dim=0)
+
+    if min_value == invalid_val:
+        return invalid_val
+
+    return token_to_choose

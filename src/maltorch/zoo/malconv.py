@@ -23,14 +23,13 @@ class MalConv(EmbeddingModel):
 
     def __init__(self, embedding_size: int = 8,
                  max_len: int =DEFAULT_MAX_LENGTH,
-                 min_len: int = 512,
                  threshold: float =0.5,
                  padding_idx: int = 256,
                  kernel_size=512,
                  stride=512):
         #https://drive.google.com/file/d/1Uk7QHjjXMEy-RADX5kHD9vIYk6UT2nii/view?usp=drive_link
         super(MalConv, self).__init__(
-            name="MalConv", gdrive_id="1Uk7QHjjXMEy-RADX5kHD9vIYk6UT2nii", max_len=max_len, min_len=min_len
+            name="MalConv", gdrive_id="1Uk7QHjjXMEy-RADX5kHD9vIYk6UT2nii", max_len=max_len
         )
         out_channels = 128
         output_size=1

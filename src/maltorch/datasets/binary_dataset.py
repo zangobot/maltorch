@@ -1,12 +1,17 @@
+from pathlib import Path
+
 import pandas as pd
 from torch.utils.data import Dataset
-from typing import Tuple
+from typing import Tuple, Union
 import torch
 import os
-from pathlib import Path
+
 
 
 class BinaryDataset(Dataset):
+    """
+    Load samples from sources.
+    """
     def __init__(self,
                  csv_filepath: str = None,
                  goodware_directory: str = None,
@@ -71,7 +76,7 @@ class BinaryDataset(Dataset):
 
     def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
         to_load, label, _ = self.all_files[index]
-        x = load_single_exe(to_load, max_len=self.max_len, min_len=self.min_len, padding_idx=self.padding_idx)
+        x = self.load_and_pad_samples(to_load, max_len=self.max_len, min_len=self.min_len, padding_idx=self.padding_idx)
         return x, torch.tensor(label)
 
     def pad_collate_func(self, batch):
@@ -87,22 +92,16 @@ class BinaryDataset(Dataset):
 
         return x, y
 
-
-def load_single_exe(path: Path, max_len: int = None, min_len: int = None, padding_idx: int = 256) -> torch.Tensor:
-    """
-    Create a torch.Tensor from the file pointed in the path
-    :param path: a pathlib Path
-    :return: torch.Tensor containing the bytes of the file as a tensor
-    """
-    with open(path, "rb") as h:
-        if max_len is None:
-            code = h.read()
-        else:
+    def load_and_pad_samples(self, path: Path, max_len:int, min_len:int, padding_idx:int=256) -> Union[torch.Tensor, None]:
+        """
+        Create a torch.Tensor from the file pointed in the path
+        :param path: a pathlib Path
+        :return: torch.Tensor containing the bytes of the file as a tensor, None if the file is not an exe
+        """
+        with open(path, "rb") as h:
             code = h.read(max_len)
-    x = torch.frombuffer(bytearray(code), dtype=torch.uint8)
-    x = x.to(torch.long)
-    if min_len is not None: # Pad the tensor to the minimum length - required for some architectures
-        if x.shape[0] < min_len:
-            padding_idx = torch.tensor(padding_idx, dtype=torch.long)
-            x = torch.nn.functional.pad(x, (0, min_len - x.shape[0]), mode='constant', value=padding_idx)
-    return x
+        x = torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.float)
+        if len(code) < min_len:
+            padding = torch.nn.ConstantPad1d((0, len(code) - min_len), padding_idx)
+            x = padding(x)
+        return x

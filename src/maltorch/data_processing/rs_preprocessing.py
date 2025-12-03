@@ -1,6 +1,5 @@
 import torch
 from secmlt.models.data_processing.data_processing import DataProcessing
-import torch.nn.functional as F
 
 
 class RandomizedAblationPreprocessing(DataProcessing):
@@ -10,28 +9,13 @@ class RandomizedAblationPreprocessing(DataProcessing):
     Smoothing.
     ESORICS Workshops, SECAI 2024
     """
-    def __init__(self, pabl: float = 0.20, num_versions: int = 100, padding_idx: int = 256, min_len: int = None,
-                 max_len: int = None):
+    def __init__(self, pabl: float = 0.20, num_versions: int = 100, padding_idx: int = 256):
         super().__init__()
         self.pabl = pabl
         self.num_versions = num_versions
         self.padding_idx = padding_idx
-        self.min_len = min_len,
-        self.max_len = max_len
-
-
-    def _conform_input_size(self, x: torch.Tensor, padding: int = 256) -> torch.Tensor:
-        if self.max_len is None and self.min_len is None:
-            return x
-        batch_size, current_size = x.shape
-        if self.min_len is not None:
-            padding_needed = max(0, self.min_len - current_size)
-            x = F.pad(x, (0, padding_needed), "constant", padding)
-        x = x[:, :self.max_len]
-        return x
 
     def _process(self, x: torch.Tensor) -> torch.Tensor:
-        x = self._conform_input_size(x)
         x = x.squeeze()  # Remove all dimensions equal to 1
         vecs = []
         for i in range(self.num_versions):

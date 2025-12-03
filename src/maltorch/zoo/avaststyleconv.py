@@ -4,18 +4,27 @@ Deep convolutional malware classifiers can learn from raw executables and labels
 ICLR 2018. Workshop Track Proceedings, 2018.
 https://openreview.net/pdf?id=HkHrmM1PM
 """
+from typing import Optional, Union
 
 import torch
 import torch.nn.functional as F
+from secmlt.models.base_trainer import BaseTrainer
+from secmlt.models.data_processing.data_processing import DataProcessing
 from torch import nn
-from maltorch.zoo.model import EmbeddingModel
+
+from maltorch.data_processing.e2e_preprocessor import PaddingPreprocessing
+from maltorch.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
 
 
 class AvastStyleConv(EmbeddingModel):
+
+    DEFAULT_MIN_LENGTH = 10244
+    DEFAULT_MAX_LENGTH = 512000
+
     def __init__(self,
                  embedding_size: int = 8,
-                 min_len: int = 10244,
-                 max_len: int = 512000,
+                 min_len: int = DEFAULT_MIN_LENGTH,
+                 max_len: int = DEFAULT_MAX_LENGTH,
                  threshold: float = 0.5,
                  padding_idx: int = 256,
                  channels: int = 48,
@@ -82,3 +91,29 @@ class AvastStyleConv(EmbeddingModel):
         dense_3_activation = torch.selu(dense_3)
         dense_4 = self.dense_4(dense_3_activation)
         return dense_4
+
+    @classmethod
+    def create_model(
+            cls,
+            model_path: Optional[str] = None,
+            device: str = "cpu",
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+            threshold: Optional[Union[float, None]] = 0.5,
+            **kwargs,
+    ) -> BaseEmbeddingPytorchClassifier:
+        if preprocessing is None:
+            preprocessing = PaddingPreprocessing(max_len=AvastStyleConv.DEFAULT_MAX_LENGTH)
+        net = cls(**kwargs)
+        net.load_pretrained_model(device=device, model_path=model_path)
+        net = net.to(device)  # Explicitly load model to device
+        net = net.eval()
+        net = BaseEmbeddingPytorchClassifier(
+            model=net,
+            preprocessing=preprocessing,
+            postprocessing=postprocessing,
+            trainer=trainer,
+            threshold=threshold,
+        )
+        return net

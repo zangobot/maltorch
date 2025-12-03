@@ -5,9 +5,10 @@ from secmlt.models.base_model import BaseModel
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
 from secmlt.models.pytorch.base_pytorch_nn import BasePytorchClassifier
+
+from maltorch.data_processing.grayscale_preprocessing import GrayscalePreprocessing
 from maltorch.utils.config import Config
 from maltorch.utils.utils import download_gdrive
-import torch.nn.functional as F
 
 
 class Model(torch.nn.Module, ABC):
@@ -98,7 +99,7 @@ class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
     def predict(self, x: torch.Tensor):
         if self.threshold is None:
             return super().predict(x)
-        scores = self.decision_function(x)
+        scores = torch.sigmoid(self.decision_function(x))
         labels = (scores > self.threshold).int()
         return labels
 
@@ -156,15 +157,15 @@ class EmbeddingModel(PytorchModel, ABC):
     def _forward_embed_x(self, x):
         pass
 
-    def _conform_input_size(self, x: torch.Tensor, padding: int = 256) -> torch.Tensor:
-        if self.max_len is None and self.min_len is None:
-            return x
-        batch_size, current_size = x.shape
-        if self.min_len is not None:
-            padding_needed = max(0, self.min_len - current_size)
-            x = F.pad(x, (0, padding_needed), "constant", padding)
-        x = x[:, :self.max_len]
-        return x
+    # def _conform_input_size(self, x: torch.Tensor, padding: int = 256) -> torch.Tensor:
+    #     if self.max_len is None and self.min_len is None:
+    #         return x
+    #     batch_size, current_size = x.shape
+    #     if self.min_len is not None:
+    #         padding_needed = max(0, self.min_len - current_size)
+    #         x = F.pad(x, (0, padding_needed), "constant", padding)
+    #     x = x[:, :self.max_len]
+    #     return x
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -179,7 +180,6 @@ class EmbeddingModel(PytorchModel, ABC):
         torch.Tensor
             the result of the forward pass
         """
-        x = self._conform_input_size(x)
         x = self.embed(x)
         output = self._forward_embed_x(x)
         return output
@@ -221,6 +221,8 @@ class GrayscaleModel(PytorchModel, ABC):
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device)  # Explicitly load model to device
         net = net.eval()
+        if preprocessing is None:
+            preprocessing = GrayscalePreprocessing()
         classifier = BaseGrayscalePytorchClassifier(
             model=net,
             preprocessing=preprocessing,
