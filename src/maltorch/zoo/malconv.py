@@ -3,21 +3,26 @@ Malware Detection by Eating a Whole EXE
 Edward Raff, Jon Barker, Jared Sylvester, Robert Brandon, Bryan Catanzaro, Charles Nicholas
 https://arxiv.org/abs/1710.09435
 """
+from typing import Optional, Union
 
 import torch
 import torch.nn.functional as F
+from secmlt.models.base_trainer import BaseTrainer
+from secmlt.models.data_processing.data_processing import DataProcessing
 from torch import nn
 
-from maltorch.zoo.model import EmbeddingModel
+from maltorch.data_processing.e2e_preprocessor import PaddingPreprocessing
+from maltorch.zoo.model import EmbeddingModel, BaseEmbeddingPytorchClassifier
 
 
 class MalConv(EmbeddingModel):
     """
     Architecture implementation.
     """
+    DEFAULT_MAX_LENGTH = 2**20
 
     def __init__(self, embedding_size: int = 8,
-                 max_len: int = 2**20,
+                 max_len: int =DEFAULT_MAX_LENGTH,
                  min_len: int = 512,
                  threshold: float =0.5,
                  padding_idx: int = 256,
@@ -27,27 +32,17 @@ class MalConv(EmbeddingModel):
         super(MalConv, self).__init__(
             name="MalConv", gdrive_id="1Uk7QHjjXMEy-RADX5kHD9vIYk6UT2nii", max_len=max_len, min_len=min_len
         )
-        self.embedding_1 = nn.Embedding(
-            num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx
-        )
-        self.conv1d_1 = nn.Conv1d(
-            in_channels=embedding_size,
-            out_channels=128,
-            kernel_size=(kernel_size,),
-            stride=(stride,),
-            groups=1,
-            bias=True,
-        )
-        self.conv1d_2 = nn.Conv1d(
-            in_channels=embedding_size,
-            out_channels=128,
-            kernel_size=(kernel_size,),
-            stride=(stride,),
-            groups=1,
-            bias=True,
-        )
-        self.dense_1 = nn.Linear(in_features=128, out_features=128, bias=True)
-        self.dense_2 = nn.Linear(in_features=128, out_features=1, bias=True)
+        out_channels = 128
+        output_size=1
+        self.embedding_1 = nn.Embedding(num_embeddings=257, embedding_dim=embedding_size, padding_idx=padding_idx)
+        self.conv1d_1 = nn.Conv1d(in_channels=embedding_size, out_channels=out_channels, kernel_size=(kernel_size,),
+                                  stride=(stride,),
+                                  groups=1, bias=True)
+        self.conv1d_2 = nn.Conv1d(in_channels=embedding_size, out_channels=out_channels, kernel_size=(kernel_size,),
+                                  stride=(stride,),
+                                  groups=1, bias=True)
+        self.dense_1 = nn.Linear(in_features=out_channels, out_features=out_channels, bias=True)
+        self.dense_2 = nn.Linear(in_features=out_channels, out_features=output_size, bias=True)
         self.embedding_size = (embedding_size,)
         self.max_len = max_len
         self.threshold = threshold
@@ -80,3 +75,29 @@ class MalConv(EmbeddingModel):
 
     def embedding_matrix(self):
         return self.embedding_1.weight
+
+    @classmethod
+    def create_model(
+            cls,
+            model_path: Optional[str] = None,
+            device: str = "cpu",
+            preprocessing: DataProcessing = None,
+            postprocessing: DataProcessing = None,
+            trainer: BaseTrainer = None,
+            threshold: Optional[Union[float, None]] = 0.5,
+            **kwargs,
+    ) -> BaseEmbeddingPytorchClassifier:
+        if preprocessing is None:
+            preprocessing = PaddingPreprocessing(max_len=MalConv.DEFAULT_MAX_LENGTH)
+        net = cls(**kwargs)
+        net.load_pretrained_model(device=device, model_path=model_path)
+        net = net.to(device)  # Explicitly load model to device
+        net = net.eval()
+        net = BaseEmbeddingPytorchClassifier(
+            model=net,
+            preprocessing=preprocessing,
+            postprocessing=postprocessing,
+            trainer=trainer,
+            threshold=threshold,
+        )
+        return net
