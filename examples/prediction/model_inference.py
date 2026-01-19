@@ -18,26 +18,19 @@ device = "cpu"
 # Insert into this folder the malware to use for the evaluation
 exe_folder = Path(__file__).parent / ".." / "data" / "malware"
 
-# For deep neural networks, we need to create a post-processor that
-# generates probabilities from the logits output
-sigmoid_postprocessor = SigmoidPostprocessor()
-
 # Create the deep neural networks we want to evaluate.
 # All the parameters of the networks are fetched online, since we are not passing
 # the model_path into the create_model function.
 networks = {
-    'BBDnn': BBDnn.create_model(postprocessing=sigmoid_postprocessor, device=device),
-    'Malconv': MalConv.create_model(postprocessing=sigmoid_postprocessor, device=device),
-    'AvastStyleConv': AvastStyleConv.create_model(postprocessing=sigmoid_postprocessor, device=device),
+    'BBDnn': BBDnn.create_model(device=device),
+    'Malconv': MalConv.create_model(device=device),
+    'AvastStyleConv': AvastStyleConv.create_model(device=device),
     'EMBER GBDT': EmberGBDT.create_model(),
-    'Grayscale ResNet18': ResNet18.create_model(
-        preprocessing=GrayscalePreprocessing(),
-        postprocessing=sigmoid_postprocessor,
-        device=device),
+    'Grayscale ResNet18': ResNet18.create_model(device=device),
 }
 
 # Load all the executables from the specified folder.
-X = load_from_folder(exe_folder, "exe", device=device)
+X = load_from_folder(exe_folder, device=device)
 y = create_labels(X, 1)
 data_loader = DataLoader(TensorDataset(X, y), batch_size=3)
 

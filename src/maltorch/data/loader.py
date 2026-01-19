@@ -23,7 +23,7 @@ def load_from_folder(
     for filepath in sorted(path.glob(pattern)):
         x = load_single_exe(filepath)
         if x is not None:
-            X.append(x)
+            X.append(x.float())
             if limit is not None and len(X) >= limit:
                 break
     X = torch.nn.utils.rnn.pad_sequence(X, padding_value=padding).transpose(0, 1).long()
@@ -49,5 +49,5 @@ def load_single_exe(path: Path) -> Union[torch.Tensor, None]:
     with open(path, "rb") as h:
         code = h.read()
     if len(code) != 0 and code[:2] == b'MZ':
-        return torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.float)
+        return torch.frombuffer(bytearray(code), dtype=torch.uint8).to(torch.long)
     return None

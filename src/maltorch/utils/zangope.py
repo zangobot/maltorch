@@ -87,7 +87,6 @@ class Binary:
         size_opt_header = self.get_optional_header_size()
         return self.get_optional_header_location() + size_opt_header
 
-
     def get_total_number_sections(self):
         pe_location = self.get_pe_location()
         n_sections = self.exe_bytes[
@@ -117,7 +116,6 @@ class Binary:
             raise ValueError(f"Section with index {index} not found. Only {n_sections} are present.")
         section_table_offset = self.get_section_table_location()
         return self.exe_bytes[section_table_offset + index * 40: section_table_offset + (index + 1) * 40]
-
 
     def get_section_alignment(self):
         optional_header_location = self.get_optional_header_location()
@@ -157,6 +155,7 @@ class Binary:
         old_pointer = int.from_bytes(self.exe_bytes[section_table_offset + 20: section_table_offset + 20 + 4], 'little')
         new_pointer = old_pointer + value
         self.exe_bytes[section_table_offset + 20: section_table_offset + 20 + 4] = new_pointer.to_bytes(4, 'little')
+
 
     def rva_to_file_offset(self, rva: int):
         # Helper: convert an RVA to file offset using section table
@@ -199,11 +198,11 @@ class Binary:
         new_section_entry = bytearray(SECTION_ENTRY_LENGTH)
         name_bytes = name.encode('ascii', errors='ignore')[:8]
         new_section_entry[0:len(name_bytes)] = name_bytes
-        new_section_entry[8:12] = (virtual_size).to_bytes(4, 'little')            # VirtualSize
-        new_section_entry[12:16] = next_virtual_address.to_bytes(4, 'little')    # VirtualAddress
-        new_section_entry[16:20] = size_of_raw_data.to_bytes(4, 'little')        # SizeOfRawData
+        new_section_entry[8:12] = (virtual_size).to_bytes(4, 'little')  # VirtualSize
+        new_section_entry[12:16] = next_virtual_address.to_bytes(4, 'little')  # VirtualAddress
+        new_section_entry[16:20] = size_of_raw_data.to_bytes(4, 'little')  # SizeOfRawData
         # PointerToRawData will be set later (we choose EOF aligned to file_alignment)
-        new_section_entry[36:40] = characteristics.to_bytes(4, 'little')         # Characteristics
+        new_section_entry[36:40] = characteristics.to_bytes(4, 'little')  # Characteristics
 
         # where the new section header should go in the section table
         section_table_offset = self.get_section_table_location()
@@ -224,8 +223,6 @@ class Binary:
         cert_dir_offset = data_dir_base + 4 * 8
         # debug directory entry is index 6 (IMAGE_DIRECTORY_ENTRY_DEBUG)
         debug_dir_offset = data_dir_base + 6 * 8
-
-
 
         # If the new section header doesn't fit in SizeOfHeaders, expand headers
         if new_section_header_offset + SECTION_ENTRY_LENGTH > sizeof_headers:

@@ -1,7 +1,7 @@
 import torch
 
 from maltorch.initializers.initializers import ByteBasedInitializer
-from maltorch.utils.pe_operations import section_injection_manipulation
+from maltorch.utils.pe_operations import section_injection_manipulation, fast_content_shift_manipulation
 
 
 class SectionInjectionInitializer(ByteBasedInitializer):
@@ -20,7 +20,7 @@ class SectionInjectionInitializer(ByteBasedInitializer):
         deltas = []
         indexes = []
         for x_i in x:
-            x_i, shift_indexes = section_injection_manipulation(
+            x_i, shift_indexes = fast_content_shift_manipulation(
                 x_i, self.how_many_sections, self.size_per_section
             )
             X.append(x_i)
