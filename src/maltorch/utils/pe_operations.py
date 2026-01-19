@@ -84,7 +84,7 @@ def _shift_pe_header(
     raw_code[pe_position + 60 + 20 + 4: pe_position + 60 + 20 + 4 + 4] = struct.pack(
         "<I", liefpe.optional_header.sizeof_headers + amount
     )
-#     pattern = itertools.cycle("I love ToucanStrike <3")
+    #     pattern = itertools.cycle("I love ToucanStrike <3")
     [raw_code.insert(pe_position, 0x00) for _ in range(amount)]
 
     return raw_code
@@ -216,6 +216,56 @@ def header_fields_manipulations(pe_index: int):
     optional_header_indexes.extend(list(range(pe_index + 24 + 40, pe_index + 24 + 48)))
     indexes = coff_indexes + optional_header_indexes
     return indexes
+
+def fast_content_shift_manipulation(x:torch.Tensor,
+                               preferable_extension_amount: int,
+                               pe_shifted_by: int = 0):
+    """
+    Shift the first section's raw content upward by inserting padding
+    and adjust PointerToRawData for all sections accordingly.
+    This is a LIEF-free reimplementation of the previous approach.
+    """
+    if not preferable_extension_amount:
+        return x, []
+    adv_x = x.flatten().tolist()
+    if 256 in adv_x:
+        last_index = adv_x.index(256)
+        adv_x = adv_x[:last_index]
+    # Temporarily replace internal buffer with adv_x for PE parsing
+    original_bytes = adv_x
+    binary = Binary(bytez=original_bytes)
+
+    file_alignment = binary.get_file_alignment()
+    if file_alignment == 0:
+        return x, []
+    n_sections = binary.get_total_number_sections()
+    if n_sections == 0:
+        return x, []
+
+    first_section = binary.get_section_entry_from_index(0)
+    first_content_offset = int.from_bytes(first_section[20:24], 'little')
+
+    if first_content_offset > len(binary.exe_bytes):
+        return x, []
+
+    extension_amount = ((preferable_extension_amount + file_alignment - 1) // file_alignment) * file_alignment
+
+    index_to_perturb = list(
+        range(first_content_offset, first_content_offset + extension_amount)
+    )
+
+    total_shift = extension_amount + pe_shifted_by
+
+    for i in range(n_sections):
+        binary.increase_pointer_raw_section(i, total_shift)
+
+    binary.exe_bytes = (
+            binary.exe_bytes[:first_content_offset]
+            + b"\x00" * extension_amount
+            + binary.exe_bytes[first_content_offset:]
+    )
+    x = torch.Tensor(binary.exe_bytes)
+    return x, index_to_perturb
 
 
 def section_injection_manipulation(

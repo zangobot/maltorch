@@ -26,6 +26,25 @@ dl = DataLoader(TensorDataset(X, y), batch_size=16)
 query_budget = 100
 how_many_sections = 30
 
+other = {
+    'THREMBER GBDT': ThremberGBDT.create_model(),
+    'EMBER GBDT': EmberGBDT.create_model(),
+}
+attack = GAMMASectionInjection(
+    query_budget=query_budget,
+    benignware_folder=exe_folder / ".." / "benignware",
+    which_sections=[".rdata"],
+    how_many_sections=how_many_sections,
+    device=device,
+    model_outputs_logits=False
+)
+for k in other:
+    print(k)
+    model = other[k]
+    print("Pre-attack accuracy: ", Accuracy()(model, dl))
+    adv_dl = attack(model, dl)
+    print("Accuracy: ", Accuracy()(model, adv_dl))
+
 attack = GAMMASectionInjection(
     query_budget=query_budget,
     benignware_folder=exe_folder / ".." / "benignware",
@@ -48,21 +67,3 @@ for k in networks:
     print("Accuracy: ", Accuracy()(model, adv_dl))
 
 
-other = {
-    'THREMBER GBDT': ThremberGBDT.create_model(),
-    'EMBER GBDT': EmberGBDT.create_model(),
-}
-attack = GAMMASectionInjection(
-    query_budget=query_budget,
-    benignware_folder=exe_folder / ".." / "benignware",
-    which_sections=[".rdata"],
-    how_many_sections=how_many_sections,
-    device=device,
-    model_outputs_logits=False
-)
-for k in other:
-    print(k)
-    model = other[k]
-    print("Pre-attack accuracy: ", Accuracy()(model, dl))
-    adv_dl = attack(model, dl)
-    print("Accuracy: ", Accuracy()(model, adv_dl))
