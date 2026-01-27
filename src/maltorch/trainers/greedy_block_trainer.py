@@ -140,7 +140,7 @@ class GreedyBlockAugmentor:
                 e_full = model.embed(x_adv.unsqueeze(0)).detach()
                 e_full.requires_grad_(True)
 
-                logits = model.forward_from_embeddings(e_full).view(-1)  # [1]
+                logits = model._forward_embed_x(e_full).view(-1)  # [1]
                 target = y.float().to(logits.device)
 
                 # Maximize change of direction
@@ -220,7 +220,7 @@ class GreedyBlockAugmentor:
                 e_interp.requires_grad_(True)
 
                 model.zero_grad(set_to_none=True)
-                logits = model.forward_from_embeddings(e_interp).view(-1)  # [1]
+                logits = model._forward_embed_x(e_interp).view(-1)  # [1]
 
                 # Maximize this to push toward opposite class
                 #scalar = (-direction * logits).sum()
