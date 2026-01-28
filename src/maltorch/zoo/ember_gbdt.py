@@ -5,7 +5,6 @@ from secmlt.models.base_model import BaseModel
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
 
-from maltorch.data_processing.thrember_preprocessing import THREMBERPreprocessing
 from maltorch.zoo.gbdt import GBDTModel
 from maltorch.zoo.model import Model
 
