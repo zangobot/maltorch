@@ -4,7 +4,7 @@ import torch
 from secmlt.models.base_model import BaseModel
 from secmlt.models.base_trainer import BaseTrainer
 from secmlt.models.data_processing.data_processing import DataProcessing
-from secmlt.models.pytorch.base_pytorch_nn import BasePytorchClassifier
+from secmlt.models.pytorch.base_pytorch_nn import BasePyTorchClassifier
 
 from maltorch.data_processing.grayscale_preprocessing import GrayscalePreprocessing
 from maltorch.utils.config import Config
@@ -66,7 +66,7 @@ class PytorchModel(Model):
         net.load_pretrained_model(device=device, model_path=model_path)
         net = net.to(device)  # Explicitly load model to device
         net = net.eval()
-        net = BasePytorchClassifier(
+        net = BasePyTorchClassifier(
             model=net,
             preprocessing=preprocessing,
             postprocessing=postprocessing,
@@ -75,7 +75,7 @@ class PytorchModel(Model):
         return net
 
 
-class BaseEmbeddingPytorchClassifier(BasePytorchClassifier):
+class BaseEmbeddingPytorchClassifier(BasePyTorchClassifier):
     def __init__(
             self,
             model: torch.nn.Module,
@@ -185,7 +185,7 @@ class EmbeddingModel(PytorchModel, ABC):
         return output
 
 
-class BaseGrayscalePytorchClassifier(BasePytorchClassifier):
+class BaseGrayscalePytorchClassifier(BasePyTorchClassifier):
     def __init__(
             self,
             model: torch.nn.Module,
