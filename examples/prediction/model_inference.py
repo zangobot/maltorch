@@ -4,8 +4,6 @@ from secmlt.metrics.classification import Accuracy
 from torch.utils.data import DataLoader, TensorDataset
 
 from maltorch.data.loader import load_from_folder, create_labels
-from maltorch.data_processing.grayscale_preprocessing import GrayscalePreprocessing
-from maltorch.data_processing.sigmoid_postprocessor import SigmoidPostprocessor
 from maltorch.zoo.avaststyleconv import AvastStyleConv
 from maltorch.zoo.bbdnn import BBDnn
 from maltorch.zoo.ember_gbdt import EmberGBDT

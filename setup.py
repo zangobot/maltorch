@@ -54,7 +54,7 @@ setup(
     install_requires=[
         'torch',
         'torchvision',
-        'secml-torch',
+        'secml-torch==1.3',
         'lightgbm',
         'lief',
         'nevergrad',
