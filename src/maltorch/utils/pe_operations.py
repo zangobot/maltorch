@@ -135,29 +135,22 @@ def extend_manipulation(
     return x, index_to_perturb
 
 
-def padding_manipulation(x: torch.Tensor, padding: int):
+def padding_manipulation(x: torch.Tensor, padding: int) -> (torch.Tensor, list):
     """
-    Applica padding e restituisce, per ogni riga, gli indici perturbabili (a partire dal primo valore 256)
+    Applies the padding to all vectors in x, returning also the indexes to perturb
     """
-    batch_size, seq_len = x.shape
-
-    # Trova il primo indice di 256 per ogni riga
-    is_pad = (x == 256)
-
-
-    first_pad_idx = is_pad.float().argmax(dim=1)
-    has_pad = is_pad.any(dim=1)
-    first_pad_idx = torch.where(has_pad, first_pad_idx, torch.tensor(seq_len, device=x.device))
-
-    # Costruisci gli indici da perturbare per ogni riga
-    index_to_perturb = [
-        list(range(start.item(), start.item() + padding))
-        for start in first_pad_idx
-    ]
-
-    x = torch.hstack((x, torch.zeros((batch_size, padding), device=x.device)))
-
+    adv_x = x.flatten().tolist()
+    first_index = len(adv_x)
+    end_index = first_index + padding
+    if 256 in adv_x:
+        first_index = adv_x.index(256)
+        end_index = min(first_index + padding, len(adv_x))
+    index_to_perturb = list(range(first_index, end_index))
+    if end_index > len(adv_x):
+        x = torch.hstack((x, torch.zeros([x.shape[0], end_index - len(adv_x)])))
+    x[..., index_to_perturb] = 0
     return x, index_to_perturb
+
 
 def content_shift_manipulation(
         x: torch.Tensor, preferable_extension_amount: int, pe_shifted_by: int = 0
