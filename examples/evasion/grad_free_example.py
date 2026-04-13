@@ -13,6 +13,9 @@ from maltorch.zoo.ember_gbdt import EmberGBDT
 from maltorch.zoo.malconv import MalConv
 from maltorch.zoo.original_malconv import OriginalMalConv
 
+import lief
+lief.logging.disable()
+
 device = "cpu"
 
 exe_folder = Path(__file__).parent / ".." / "data" / "malware"

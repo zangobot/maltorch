@@ -74,6 +74,9 @@ class BackendAttack(BaseEvasionAttack):
         self._best_delta[where_best] = delta_to_track[where_best]
         self._best_loss[where_best] = loss.cpu()[where_best]
 
+    def _is_empty_delta(self, delta: torch.Tensor) -> bool:
+        return delta.numel() == 0
+
     def _get_best_delta(self):
         return self._best_delta
 
@@ -151,6 +154,8 @@ class BackendAttack(BaseEvasionAttack):
         samples = samples.to(self.device)
         target = target.to(self.device)
         samples, delta = self._init_attack_manipulation(samples)
+        if self._is_empty_delta(delta):
+            return samples, delta
         self.optimizer = self._init_optimizer(model, delta)
         budget = 0
         self._init_best_tracking(delta)

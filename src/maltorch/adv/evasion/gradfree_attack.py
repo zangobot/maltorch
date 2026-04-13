@@ -17,7 +17,7 @@ class GradientFreeBackendAttack(BackendAttack):
 
     def _apply_manipulation(
         self, x: torch.Tensor, delta: nevergrad.p.Array
-    ) -> (torch.Tensor, torch.Tensor):
+    ) -> (torch.Tensor, nevergrad.p.Array):
         p_delta = torch.from_numpy(delta.value)
         p_delta = p_delta.float()
         p_delta = p_delta.to(x.device)
@@ -27,19 +27,27 @@ class GradientFreeBackendAttack(BackendAttack):
     def _consumed_budget(self):
         return 1
 
+    def _is_empty_delta(self, delta) -> bool:
+        if isinstance(delta, nevergrad.p.Array):
+            return delta.value.size == 0
+        return delta.numel() == 0
+
     def _init_attack_manipulation(
         self, samples: torch.Tensor
     ) -> (torch.Tensor, nevergrad.p.Array):
         x_adv, delta = super()._init_attack_manipulation(samples)
+        if delta.numel() == 0:
+            return x_adv, delta
         optim_delta = nevergrad.p.Array(shape=delta.shape, lower=0.0, upper=1.0)
         optim_delta.value = delta.cpu().numpy()
         return x_adv, optim_delta
 
     def _init_optimizer(self, model: BaseModel, delta: nevergrad.p.Array) -> Optimizer:
+        # Pass delta directly so the starting point set in _init_attack_manipulation
+        # is preserved. Creating a fresh nevergrad.p.Array here would discard delta.value.
         self.optimizer = self.optimizer_cls(
-            parametrization=nevergrad.p.Array(
-                shape=delta.value.shape, lower=0.0, upper=1.0
-            ), budget=self.query_budget
+            parametrization=delta,
+            budget=self.query_budget,
         )
         return self.optimizer
 
@@ -54,11 +62,11 @@ class GradientFreeBackendAttack(BackendAttack):
                 sample = sample.unsqueeze(0)
                 label = label.unsqueeze(0)
                 x_adv, _ = self._run(model, sample, label)
-                adversarials.append(x_adv.transpose(0,1))
+                adversarials.append(x_adv.transpose(0, 1))
                 original_labels.append(label)
         adversarials = (
             torch.nn.utils.rnn.pad_sequence(adversarials, padding_value=256)
-            .transpose(0,1)
+            .transpose(0, 1)
             .squeeze()
             .long()
         )
@@ -75,4 +83,6 @@ class GradientFreeBackendAttack(BackendAttack):
     def _track_best(self, loss: torch.Tensor, delta: torch.Tensor): ...
 
     def _get_best_delta(self):
+        # Delegate to nevergrad's recommendation instead of self._best_delta,
+        # which is never set because _init_best_tracking and _track_best are no-ops.
         return self.optimizer.provide_recommendation()

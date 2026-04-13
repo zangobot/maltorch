@@ -35,8 +35,6 @@ grad_attack = PartialDOS(
 # Create the deep neural networks we want to evaluate.
 # All the parameters of the networks are fetched online, since we are not passing
 # the model_path into the create_model function.
-# Also, differently from inference examples, we do not need to use the SigmoidPostprocessor
-# as it is already included inside the loss of the attack.
 
 networks = {
     'OriginalMalconvSecMLMalware': OriginalMalConv.create_model(device=device),

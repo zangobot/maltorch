@@ -43,7 +43,7 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             population_size=population_size
         )
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
-        manipulation_function = FastGAMMASectionInjectionManipulation(benignware_folder=benignware_folder,
+        manipulation_function = GAMMASectionInjectionManipulation(benignware_folder=benignware_folder,
                                                                   which_sections=which_sections,
                                                                   how_many_sections=how_many_sections)
         super().__init__(

@@ -135,20 +135,44 @@ def extend_manipulation(
     return x, index_to_perturb
 
 
-def padding_manipulation(x: torch.Tensor, padding: int) -> (torch.Tensor, list):
+def padding_manipulation(x: torch.Tensor, padding: int) -> tuple[torch.Tensor, list[int]]:
     """
-    Applies the padding to all vectors in x, returning also the indexes to perturb
+    Applies padding to x and returns the indices to perturb.
+
+    Behavior:
+    - x is expected to be shape [1, N] (or more generally [..., N])
+    - if 256 is present, perturb from its first occurrence
+    - otherwise perturb the appended region
+    - if needed, extend x
+    - zero-out x[..., index_to_perturb]
     """
-    adv_x = x.flatten().tolist()
-    first_index = len(adv_x)
-    end_index = first_index + padding
-    if 256 in adv_x:
-        first_index = adv_x.index(256)
-        end_index = min(first_index + padding, len(adv_x))
+    if x.dim() < 1:
+        raise ValueError(f"x must have at least 1 dimension, got shape {tuple(x.shape)}")
+
+    seq_len = x.shape[-1]
+
+    # Find first 256 directly in torch
+    flat = x.reshape(-1)
+    pos256 = (flat == 256).nonzero(as_tuple=True)[0]
+
+    if pos256.numel() > 0:
+        first_index = pos256[0].item()
+        end_index = min(first_index + padding, seq_len)
+    else:
+        first_index = seq_len
+        end_index = seq_len + padding
+
+    extra = end_index - seq_len
+    if extra > 0:
+        x = torch.cat(
+            [x, torch.zeros(*x.shape[:-1], extra, dtype=x.dtype, device=x.device)],
+            dim=-1
+        )
+
     index_to_perturb = list(range(first_index, end_index))
-    if end_index > len(adv_x):
-        x = torch.hstack((x, torch.zeros([x.shape[0], end_index - len(adv_x)])))
-    x[..., index_to_perturb] = 0
+    if index_to_perturb:
+        x[..., first_index:end_index] = 0
+
     return x, index_to_perturb
 
 
