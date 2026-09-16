@@ -1,4 +1,11 @@
-.idea
+**/.DS_Store
+**/*.egg*
+**/__pycache__
+**/.ruff_cache
+.cache/*
+.idea/*
+dist/*
+examples/data
 src/maltorch/zoo/models/*
 /examples/data/malware/*
 /examples/data/benignware/*
