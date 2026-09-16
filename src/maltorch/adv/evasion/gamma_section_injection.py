@@ -14,7 +14,6 @@ from maltorch.adv.evasion.base_optim_attack_creator import (
 )
 from maltorch.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from maltorch.initializers.initializers import IdentityInitializer
-from maltorch.manipulations.fast_gamma_section_injection_manipulation import FastGAMMASectionInjectionManipulation
 from maltorch.manipulations.gamma_section_injection_manipulation import GAMMASectionInjectionManipulation
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 

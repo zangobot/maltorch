@@ -34,6 +34,7 @@ class GradientBackendAttack(BackendAttack):
     def _optimizer_step(self, delta: torch.Tensor, loss: torch.Tensor) -> torch.Tensor:
         loss.sum().backward()
         self.optimizer.step()
+        self.optimizer.zero_grad()
         return delta
 
     def _consumed_budget(self):

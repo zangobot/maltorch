@@ -14,6 +14,7 @@ from maltorch.manipulations.replacement_manipulation import (
     ReplacementManipulation,
 )
 from maltorch.initializers.dos_initializer import PartialDOSInitializer
+from maltorch.optim.halting import Halting
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
 
@@ -27,6 +28,8 @@ class PartialDOSGradFree(GradientFreeBackendAttack):
             model_outputs_logits: bool = True,
             device: str = "cpu",
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halting = None,
+            **kwargs
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = PartialDOSInitializer(random_init=random_init)
@@ -43,7 +46,9 @@ class PartialDOSGradFree(GradientFreeBackendAttack):
             initializer=initializer,
             model_outputs_logits=model_outputs_logits,
             trackers=trackers,
-            device=device
+            device=device,
+            early_stopping=early_stopping,
+            **kwargs
         )
 
 
@@ -57,6 +62,8 @@ class PartialDOSGrad(GradientBackendAttack):
             device: str = "cpu",
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halting = None,
+            **kwargs
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = PartialDOSInitializer(random_init=random_init)
@@ -71,7 +78,9 @@ class PartialDOSGrad(GradientBackendAttack):
             initializer=initializer,
             model_outputs_logits=model_outputs_logits,
             trackers=trackers,
-            device=device
+            device=device,
+            early_stopping=early_stopping,
+            **kwargs
         )
 
 
@@ -99,14 +108,16 @@ class PartialDOS(BaseOptimAttackCreator):
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.GRADIENT,
+            early_stopping: Halting = None,
+            **kwargs,
     ) -> Callable:
         implementation: Callable = cls.get_implementation(backend)
         if backend == OptimizerBackends.GRADIENT:
-            kwargs = {"step_size": step_size}
+            kwargs.update({"step_size": step_size})
         else:
-            kwargs = {
+            kwargs.update({
                 "population_size": population_size,
-            }
+            })
         return implementation(
             query_budget=query_budget,
             y_target=y_target,
@@ -114,5 +125,6 @@ class PartialDOS(BaseOptimAttackCreator):
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
             device=device,
+            early_stopping=early_stopping,
             **kwargs,
         )
