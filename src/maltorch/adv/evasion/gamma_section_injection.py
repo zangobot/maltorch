@@ -3,6 +3,7 @@ from typing import Type, Union, List, Callable
 
 import nevergrad
 from nevergrad.optimization import Optimizer
+from scipy.stats._qmc import Halton
 from secmlt.models.base_model import BaseModel
 
 from secmlt.trackers import Tracker
@@ -32,6 +33,7 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             device: str = "cpu",
             reg_parameter: float = 1e-5,
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halton = None,
     ):
         if which_sections is None:
             which_sections = ['rodata']
@@ -54,7 +56,8 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             optimizer_cls=optimizer_cls,
             trackers=trackers,
             device=device,
-            reg_parameter=reg_parameter
+            reg_parameter=reg_parameter,
+            early_stopping=early_stopping,
         )
 
     def _init_optimizer(self, model: BaseModel, delta: nevergrad.p.Array) -> Optimizer:
@@ -97,6 +100,7 @@ class GAMMASectionInjection(BaseOptimAttackCreator):
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.NG,
+            early_stopping: Halton = None
     ) -> Callable:
         if which_sections is None:
             which_sections = ['rodata']
@@ -111,5 +115,6 @@ class GAMMASectionInjection(BaseOptimAttackCreator):
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
             device=device,
-            reg_parameter=reg_parameter
+            reg_parameter=reg_parameter,
+            early_stopping=early_stopping
         )

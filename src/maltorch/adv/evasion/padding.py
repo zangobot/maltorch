@@ -14,6 +14,7 @@ from maltorch.manipulations.gradient_free_wrapper_manipulation import GradientFr
 from maltorch.manipulations.replacement_manipulation import (
     ReplacementManipulation,
 )
+from maltorch.optim.halting import Halting
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
 
@@ -28,6 +29,7 @@ class PaddingGradFree(GradientFreeBackendAttack):
             model_outputs_logits: bool = True,
             device:str="cpu",
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halting = None
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = PaddingInitializer(random_init=random_init, padding=padding)
@@ -43,7 +45,8 @@ class PaddingGradFree(GradientFreeBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
-            device=device
+            device=device,
+            early_stopping=early_stopping
         )
 
 
@@ -58,6 +61,7 @@ class PaddingGrad(GradientBackendAttack):
             device: str = "cpu",
             model_outputs_logits : bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halting = None
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = PaddingInitializer(random_init=random_init, padding=padding)
@@ -71,7 +75,8 @@ class PaddingGrad(GradientBackendAttack):
             manipulation_function=manipulation_function,
             initializer=initializer,
             trackers=trackers,
-            device=device
+            device=device,
+            early_stopping=early_stopping
         )
 
 
@@ -100,6 +105,7 @@ class Padding(BaseOptimAttackCreator):
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.GRADIENT,
+            early_stopping: Halting = None
     ) -> Callable:
         implementation: Callable = cls.get_implementation(backend)
         if backend == OptimizerBackends.GRADIENT:
@@ -116,5 +122,6 @@ class Padding(BaseOptimAttackCreator):
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
             device=device,
+            early_stopping=early_stopping,
             **kwargs,
         )

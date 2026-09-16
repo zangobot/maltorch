@@ -12,6 +12,7 @@ from maltorch.adv.evasion.gradient_attack import GradientBackendAttack
 from maltorch.initializers.extend_dos_initializer import ExtendDOSInitializer
 from maltorch.manipulations.gradient_free_wrapper_manipulation import GradientFreeWrapperManipulation
 from maltorch.manipulations.replacement_manipulation import ReplacementManipulation
+from maltorch.optim.halting import Halting
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
 
@@ -26,6 +27,7 @@ class ExtendDOSGradFree(GradientFreeBackendAttack):
             model_outputs_logits:bool=True,
             device:str="cpu",
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping:Halting = None
     ):
         initializer = ExtendDOSInitializer(
             random_init=random_init, preferred_manipulation_size=perturbation_size
@@ -44,7 +46,8 @@ class ExtendDOSGradFree(GradientFreeBackendAttack):
             optimizer_cls=optimizer_cls,
             trackers=trackers,
             model_outputs_logits=model_outputs_logits,
-            device=device
+            device=device,
+            early_stopping=early_stopping,
         )
 
 class ExtendDOSGrad(GradientBackendAttack):
@@ -58,6 +61,7 @@ class ExtendDOSGrad(GradientBackendAttack):
             device: str = "cpu",
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping:Halting = None
     ):
         initializer = ExtendDOSInitializer(
             random_init=random_init, preferred_manipulation_size=perturbation_size
@@ -74,7 +78,8 @@ class ExtendDOSGrad(GradientBackendAttack):
             initializer=initializer,
             trackers=trackers,
             model_outputs_logits=model_outputs_logits,
-            device=device
+            device=device,
+            early_stopping=early_stopping,
         )
 
 
@@ -111,6 +116,7 @@ class ExtendDOS(BaseOptimAttackCreator):
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.GRADIENT,
+            early_stopping: Halting = None
     ) -> Callable:
         implementation: Callable = cls.get_implementation(backend)
         if backend == OptimizerBackends.GRADIENT:
@@ -125,6 +131,8 @@ class ExtendDOS(BaseOptimAttackCreator):
             y_target=y_target,
             trackers=trackers,
             random_init=random_init,
-            model_outputs_logits=model_outputs_logits, device=device,
+            model_outputs_logits=model_outputs_logits,
+            device=device,
+            early_stopping=early_stopping,
             **kwargs,
         )
