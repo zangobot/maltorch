@@ -3,7 +3,6 @@ from typing import Type, Union, List, Callable
 
 import nevergrad
 from nevergrad.optimization import Optimizer
-from scipy.stats._qmc import Halton
 from secmlt.models.base_model import BaseModel
 
 from secmlt.trackers import Tracker
@@ -16,6 +15,7 @@ from maltorch.adv.evasion.base_optim_attack_creator import (
 from maltorch.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from maltorch.initializers.initializers import IdentityInitializer
 from maltorch.manipulations.gamma_section_injection_manipulation import GAMMASectionInjectionManipulation
+from maltorch.optim.halting import Halting
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
 
@@ -33,7 +33,7 @@ class GAMMASectionInjectionGradFree(GradientFreeBackendAttack):
             device: str = "cpu",
             reg_parameter: float = 1e-5,
             trackers: Union[List[Tracker], Tracker] = None,
-            early_stopping: Halton = None,
+            early_stopping: Halting = None,
     ):
         if which_sections is None:
             which_sections = ['rodata']
@@ -100,7 +100,7 @@ class GAMMASectionInjection(BaseOptimAttackCreator):
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.NG,
-            early_stopping: Halton = None
+            early_stopping: Halting = None
     ) -> Callable:
         if which_sections is None:
             which_sections = ['rodata']
