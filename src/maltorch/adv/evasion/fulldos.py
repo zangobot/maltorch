@@ -14,6 +14,7 @@ from maltorch.manipulations.gradient_free_wrapper_manipulation import GradientFr
 from maltorch.manipulations.replacement_manipulation import (
     ReplacementManipulation,
 )
+from maltorch.optim.halting import Halting
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
 
@@ -27,6 +28,7 @@ class FullDOSGradFree(GradientFreeBackendAttack):
             device: str = "cpu",
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halting = None,
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = DOSHeaderStubInitializer(random_init=random_init)
@@ -43,7 +45,8 @@ class FullDOSGradFree(GradientFreeBackendAttack):
             initializer=initializer,
             trackers=trackers,
             model_outputs_logits=model_outputs_logits,
-            device=device
+            device=device,
+            early_stopping=early_stopping,
         )
 
 
@@ -57,6 +60,7 @@ class FullDOSGrad(GradientBackendAttack):
             device: str = "cpu",
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halting = None,
     ):
         loss_function = BCEWithLogitsLoss(reduction="none") if model_outputs_logits else BCELoss(reduction="none")
         initializer = DOSHeaderStubInitializer(random_init=random_init)
@@ -71,7 +75,8 @@ class FullDOSGrad(GradientBackendAttack):
             initializer=initializer,
             trackers=trackers,
             model_outputs_logits=model_outputs_logits,
-            device=device
+            device=device,
+            early_stopping=early_stopping,
         )
 
 
@@ -99,6 +104,7 @@ class FullDOS(BaseOptimAttackCreator):
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.GRADIENT,
+            early_stopping: Halting = None,
     ) -> Callable:
         implementation: Callable = cls.get_implementation(backend)
         if backend == OptimizerBackends.GRADIENT:
@@ -114,5 +120,6 @@ class FullDOS(BaseOptimAttackCreator):
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
             device=device,
+            early_stopping=early_stopping,
             **kwargs,
         )

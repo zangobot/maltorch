@@ -8,6 +8,7 @@ from secmlt.trackers import Tracker
 from torch.utils.data import TensorDataset, DataLoader
 
 from maltorch.manipulations.byte_manipulation import ByteManipulation
+from maltorch.optim.halting import Halting
 
 
 class BackendAttack(BaseEvasionAttack):
@@ -30,6 +31,7 @@ class BackendAttack(BaseEvasionAttack):
             device: str = "cpu",
             reg_parameter: float = 0,
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halting = None,
             **kwargs
     ):
         self.y_target = y_target
@@ -44,6 +46,8 @@ class BackendAttack(BaseEvasionAttack):
         self.reg_parameter = reg_parameter
         self._best_loss = None
         self._best_delta = None
+        self.early_stopping = early_stopping
+
 
     def _init_attack_manipulation(
             self, samples: torch.Tensor
@@ -167,6 +171,8 @@ class BackendAttack(BaseEvasionAttack):
             budget += self._consumed_budget()
             self._track(budget, loss, scores, x_adv, delta)
             self._track_best(loss, delta)
+            if self.early_stopping is not None and self.early_stopping.halt_loop(loss):
+                break
         best_delta = self._get_best_delta()
         best_x, _ = self._apply_manipulation(samples, best_delta)
         return best_x, self._best_delta

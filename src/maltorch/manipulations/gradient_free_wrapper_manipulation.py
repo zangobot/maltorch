@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor
 
-from maltorch.initializers.initializers import ByteBasedInitializer, IdentityInitializer
+from maltorch.initializers.initializers import IdentityInitializer
 from maltorch.manipulations.byte_manipulation import ByteManipulation
 
 
@@ -29,5 +29,6 @@ class GradientFreeWrapperManipulation(ByteManipulation):
         self.indexes_to_perturb = []
         modified_sample, delta, indexes = self.inner_manipulation.initializer(samples.data)
         self.indexes_to_perturb = indexes
+        self.inner_manipulation.indexes_to_perturb = indexes
         samples.data = modified_sample
         return samples, delta / 255

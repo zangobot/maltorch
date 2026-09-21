@@ -11,6 +11,7 @@ from maltorch.adv.evasion.gradfree_attack import GradientFreeBackendAttack
 from maltorch.adv.evasion.gradient_attack import GradientBackendAttack
 from maltorch.initializers.section_injection_initializer import SectionInjectionInitializer
 from maltorch.manipulations.replacement_manipulation import ReplacementManipulation
+from maltorch.optim.halting import Halting
 from maltorch.optim.optimizer_factory import MalwareOptimizerFactory
 
 
@@ -26,6 +27,7 @@ class SectionInjectionGradFree(GradientFreeBackendAttack):
             model_outputs_logits: bool = True,
             device:str="cpu",
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halting = None
     ):
         initializer = SectionInjectionInitializer(
             random_init=random_init, how_many_sections=how_many_sections, size_per_section=size_per_section
@@ -43,7 +45,8 @@ class SectionInjectionGradFree(GradientFreeBackendAttack):
             manipulation_function=manipulation_function,
             optimizer_cls=optimizer_cls,
             trackers=trackers,
-            device=device
+            device=device,
+            early_stopping=early_stopping
         )
 
 
@@ -59,6 +62,7 @@ class SectionInjectionGrad(GradientBackendAttack):
             device: str = "cpu",
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
+            early_stopping: Halting = None
     ):
         initializer = SectionInjectionInitializer(
             random_init=random_init, how_many_sections=how_many_sections, size_per_section=size_per_section
@@ -78,7 +82,8 @@ class SectionInjectionGrad(GradientBackendAttack):
             initializer=initializer,
             trackers=trackers,
             model_outputs_logits=model_outputs_logits,
-            device=device
+            device=device,
+            early_stopping=early_stopping,
         )
 
 
@@ -116,6 +121,7 @@ class SectionInjection(BaseOptimAttackCreator):
             model_outputs_logits: bool = True,
             trackers: Union[List[Tracker], Tracker] = None,
             backend: str = OptimizerBackends.GRADIENT,
+            early_stopping: Halting = None
     ) -> Callable:
         implementation: Callable = cls.get_implementation(backend)
         if backend == OptimizerBackends.GRADIENT:
@@ -133,5 +139,6 @@ class SectionInjection(BaseOptimAttackCreator):
             random_init=random_init,
             model_outputs_logits=model_outputs_logits,
             device=device,
+            early_stopping=early_stopping,
             **kwargs,
         )
