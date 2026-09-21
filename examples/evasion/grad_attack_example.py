@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import torch
-from lightgbm import early_stopping
 from secmlt.metrics.classification import Accuracy
 from secmlt.trackers import ScoresTracker
 from torch.utils.data import TensorDataset, DataLoader
@@ -41,9 +39,9 @@ grad_attack = PartialDOS(
 
 networks = {
     'OriginalMalconvSecMLMalware': OriginalMalConv.create_model(device=device),
-    # 'Malconv': MalConv.create_model(device=device),
-    # 'BBDnn': BBDnn.create_model(device=device),
-    # 'AvastStyleConv': AvastStyleConv.create_model(device=device)
+    'Malconv': MalConv.create_model(device=device),
+    'BBDnn': BBDnn.create_model(device=device),
+    'AvastStyleConv': AvastStyleConv.create_model(device=device)
 }
 for k in networks:
     print(k)

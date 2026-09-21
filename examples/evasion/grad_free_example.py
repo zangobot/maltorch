@@ -7,6 +7,7 @@ from maltorch.adv.evasion.base_optim_attack_creator import OptimizerBackends
 from maltorch.adv.evasion.content_shift import ContentShift
 from maltorch.adv.evasion.fulldos import FullDOS
 from maltorch.data.loader import load_from_folder, create_labels
+from maltorch.optim.halting import EarlyStopping
 from maltorch.zoo.avaststyleconv import AvastStyleConv
 from maltorch.zoo.bbdnn import BBDnn
 from maltorch.zoo.ember_gbdt import EmberGBDT
@@ -14,6 +15,9 @@ from maltorch.zoo.malconv import MalConv
 from maltorch.zoo.original_malconv import OriginalMalConv
 
 import lief
+
+from maltorch.zoo.thrember_gbdt import ThremberGBDT
+
 lief.logging.disable()
 
 device = "cpu"
@@ -25,14 +29,15 @@ dl = DataLoader(TensorDataset(X, y), batch_size=4)
 
 # We instantiate the nevergrad version of the attack.
 # Not all the attacks provide both implementations.
-query_budget = 100
+query_budget = 500
 pdos_attack = FullDOS(
     query_budget=query_budget,
     trackers=None,
     random_init=False,
     backend=OptimizerBackends.NG,
-    population_size=10,
-    device=device
+    population_size=20,
+    device=device,
+    early_stopping=EarlyStopping(50)
 )
 # Create the deep neural networks we want to evaluate.
 # All the parameters of the networks are fetched online, since we are not passing
@@ -58,7 +63,8 @@ for k in networks:
 
 
 other = {
-    'EMBER GBDT': EmberGBDT.create_model()
+    'EMBER GBDT': EmberGBDT.create_model(),
+    'THREMBER GBDT': ThremberGBDT.create_model(),
 }
 content_shift_attack = ContentShift(
     query_budget=query_budget,
@@ -68,8 +74,11 @@ content_shift_attack = ContentShift(
     backend=OptimizerBackends.NG,
     population_size=10,
     model_outputs_logits=False,
-    device='cpu'
+    device='cpu',
+    early_stopping=EarlyStopping(50)
 )
+
+
 for k in other:
     print(k)
     model = other[k]

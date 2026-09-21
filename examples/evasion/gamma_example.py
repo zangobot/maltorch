@@ -6,6 +6,7 @@ from torch.utils.data import TensorDataset, DataLoader
 
 from maltorch.adv.evasion.gamma_section_injection import GAMMASectionInjection
 from maltorch.data.loader import load_from_folder, create_labels
+from maltorch.optim.halting import EarlyStopping
 from maltorch.zoo.avaststyleconv import AvastStyleConv
 from maltorch.zoo.bbdnn import BBDnn
 from maltorch.zoo.ember_gbdt import EmberGBDT
@@ -19,7 +20,7 @@ lief.logging.disable()
 device = "cpu"
 
 exe_folder = Path(__file__).parent / ".." / "data" / "malware"
-X = load_from_folder(exe_folder, device=device)
+X = load_from_folder(exe_folder, device=device, limit=20)
 y = create_labels(X, 1, device=device)
 dl = DataLoader(TensorDataset(X, y), batch_size=16)
 
@@ -36,7 +37,8 @@ attack = GAMMASectionInjection(
     which_sections=[".rdata"],
     how_many_sections=how_many_sections,
     device=device,
-    model_outputs_logits=False
+    model_outputs_logits=False,
+    early_stopping=EarlyStopping(20)
 )
 for k in other:
     print(k)
@@ -50,7 +52,8 @@ attack = GAMMASectionInjection(
     benignware_folder=exe_folder / ".." / "benignware",
     which_sections=[".rdata"],
     how_many_sections=how_many_sections,
-    device=device
+    device=device,
+    early_stopping=EarlyStopping(20)
 )
 
 networks = {
