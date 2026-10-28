@@ -18,11 +18,10 @@ class EndgameRemoveDebugManipulation(ByteManipulation):
             binary = lief.PE.parse(bytez)
 
             if binary.has_debug:
-                for e in binary.data_directories:
-                    if e.type == lief.PE.DATA_DIRECTORY.DEBUG:
-                        e.rva = 0
-                        e.size = 0
-                        break
+                dbg_dir = binary.debug_dir
+                if dbg_dir:
+                    dbg_dir.rva = 0
+                    dbg_dir.size = 0
                 new_bytes = rebuild(binary)
             else:
                 new_bytes = bytez
