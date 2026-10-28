@@ -8,7 +8,7 @@ from maltorch.optim.base import BaseByteOptimizer
 class GradientBackendAttack(BackendAttack):
     def _init_attack_manipulation(
         self, samples: torch.Tensor
-    ) -> list[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         x_adv, delta = self.manipulation_function.initialize(samples.data)
         x_adv = x_adv.long()
         delta = delta.to(samples.device)
@@ -17,7 +17,7 @@ class GradientBackendAttack(BackendAttack):
 
     def _apply_manipulation(
         self, x: torch.Tensor, delta: torch.Tensor
-    ) -> list[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         new_x, delta.data = self.manipulation_function(x.data, delta.data)
         return new_x, delta
 

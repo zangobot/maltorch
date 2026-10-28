@@ -5,6 +5,7 @@
 .cache/*
 .idea/*
 dist/*
+.vscode/*
 examples/data
 src/maltorch/zoo/models/*
 /examples/data/malware/*

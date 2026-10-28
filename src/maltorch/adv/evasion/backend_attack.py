@@ -51,12 +51,12 @@ class BackendAttack(BaseEvasionAttack):
 
     def _init_attack_manipulation(
             self, samples: torch.Tensor
-    ) -> list[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         return self.manipulation_function.initialize(samples.data)
 
     def _apply_manipulation(
             self, x: torch.Tensor, delta: torch.Tensor
-    ) -> list[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         raise NotImplementedError()
 
     def _optimizer_step(self, x_adv :torch.Tensor, delta: torch.Tensor, loss: torch.Tensor) -> torch.Tensor:
@@ -148,7 +148,7 @@ class BackendAttack(BaseEvasionAttack):
             samples: torch.Tensor,
             labels: torch.Tensor,
             **optim_kwargs,
-    ) -> list[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         multiplier = -1 if self.y_target is None else 1
         target = (
             torch.zeros_like(labels) + self.y_target

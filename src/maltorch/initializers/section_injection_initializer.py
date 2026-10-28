@@ -15,7 +15,7 @@ class SectionInjectionInitializer(ByteBasedInitializer):
         self.how_many_sections = how_many_sections
         self.size_per_section = size_per_section
 
-    def __call__(self, x: torch.Tensor) -> list[torch.Tensor, torch.Tensor]:
+    def __call__(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         X = []
         deltas = []
         indexes = []
