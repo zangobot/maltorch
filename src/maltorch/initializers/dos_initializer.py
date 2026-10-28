@@ -1,7 +1,7 @@
 import torch
 import lief
 from maltorch.initializers.initializers import ByteBasedInitializer
-from maltorch.utils.utils import convert_torch_exe_to_list
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 
 
 class PartialDOSInitializer(ByteBasedInitializer):
@@ -25,7 +25,7 @@ class DOSHeaderStubInitializer(ByteBasedInitializer):
     def __call__(self, x: torch.Tensor):
         indexes = []
         for i in range(x.shape[0]):
-            lief_x =  lief.PE.parse(convert_torch_exe_to_list(x[i]))
+            lief_x =  lief.PE.parse(convert_torch_exe_to_bytes(x[i]))
             pe_position = lief_x.dos_header.addressof_new_exeheader
             x_indexes = list(range(2, 60)) + list(range(64, pe_position))
             indexes.append(torch.LongTensor(x_indexes))

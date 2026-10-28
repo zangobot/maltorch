@@ -8,7 +8,7 @@ import torch
 
 from maltorch.initializers.initializers import IdentityInitializer
 from maltorch.manipulations.byte_manipulation import ByteManipulation
-from maltorch.utils.utils import convert_torch_exe_to_list
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 
 
 class GAMMASectionInjectionManipulation(ByteManipulation):
@@ -47,14 +47,14 @@ class GAMMASectionInjectionManipulation(ByteManipulation):
     def _apply_manipulation(
             self, x: torch.Tensor, delta: torch.Tensor
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        lief_pe: lief.PE = lief.PE.parse(convert_torch_exe_to_list(x))
+        lief_pe: lief.PE = lief.PE.parse(convert_torch_exe_to_bytes(x))
         for delta_i, content, name in zip(delta.squeeze(), self._sections, self._names):
             s = lief.PE.Section(name=name)
             s.content = content[:int(len(content) * delta_i)]
             lief_pe.add_section(s)
-        builder = lief.PE.Builder(lief_pe)
-        builder.build()
-        x = torch.atleast_2d(torch.Tensor(builder.get_build()).long()).to(x.device)
+        config = lief.PE.Builder.config_t()
+        built_bytes = bytearray(lief_pe.write_to_bytes(config))
+        x = torch.atleast_2d(torch.Tensor(built_bytes).long()).to(x.device)
         return x, delta
 
     def initialize(self, samples: torch.Tensor):

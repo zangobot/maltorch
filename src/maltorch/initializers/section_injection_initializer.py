@@ -1,7 +1,7 @@
 import torch
 
 from maltorch.initializers.initializers import ByteBasedInitializer
-from maltorch.utils.pe_operations import section_injection_manipulation, fast_content_shift_manipulation
+from maltorch.utils.pe_operations import fast_content_shift_manipulation
 
 
 class SectionInjectionInitializer(ByteBasedInitializer):
@@ -15,7 +15,7 @@ class SectionInjectionInitializer(ByteBasedInitializer):
         self.how_many_sections = how_many_sections
         self.size_per_section = size_per_section
 
-    def __call__(self, x: torch.Tensor) -> [torch.Tensor, torch.Tensor]:
+    def __call__(self, x: torch.Tensor) -> list[torch.Tensor, torch.Tensor]:
         X = []
         deltas = []
         indexes = []

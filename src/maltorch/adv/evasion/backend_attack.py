@@ -51,15 +51,15 @@ class BackendAttack(BaseEvasionAttack):
 
     def _init_attack_manipulation(
             self, samples: torch.Tensor
-    ) -> (torch.Tensor, torch.Tensor):
+    ) -> list[torch.Tensor, torch.Tensor]:
         return self.manipulation_function.initialize(samples.data)
 
     def _apply_manipulation(
             self, x: torch.Tensor, delta: torch.Tensor
-    ) -> (torch.Tensor, torch.Tensor):
+    ) -> list[torch.Tensor, torch.Tensor]:
         raise NotImplementedError()
 
-    def _optimizer_step(self, delta: torch.Tensor, loss: torch.Tensor) -> torch.Tensor:
+    def _optimizer_step(self, x_adv :torch.Tensor, delta: torch.Tensor, loss: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError()
 
     def _init_optimizer(self, model: BaseModel, delta: torch.Tensor) -> Callable:
@@ -148,7 +148,7 @@ class BackendAttack(BaseEvasionAttack):
             samples: torch.Tensor,
             labels: torch.Tensor,
             **optim_kwargs,
-    ) -> (torch.Tensor, torch.Tensor):
+    ) -> list[torch.Tensor, torch.Tensor]:
         multiplier = -1 if self.y_target is None else 1
         target = (
             torch.zeros_like(labels) + self.y_target
@@ -160,14 +160,14 @@ class BackendAttack(BaseEvasionAttack):
         samples, delta = self._init_attack_manipulation(samples)
         if self._is_empty_delta(delta):
             return samples, delta
-        self.optimizer = self._init_optimizer(model, delta)
+        self.optimizer = self._init_optimizer(model, delta, **optim_kwargs)
         budget = 0
         self._init_best_tracking(delta)
         while budget < self.query_budget:
             x_adv, delta = self._apply_manipulation(samples, delta)
             scores = model.decision_function(x_adv)
             loss = multiplier * (self.loss_function(scores, target) + self.reg_parameter * self._delta_norm(delta))
-            delta = self._optimizer_step(delta, loss)
+            delta = self._optimizer_step(x_adv, delta, loss)
             budget += self._consumed_budget()
             self._track(budget, loss, scores, x_adv, delta)
             self._track_best(loss, delta)

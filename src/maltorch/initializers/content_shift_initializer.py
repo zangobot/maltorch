@@ -9,7 +9,7 @@ class ContentShiftInitializer(ByteBasedInitializer):
         super().__init__(random_init=random_init)
         self.manipulation_size = preferred_manipulation_size
 
-    def __call__(self, x: torch.Tensor) -> [torch.Tensor, torch.Tensor]:
+    def __call__(self, x: torch.Tensor) -> list[torch.Tensor, torch.Tensor]:
         X = []
         deltas = []
         indexes = []

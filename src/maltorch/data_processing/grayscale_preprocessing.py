@@ -1,6 +1,7 @@
 import torch
 from secmlt.models.data_processing.data_processing import DataProcessing
-from torchvision.transforms import Resize, Compose, Normalize, PILToTensor, ConvertImageDtype, Grayscale
+from torchvision.transforms import Resize, Compose, Normalize, PILToTensor,ConvertImageDtype, Grayscale
+import numpy as np
 from maltorch.datasets.grayscale_dataset import get_size
 from PIL import Image
 

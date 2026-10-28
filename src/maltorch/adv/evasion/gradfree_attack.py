@@ -10,7 +10,7 @@ from maltorch.adv.evasion.backend_attack import BackendAttack
 
 class GradientFreeBackendAttack(BackendAttack):
     def _optimizer_step(
-        self, delta: nevergrad.p.Array, loss: torch.Tensor
+        self, x_adv:torch.Tensor, delta: nevergrad.p.Array, loss: torch.Tensor
     ) -> nevergrad.p.Array:
         self.optimizer.tell(delta, loss.item())
         return self.optimizer.ask()

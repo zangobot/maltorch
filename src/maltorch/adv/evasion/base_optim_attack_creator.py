@@ -10,6 +10,7 @@ class OptimizerBackends:
 
     NG = "nevergrad"
     GRADIENT = "gradient"
+    RL = "rl"
 
 
 class BaseOptimAttackCreator:
