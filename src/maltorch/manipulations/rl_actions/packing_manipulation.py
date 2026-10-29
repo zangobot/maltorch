@@ -3,8 +3,8 @@ import random
 import subprocess
 import tempfile
 import torch
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 from maltorch.manipulations.byte_manipulation import ByteManipulation
-
 class PackingManipulation(ByteManipulation):
     """Compress the PE with UPX.
 
@@ -19,8 +19,9 @@ class PackingManipulation(ByteManipulation):
 
     def _apply_manipulation(self, x: torch.Tensor, delta: torch.Tensor):
         processed = []
-        for i in range(x.shape[0]):
-            bytez = x[i].cpu().numpy().tobytes()
+        samples = [x] if x.ndim==1 else x
+        for i in range(len(samples)):
+            bytez = convert_torch_exe_to_bytes(samples[i])
             # Write to temp file
             fd, tmp = tempfile.mkstemp(suffix=".exe")
             with os.fdopen(fd, "wb") as f:

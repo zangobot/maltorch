@@ -3,6 +3,7 @@ import struct
 import lief
 import torch
 from maltorch.manipulations.byte_manipulation import ByteManipulation
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 
 from maltorch.manipulations.rl_actions.rebuild_util import rebuild
 
@@ -17,10 +18,12 @@ class EndgameEntryPointManipulation(ByteManipulation):
 
     def _apply_manipulation(self, x: torch.Tensor, delta: torch.Tensor):
         processed = []
-        for i in range(x.shape[0]):
-            bytez = x[i].cpu().numpy().tobytes()
+        samples = [x] if x.ndim==1 else x
+        for i in range(len(samples)):
+            bytez = convert_torch_exe_to_bytes(samples[i])
             binary = lief.PE.parse(bytez)
-
+            if binary is None:
+                return x, delta
             random.seed()  # per sample randomness
             entry_point = binary.optional_header.addressof_entrypoint
             entryname = binary.section_from_rva(entry_point).name
@@ -31,8 +34,10 @@ class EndgameEntryPointManipulation(ByteManipulation):
             new_section.content = [0x68] + list(struct.pack("<I", entry_point + 0x10000)) + [0xc3]
             new_section.virtual_address = max(
                 [s.virtual_address + s.size for s in binary.sections])
-            SECTION_TYPES.TEXT
-            new_section.characteristics = ...
+            # Set executable characteristics similar to .text
+            new_section.characteristics = (lief.PE.Section.CHARACTERISTICS.CNT_CODE |
+                                           lief.PE.Section.CHARACTERISTICS.MEM_EXECUTE |
+                                           lief.PE.Section.CHARACTERISTICS.MEM_READ)
             binary.add_section(new_section)
 
             binary.optional_header.addressof_entrypoint = new_section.virtual_address

@@ -2,6 +2,7 @@ import lief
 import torch
 from maltorch.manipulations.byte_manipulation import ByteManipulation
 from maltorch.manipulations.rl_actions.rebuild_util import rebuild
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 
 
 class EndgameRemoveDebugManipulation(ByteManipulation):
@@ -13,8 +14,9 @@ class EndgameRemoveDebugManipulation(ByteManipulation):
 
     def _apply_manipulation(self, x: torch.Tensor, delta: torch.Tensor):
         processed = []
-        for i in range(x.shape[0]):
-            bytez = x[i].cpu().numpy().tobytes()
+        samples = [x] if x.ndim==1 else x
+        for i in range(len(samples)):
+            bytez = convert_torch_exe_to_bytes(samples[i])
             binary = lief.PE.parse(bytez)
 
             if binary.has_debug:

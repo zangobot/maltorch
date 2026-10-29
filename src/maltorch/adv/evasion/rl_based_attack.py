@@ -29,17 +29,16 @@ class RLEvasionEnv(Env):
     def reset(self, **kwargs):
         self.idx = (self.idx + 1) % len(self.samples)
         self.x = self.samples[self.idx].clone()
-        return self.x.numpy(), {}
+        return self.x, {}
 
     def step(self, action):
         action = torch.tensor(action).reshape(-1,1)
-        x_adv, _ = self.manipulation_function(self.x.data, action)
+        self.x.data, _ = self.manipulation_function(self.x.data, action)
         with torch.no_grad():
-            logits = self.model(x_adv)
+            logits = self.model(self.x.unsqueeze(0).long())
         score = logits.mean().item()
         reward = -score
-        done = False
-        return x_adv.numpy(), reward, done, {"score": score}
+        return self.x, reward, False, False, {"score": score}
 
 class ReinforcementLearningBackendAttack(BackendAttack):
     def __init__(self,

@@ -14,7 +14,8 @@ class EndgamePaddingManipulation(ByteManipulation):
         return samples, zero_delta
 
     def _apply_manipulation(self, x: torch.Tensor, delta: torch.Tensor):
-        batch_size, _ = x.shape
+        samples = x.unsqueeze(0) if x.ndim == 1 else x
+        batch_size, _ = samples.shape
         pad_len = 2 ** random.randint(5, 8)
         pad = torch.randint(0, 256, (batch_size, pad_len), dtype=torch.uint8, device=x.device)
         x_new = torch.cat([x, pad], dim=1)

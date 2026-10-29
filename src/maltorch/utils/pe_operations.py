@@ -114,7 +114,7 @@ def extend_manipulation(
     if 256 in adv_x:
         last_index = adv_x.index(256)
         adv_x = adv_x[:last_index]
-    liefpe = lief.PE.parse(adv_x)
+    liefpe = lief.PE.parse(bytearray(adv_x))
     section_file_alignment = liefpe.optional_header.file_alignment
     if section_file_alignment == 0:
         return x, []
@@ -202,7 +202,7 @@ def content_shift_manipulation(
     if 256 in adv_x:
         last_index = adv_x.index(256)
         adv_x = adv_x[:last_index]
-    liefpe = lief.PE.parse(adv_x)
+    liefpe = lief.PE.parse(bytearray(adv_x))
     section_file_alignment = liefpe.optional_header.file_alignment
     if section_file_alignment == 0:
         return x, []
@@ -303,7 +303,7 @@ def fast_content_shift_manipulation(x:torch.Tensor,
 def section_injection_manipulation(
         x: torch.Tensor, how_many_sections: int, size_per_section: int = 0x200
 ) -> (list, list):
-    pe = lief.PE.parse(x.flatten().tolist())
+    pe = lief.PE.parse(bytearray(x.flatten().tolist()))
     default_sect_name = "MLADVEXE"
     for _ in range(how_many_sections):
         section = lief.PE.Section(default_sect_name)

@@ -1,4 +1,5 @@
 import lief
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 import torch
 from maltorch.manipulations.byte_manipulation import ByteManipulation
 
@@ -13,9 +14,12 @@ class EndgameBreakOptionalHeaderChecksumManipulation(ByteManipulation):
 
     def _apply_manipulation(self, x: torch.Tensor, delta: torch.Tensor):
         processed = []
-        for i in range(x.shape[0]):
-            bytez = x[i].cpu().numpy().tobytes()
+        samples = [x] if x.ndim==1 else x
+        for i in range(len(samples)):
+            bytez = convert_torch_exe_to_bytes(samples[i])
             binary = lief.PE.parse(bytez)
+            if binary is None:
+                return x, delta
             binary.optional_header.checksum = 0
             new_bytes = rebuild(binary)
             processed.append(torch.tensor(list(new_bytes), dtype=torch.uint8, device=x.device))

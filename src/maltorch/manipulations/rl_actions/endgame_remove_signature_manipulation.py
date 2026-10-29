@@ -4,6 +4,7 @@ import torch
 from maltorch.manipulations.byte_manipulation import ByteManipulation
 
 from maltorch.manipulations.rl_actions.rebuild_util import rebuild
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 
 
 class EndgameRemoveSignatureManipulation(ByteManipulation):
@@ -15,10 +16,12 @@ class EndgameRemoveSignatureManipulation(ByteManipulation):
 
     def _apply_manipulation(self, x: torch.Tensor, delta: torch.Tensor):
         processed = []
-        for i in range(x.shape[0]):
-            bytez = x[i].cpu().numpy().tobytes()
+        samples = [x] if x.ndim == 1 else x
+        for i in range(len(samples)):
+            bytez = convert_torch_exe_to_bytes(samples[i])
             binary = lief.PE.parse(bytez)
-
+            if binary is None:
+                return x, delta
             if binary.has_signatures:
                 cert_dir = binary.cert_dir
                 if cert_dir:

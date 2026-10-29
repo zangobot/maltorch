@@ -60,8 +60,8 @@ class EndgameAttack(BaseOptimAttackCreator):
             EndgameRemoveSignatureManipulation,
             EndgameSectionInjectionManipulation,
             EndgameSectionRenameManipulation,
-            PackingManipulation,
-            UnpackingManipulation
+            # PackingManipulation,
+            # UnpackingManipulation
         ])
         return ReinforcementLearningBackendAttack(
             optimizer_cls=policy_instance,

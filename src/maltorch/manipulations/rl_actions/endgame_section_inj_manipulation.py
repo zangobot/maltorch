@@ -3,6 +3,7 @@ from pathlib import Path
 import torch
 import lief
 import array
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 from maltorch.manipulations.byte_manipulation import ByteManipulation
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +27,10 @@ class EndgameSectionInjectionManipulation(ByteManipulation):
 
     def _apply_manipulation(self, x: torch.Tensor, delta: torch.Tensor):
         processed = []
-        for i in range(x.shape[0]):
-            bytez = x[i].cpu().numpy().tobytes()
+        samples = [x] if x.ndim==1 else x
+        samples = [x] if x.ndim==1 else x
+        for i in range(len(samples)):
+            bytez = convert_torch_exe_to_bytes(samples[i])
             binary = lief.PE.parse(bytez)
             random.seed()  # per sample randomness
             new_section = lief.PE.Section(

@@ -5,6 +5,7 @@ import torch
 import lief
 from maltorch.manipulations.byte_manipulation import ByteManipulation
 from maltorch.manipulations.rl_actions.rebuild_util import rebuild
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 
 # Load the common imports mapping once at module load
 BASE_DIR = Path(__file__).resolve().parent.parent  # repository root
@@ -62,8 +63,10 @@ class EndgameImportsInjectionManipulation(ByteManipulation):
     def _apply_manipulation(self, x: torch.Tensor, delta: torch.Tensor):
         # Process each sample in the batch
         processed = []
-        for i in range(x.shape[0]):
-            bytez = x[i].cpu().numpy().tobytes()
+        samples = [x] if x.ndim==1 else x
+        samples = [x] if x.ndim==1 else x
+        for i in range(len(samples)):
+            bytez = convert_torch_exe_to_bytes(samples[i])
             modified = _add_imports(bytez)
             processed.append(torch.tensor(list(modified), dtype=torch.uint8, device=x.device))
         # Pad to the longest length

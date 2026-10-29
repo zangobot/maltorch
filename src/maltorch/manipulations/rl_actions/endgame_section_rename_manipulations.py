@@ -3,6 +3,7 @@ from pathlib import Path
 import torch
 import lief
 import array
+from maltorch.utils.utils import convert_torch_exe_to_bytes
 from maltorch.manipulations.byte_manipulation import ByteManipulation
 
 # Ensure section names file exists
@@ -31,8 +32,9 @@ class EndgameSectionRenameManipulation(ByteManipulation):
 
     def _apply_manipulation(self, x: torch.Tensor, delta: torch.Tensor):
         processed = []
-        for i in range(x.shape[0]):
-            bytez = x[i].cpu().numpy().tobytes()
+        samples = [x] if x.ndim == 1 else x
+        for i in range(len(samples)):
+            bytez = convert_torch_exe_to_bytes(samples[i])
             binary = lief.PE.parse(bytez)
             random.seed()  # ensure randomness per sample
             targeted_section = random.choice(binary.sections)
