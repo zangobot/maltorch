@@ -23,7 +23,7 @@ class EndgameEntryPointManipulation(ByteManipulation):
             bytez = convert_torch_exe_to_bytes(samples[i])
             binary = lief.PE.parse(bytez)
             if binary is None:
-                return x, delta
+                return torch.unsqueeze(x,0) if x.ndim==1 else x, delta
             random.seed()  # per sample randomness
             entry_point = binary.optional_header.addressof_entrypoint
             entryname = binary.section_from_rva(entry_point).name

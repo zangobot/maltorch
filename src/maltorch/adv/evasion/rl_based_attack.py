@@ -9,6 +9,9 @@ from maltorch.adv.evasion.backend_attack import BackendAttack
 from maltorch.manipulations.sequential_manipulation import SequentialManipulation
 from maltorch.optim.base import BaseByteOptimizer
 
+import warnings
+warnings.warn("THIS ATTACK IS STILL UNDER DEVELOPMENT!🚧")
+
 class RLEvasionEnv(Env):
     def __init__(self, samples: torch.Tensor,
                  manipulation_function: SequentialManipulation,
@@ -35,7 +38,7 @@ class RLEvasionEnv(Env):
         action = torch.tensor(action).reshape(-1,1)
         self.x.data, _ = self.manipulation_function(self.x.data, action)
         with torch.no_grad():
-            logits = self.model(self.x.unsqueeze(0).long())
+            logits = self.model(self.x.long())
         score = logits.mean().item()
         reward = -score
         return self.x, reward, False, False, {"score": score}

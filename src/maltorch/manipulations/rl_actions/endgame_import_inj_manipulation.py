@@ -26,6 +26,8 @@ with open(JSON_PATH) as f:
 def _add_imports(bytez: bytes, seed=None) -> bytes:
     random.seed(seed)
     binary = lief.PE.parse(bytez)
+    if binary is None:
+        return None
     libname = random.choice(list(COMMON_IMPORTS.keys()))
     funcname = random.choice(list(COMMON_IMPORTS[libname]))
     lowerlibname = libname.lower()
@@ -64,12 +66,14 @@ class EndgameImportsInjectionManipulation(ByteManipulation):
         # Process each sample in the batch
         processed = []
         samples = [x] if x.ndim==1 else x
-        samples = [x] if x.ndim==1 else x
         for i in range(len(samples)):
             bytez = convert_torch_exe_to_bytes(samples[i])
             modified = _add_imports(bytez)
-            processed.append(torch.tensor(list(modified), dtype=torch.uint8, device=x.device))
+            if modified is not None:
+                processed.append(torch.tensor(list(modified), dtype=torch.uint8, device=x.device))
         # Pad to the longest length
+        if not processed:
+            return x, delta
         max_len = max(p.shape[0] for p in processed)
         padded = [torch.nn.functional.pad(p, (0, max_len - p.shape[0])) for p in processed]
         new_x = torch.stack(padded)

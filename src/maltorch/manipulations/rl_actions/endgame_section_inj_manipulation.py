@@ -32,6 +32,8 @@ class EndgameSectionInjectionManipulation(ByteManipulation):
         for i in range(len(samples)):
             bytez = convert_torch_exe_to_bytes(samples[i])
             binary = lief.PE.parse(bytez)
+            if binary is None:
+                continue
             random.seed()  # per sample randomness
             new_section = lief.PE.Section(
                 "".join(chr(random.randrange(ord('.'), ord('z'))) for _ in range(6)))
@@ -56,6 +58,8 @@ class EndgameSectionInjectionManipulation(ByteManipulation):
             )
             new_bytes = _rebuild(binary)
             processed.append(torch.tensor(list(new_bytes), dtype=torch.uint8, device=x.device))
+        if not processed:
+            return x, delta
         max_len = max(p.shape[0] for p in processed)
         padded = [torch.nn.functional.pad(p, (0, max_len - p.shape[0])) for p in processed]
         new_x = torch.stack(padded)
