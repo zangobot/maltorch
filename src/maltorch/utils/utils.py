@@ -53,15 +53,17 @@ def download_gdrive(gdrive_id, fname_save):
     print("Download finished: path={} (gdrive_id={})".format(fname_save, gdrive_id))
 
 
-def convert_torch_exe_to_list(x: torch.Tensor):
-    list_x = x[x != 256].data.cpu().flatten().tolist()
-    return list_x
+def convert_torch_exe_to_list(x: torch.Tensor) -> list[int]:
+    x = x.detach().cpu().flatten()
 
-def convert_torch_exe_to_bytes(x:torch.Tensor):
-    # Ensure tensor is uint8 to avoid overflow when converting
     if x.dtype != torch.uint8:
-        x = x.to(torch.uint8)
-    return  b"".join([bytes([i]) for i in convert_torch_exe_to_list(x)])
+        x = x[x != 256]  # Remove padding while 256 is representable.
+
+    return x.to(torch.uint8).tolist()
+
+
+def convert_torch_exe_to_bytes(x: torch.Tensor) -> bytes:
+    return bytes(convert_torch_exe_to_list(x))
 
 def compute_hash_from_sample(x : torch.Tensor):
     bytes_x = convert_torch_exe_to_bytes(x)
